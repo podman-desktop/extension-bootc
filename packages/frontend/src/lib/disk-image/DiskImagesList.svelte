@@ -4,9 +4,9 @@ import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import DiskImageColumnActions from './columns/Actions.svelte';
 import { bootcClient } from '/@/api/client';
-import BootcStatus from '../BootcStatus.svelte';
 import { searchPattern, filtered } from '../../stores/historyInfo';
 import DiskImageIcon from '../DiskImageIcon.svelte';
+import DiskImageColumnStatus from './columns/Status.svelte';
 import DiskImageColumnFolder from './columns/Folder.svelte';
 import DiskImageColumnImage from './columns/Image.svelte';
 import {
@@ -66,7 +66,7 @@ let table = $state<Table>();
 let statusColumn = new TableColumn<BootcBuildInfo>('Status', {
   align: 'center',
   width: '70px',
-  renderer: BootcStatus,
+  renderer: DiskImageColumnStatus,
 });
 
 let imageColumn = new TableColumn<BootcBuildInfo>('Image', {
