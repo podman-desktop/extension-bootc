@@ -16,6 +16,7 @@ import { historyInfo } from '../../stores/historyInfo';
 import osbuildImage from './osbuild.png';
 import redhatImage from './redhat.png';
 import fedoraImage from './fedora.png';
+import BootcImageIcon from '../BootcImageIcon.svelte';
 
 let pullInProgress = $state(false);
 let displayDisclaimer = $state(false);
@@ -135,7 +136,7 @@ let imageExists = $derived(bootcAvailableImages?.some(image => image.RepoTags?.i
 
   <div class="text-xl pt-2">Metrics</div>
   <div class="grid grid-cols-4 gap-4">
-    <DashboardResourceCard type="Bootc Images" Icon={DiskImageIcon} count={bootcImageCount} link="/" />
+    <DashboardResourceCard type="Bootc Images" Icon={BootcImageIcon} count={bootcImageCount} link="/images/" />
     <DashboardResourceCard type="Disk Images" Icon={DiskImageIcon} count={diskImageCount} link="/disk-images/" />
   </div>
 
