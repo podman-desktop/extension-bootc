@@ -1,13 +1,14 @@
 <script lang="ts">
-export let size = '13px';
-export let solid = true;
+interface Props {
+  size?: string;
+  solid?: boolean;
+}
+let { size = '1em', solid = false }: Props = $props();
 </script>
 
 <svg
   width={size}
   height={size}
-  class={$$props.class}
-  style={$$props.style}
   viewBox="0 0 16 16"
   version="1.1"
   xml:space="preserve"
