@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,7 +132,7 @@ test.describe('BootC Extension', () => {
         imageBuildFailed = false;
       });
 
-      const types = ['QCOW2', 'AMI', 'RAW', 'VMDK', 'ISO', 'VHD'];
+      const types = ['QCOW2', 'AMI', 'RAW', 'VMDK', 'ISO', 'VHD', 'GCE'];
 
       for (const type of types) {
         test.describe.serial('Building images ', () => {
