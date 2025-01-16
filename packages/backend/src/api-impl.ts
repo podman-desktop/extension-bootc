@@ -25,7 +25,7 @@ import { History } from './history';
 import * as containerUtils from './container-utils';
 import { Messages } from '/@shared/src/messages/Messages';
 import { telemetryLogger } from './extension';
-import { checkPrereqs, isLinux, isMac, isWindows, getUidGid } from './machine-utils';
+import { checkPrereqs, isLinux, isMac, isWindows, getUidGid, isArm } from './machine-utils';
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { getContainerEngine } from './container-utils';
@@ -252,11 +252,11 @@ export class BootcApiImpl implements BootcApi {
   }
 
   // Pull an image from the registry
-  async pullImage(imageName: string): Promise<void> {
+  async pullImage(imageName: string, arch?: string): Promise<void> {
     let success: boolean = false;
     let error: string = '';
     try {
-      await containerUtils.pullImage(await getContainerEngine(), imageName);
+      await containerUtils.pullImage(await getContainerEngine(), imageName, arch);
       success = true;
     } catch (err) {
       await podmanDesktopApi.window.showErrorMessage(`Error pulling image: ${err}`);
@@ -288,6 +288,10 @@ export class BootcApiImpl implements BootcApi {
 
   async isWindows(): Promise<boolean> {
     return isWindows();
+  }
+
+  async isArm(): Promise<boolean> {
+    return isArm();
   }
 
   async getUidGid(): Promise<string> {

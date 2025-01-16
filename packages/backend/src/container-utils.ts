@@ -68,13 +68,21 @@ export async function inspectManifest(engineId: string, image: string): Promise<
 }
 
 // Pull the image
-export async function pullImage(connection: ContainerProviderConnection, image: string) {
+export async function pullImage(connection: ContainerProviderConnection, image: string, arch?: string) {
+  // Throughout bootc-image-builder and bootc, we just use "arm64" and "amd64" for the architecture,
+  // make sure that arch is either "arm64" or "amd64" before passing it to the API, and rename it to linux/arm64 or linux/amd64
+  // otherwise we just leave it as undefined.
+  if (arch && (arch === 'arm64' || arch === 'amd64')) {
+    arch = `linux/${arch}`;
+  } else {
+    arch = undefined;
+  }
   const telemetryData: Record<string, unknown> = {};
   telemetryData.image = image;
 
   console.log('Pulling image: ', image);
   try {
-    await extensionApi.containerEngine.pullImage(connection, image, () => {});
+    await extensionApi.containerEngine.pullImage(connection, image, () => {}, arch);
     telemetryData.success = true;
   } catch (e) {
     console.error(e);

@@ -26,7 +26,7 @@ export abstract class BootcApi {
   abstract launchVM(build: BootcBuildInfo): Promise<void>;
   abstract buildExists(folder: string, types: BuildType[]): Promise<boolean>;
   abstract buildImage(build: BootcBuildInfo, overwrite?: boolean): Promise<void>;
-  abstract pullImage(image: string): Promise<void>;
+  abstract pullImage(image: string, arch?: string): Promise<void>;
   abstract inspectImage(image: ImageInfo): Promise<ImageInspectInfo>;
   abstract inspectManifest(image: ImageInfo): Promise<ManifestInspectInfo>;
   abstract deleteBuilds(builds: BootcBuildInfo[]): Promise<void>;
@@ -41,6 +41,7 @@ export abstract class BootcApi {
   abstract isLinux(): Promise<boolean>;
   abstract isMac(): Promise<boolean>;
   abstract isWindows(): Promise<boolean>;
+  abstract isArm(): Promise<boolean>;
   abstract getUidGid(): Promise<string>;
   abstract getExamples(): Promise<ExamplesList>;
   abstract loadLogsFromFolder(folder: string): Promise<string>;

@@ -28,6 +28,7 @@ import type { Example, ExampleState } from '/@shared/src/models/examples';
 vi.mock('../api/client', () => {
   return {
     bootcClient: {
+      isArm: vi.fn(),
       pullImage: vi.fn(),
       openLink: vi.fn(),
       telemetryLogUsage: vi.fn(),
@@ -53,11 +54,14 @@ const example = {
   categories: ['Category 1'],
   image: 'quay.io/example/example1',
   tag: 'latest',
-  architectures: ['amd64'],
+  architectures: ['amd64', 'arm64'],
   state: 'unpulled',
 } as Example;
 
 test('renders ExampleCard with correct content', async () => {
+  // Mock to be amd64
+  vi.mocked(bootcClient.isArm).mockResolvedValue(false);
+
   // Render the component with the example prop
   render(ExampleCard, { props: { example } });
 
@@ -69,7 +73,7 @@ test('renders ExampleCard with correct content', async () => {
   expect(exampleDescription).toBeInTheDocument();
 
   // Verify architectures are displayed
-  const architectureText = screen.getByText('amd64');
+  const architectureText = screen.getByText('AMD64');
   expect(architectureText).toBeInTheDocument();
 });
 
@@ -86,6 +90,9 @@ test('redirection to /example/:id is called when More details button is clicked'
 });
 
 test('pullImage function is called when Pull image button is clicked', async () => {
+  // Mock to be amd64
+  vi.mocked(bootcClient.isArm).mockResolvedValue(false);
+
   // Render the component with the example prop (state is 'unpulled')
   render(ExampleCard, { props: { example } });
 
@@ -95,7 +102,7 @@ test('pullImage function is called when Pull image button is clicked', async () 
   await fireEvent.click(pullButton);
 
   // Ensure bootcClient.pullImage is called with the correct image name
-  expect(bootcClient.pullImage).toHaveBeenCalledWith('quay.io/example/example1');
+  expect(bootcClient.pullImage).toHaveBeenCalledWith('quay.io/example/example1', 'amd64');
 
   expect(bootcClient.telemetryLogUsage).toHaveBeenCalled();
 });
@@ -118,4 +125,26 @@ test('Build image button is displayed if example is pulled', async () => {
   expect(router.goto).toHaveBeenCalledWith('/disk-images/build/quay.io%2Fexample%2Fexample1/latest');
 
   expect(bootcClient.telemetryLogUsage).toHaveBeenCalled();
+});
+
+test('Expect to have a dropdown with two options, AMD64 and ARM64', async () => {
+  // Mock to be amd64
+  vi.mocked(bootcClient.isArm).mockResolvedValue(false);
+
+  render(ExampleCard, { props: { example } });
+
+  // Find the dropdown (by default it'll be AMD64)
+  const dropdown = screen.getByRole('button', { name: 'AMD64' });
+  await fireEvent.click(dropdown);
+
+  // There may be "multiple" buttons due to the original button showing AMD64, but simply query to see if there exists
+  // any buttons with AMD64 and ARM64
+  const amd64Option = screen.queryAllByRole('button', { name: 'AMD64' });
+  const arm64Option = screen.queryAllByRole('button', { name: 'ARM64' });
+
+  // Expect amd64 option to have length 2 since the "default" button is shown as AMD64, then there is the dropdown.
+  expect(amd64Option).toHaveLength(2);
+
+  // Expect 1
+  expect(arm64Option).toHaveLength(1);
 });
