@@ -38,6 +38,22 @@ module.exports = {
       '5xl': '30px',
       '6xl': '36px',
     },
+    extend: {
+      typography: (theme) => ({
+        DEFAULT: {
+          css: {
+            color: 'var(--pd-details-body-text)',
+            '--tw-prose-body': 'var(--pd-details-body-text)',
+            '--tw-prose-bold': 'var(--pd-details-body-text)',
+            '--tw-prose-headings': 'var(--pd-details-body-text)',
+            '--tw-prose-quotes': 'var(--pd-details-body-text)',
+            '--tw-prose-hr': 'var(--pd-details-body-text)',
+            '--tw-prose-links': 'var(--pd-link)',
+            '--tw-prose-code': 'var(--pd-details-body-text)',
+          },
+        },
+      }),
+    },
     colors: {
       'charcoal': {
         600: '#27272a',
