@@ -40,7 +40,15 @@ async function gotoBuild(): Promise<void> {
 
 onMount(async () => {
   // Get the default architecture based on `isArm`
-  const defaultArch = (await bootcClient.isArm()) ? 'arm64' : 'amd64';
+  let defaultArch: string;
+
+  // ONLY accept ARM and X86 architectures for now as
+  // we don't support other architectures (yet) since they are not yet hosted / as common (ex. s390x)
+  if (await bootcClient.isArm()) {
+    defaultArch = 'arm64';
+  } else if (await bootcClient.isX86()) {
+    defaultArch = 'amd64';
+  }
 
   // Generate options dynamically with labels in uppercase
   if (example.architectures) {

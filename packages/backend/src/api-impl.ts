@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import { History } from './history';
 import * as containerUtils from './container-utils';
 import { Messages } from '/@shared/src/messages/Messages';
 import { telemetryLogger } from './extension';
-import { checkPrereqs, isLinux, isMac, isWindows, getUidGid, isArm } from './machine-utils';
+import { checkPrereqs, isLinux, isMac, isWindows, getUidGid, isArm, isX86 } from './machine-utils';
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { getContainerEngine } from './container-utils';
@@ -292,6 +292,10 @@ export class BootcApiImpl implements BootcApi {
 
   async isArm(): Promise<boolean> {
     return isArm();
+  }
+
+  async isX86(): Promise<boolean> {
+    return isX86();
   }
 
   async getUidGid(): Promise<string> {

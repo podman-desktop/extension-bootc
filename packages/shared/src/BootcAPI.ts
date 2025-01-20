@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ export abstract class BootcApi {
   abstract isMac(): Promise<boolean>;
   abstract isWindows(): Promise<boolean>;
   abstract isArm(): Promise<boolean>;
+  abstract isX86(): Promise<boolean>;
   abstract getUidGid(): Promise<string>;
   abstract getExamples(): Promise<ExamplesList>;
   abstract loadLogsFromFolder(folder: string): Promise<string>;
