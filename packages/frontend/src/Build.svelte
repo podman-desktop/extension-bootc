@@ -633,6 +633,12 @@ $: if (availableArchitectures) {
                   on:click={e => updateBuildType('vhd', e.detail)}>
                   Virtual Hard Disk (*.vhd)
                 </Checkbox>
+                <Checkbox
+                  checked={buildType.includes('gce')}
+                  title="gce-checkbox"
+                  on:click={e => updateBuildType('gce', e.detail)}>
+                  Google Cloud Engine (*.gce)
+                </Checkbox>
               </div>
             </div>
             <div>

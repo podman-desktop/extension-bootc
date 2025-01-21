@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -182,6 +182,13 @@ test('Check that VMDK option is there', async () => {
 
   const vmdk = screen.getByLabelText('vmdk-checkbox');
   expect(vmdk).toBeDefined();
+});
+
+test('Check that GCE option is there', async () => {
+  render(Build);
+
+  const gce = screen.getByLabelText('gce-checkbox');
+  expect(gce).toBeDefined();
 });
 
 test('Check that preselecting an image works', async () => {
