@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,14 +165,12 @@ function getCustomBinaryPath(): string | undefined {
   return extensionApi.configuration.getConfiguration('podman').get('binary.path');
 }
 
-const windows = os.platform() === 'win32';
 export function isWindows(): boolean {
-  return windows;
+  return env.isWindows;
 }
 
-const linux = os.platform() === 'linux';
 export function isLinux(): boolean {
-  return linux;
+  return env.isLinux;
 }
 
 export function isMac(): boolean {
