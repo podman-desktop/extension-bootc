@@ -1,10 +1,13 @@
 <script lang="ts">
+import type { Snippet } from 'svelte';
+
 interface Props {
   title: string;
   description?: string;
   href?: string;
+  children?: Snippet;
 }
-let { title, description, href }: Props = $props();
+let { title, description, href, children }: Props = $props();
 </script>
 
 <a class="no-underline" href={href}>
@@ -28,7 +31,7 @@ let { title, description, href }: Props = $props();
       </div>
     </div>
     <div class="flex overflow-hidden" role="region" aria-label="content">
-      <slot name="content" />
+      {@render children?.()}
     </div>
   </div>
 </a>
