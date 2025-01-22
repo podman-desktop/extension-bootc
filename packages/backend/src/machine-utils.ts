@@ -179,6 +179,10 @@ export function isMac(): boolean {
   return env.isMac;
 }
 
+export function getArch(): string {
+  return os.arch();
+}
+
 export function isArm(): boolean {
   return os.arch() === 'arm64';
 }

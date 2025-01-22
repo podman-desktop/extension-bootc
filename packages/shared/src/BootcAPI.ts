@@ -41,8 +41,7 @@ export abstract class BootcApi {
   abstract isLinux(): Promise<boolean>;
   abstract isMac(): Promise<boolean>;
   abstract isWindows(): Promise<boolean>;
-  abstract isArm(): Promise<boolean>;
-  abstract isX86(): Promise<boolean>;
+  abstract getArch(): Promise<string>;
   abstract getUidGid(): Promise<string>;
   abstract getExamples(): Promise<ExamplesList>;
   abstract loadLogsFromFolder(folder: string): Promise<string>;

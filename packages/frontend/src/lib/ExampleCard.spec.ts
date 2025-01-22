@@ -28,8 +28,7 @@ import type { Example, ExampleState } from '/@shared/src/models/examples';
 vi.mock('../api/client', () => {
   return {
     bootcClient: {
-      isArm: vi.fn(),
-      isX86: vi.fn(),
+      getArch: vi.fn(),
       pullImage: vi.fn(),
       openLink: vi.fn(),
       telemetryLogUsage: vi.fn(),
@@ -61,7 +60,7 @@ const example = {
 
 test('renders ExampleCard with correct content', async () => {
   // Mock to be amd64
-  vi.mocked(bootcClient.isArm).mockResolvedValue(false);
+  vi.mocked(bootcClient.getArch).mockResolvedValue('x64');
 
   // Render the component with the example prop
   render(ExampleCard, { props: { example } });
@@ -92,7 +91,7 @@ test('redirection to /example/:id is called when More details button is clicked'
 
 test('pullImage function is called when Pull image button is clicked', async () => {
   // Mock to be amd64
-  vi.mocked(bootcClient.isArm).mockResolvedValue(false);
+  vi.mocked(bootcClient.getArch).mockResolvedValue('x64');
 
   // Render the component with the example prop (state is 'unpulled')
   render(ExampleCard, { props: { example } });
@@ -130,7 +129,7 @@ test('Build image button is displayed if example is pulled', async () => {
 
 test('Expect to have a dropdown with two options, AMD64 and ARM64', async () => {
   // Mock to be amd64
-  vi.mocked(bootcClient.isArm).mockResolvedValue(false);
+  vi.mocked(bootcClient.getArch).mockResolvedValue('x64');
 
   render(ExampleCard, { props: { example } });
 

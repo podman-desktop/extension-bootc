@@ -44,9 +44,11 @@ onMount(async () => {
 
   // ONLY accept ARM and X86 architectures for now as
   // we don't support other architectures (yet) since they are not yet hosted / as common (ex. s390x)
-  if (await bootcClient.isArm()) {
+  // if so, we just set it as undefined and let the user choose
+  const hostArch = await bootcClient.getArch();
+  if (hostArch === 'arm64') {
     defaultArch = 'arm64';
-  } else if (await bootcClient.isX86()) {
+  } else if (hostArch === 'x64') {
     defaultArch = 'amd64';
   }
 

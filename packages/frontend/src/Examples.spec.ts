@@ -32,8 +32,7 @@ vi.mock('./api/client', async () => {
     bootcClient: {
       getExamples: vi.fn(),
       listBootcImages: vi.fn(),
-      isArm: vi.fn(),
-      isX86: vi.fn(),
+      getArch: vi.fn(),
     },
     rpcBrowser: {
       subscribe: () => {

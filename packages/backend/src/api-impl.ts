@@ -25,7 +25,7 @@ import { History } from './history';
 import * as containerUtils from './container-utils';
 import { Messages } from '/@shared/src/messages/Messages';
 import { telemetryLogger } from './extension';
-import { checkPrereqs, isLinux, isMac, isWindows, getUidGid, isArm, isX86 } from './machine-utils';
+import { checkPrereqs, isLinux, isMac, isWindows, getUidGid, getArch } from './machine-utils';
 import * as fs from 'node:fs';
 import path from 'node:path';
 import { getContainerEngine } from './container-utils';
@@ -290,12 +290,8 @@ export class BootcApiImpl implements BootcApi {
     return isWindows();
   }
 
-  async isArm(): Promise<boolean> {
-    return isArm();
-  }
-
-  async isX86(): Promise<boolean> {
-    return isX86();
+  async getArch(): Promise<string> {
+    return getArch();
   }
 
   async getUidGid(): Promise<string> {
