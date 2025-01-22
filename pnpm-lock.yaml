@@ -196,8 +196,8 @@ importers:
         specifier: ^5.2.6
         version: 5.2.6(svelte@5.19.1)(vite@5.4.11(@types/node@20.17.14))(vitest@2.1.8(@types/node@20.17.14)(jsdom@26.0.0))
       '@testing-library/user-event':
-        specifier: ^14.6.0
-        version: 14.6.0(@testing-library/dom@10.4.0)
+        specifier: ^14.6.1
+        version: 14.6.1(@testing-library/dom@10.4.0)
       '@tsconfig/svelte':
         specifier: ^5.0.4
         version: 5.0.4
@@ -266,7 +266,7 @@ importers:
         version: 1.49.1
       '@podman-desktop/tests-playwright':
         specifier: next
-        version: 1.16.0-202501211238-da4f1249c05
+        version: 1.16.0-202501221520-078290a3048
       '@types/node':
         specifier: ^20
         version: 20.17.14
@@ -1220,8 +1220,8 @@ packages:
   '@podman-desktop/api@1.15.0':
     resolution: {integrity: sha512-rYI2Fh/fRfNKtZAIz3OCk3GITJq5+oNxgU4aYVRWmPaX4Y5TSQoGr30Wwu4MGy02IQp3KY18JNe9/msWUE1MJA==}
 
-  '@podman-desktop/tests-playwright@1.16.0-202501211238-da4f1249c05':
-    resolution: {integrity: sha512-9U8vc77dtVa6h/b0u9EePy2SUmgXN5G802kShyPDLjVqIuL0HJgULa+MVJWbGJuhoaOGGhNis5YWVk5msXTydw==}
+  '@podman-desktop/tests-playwright@1.16.0-202501221520-078290a3048':
+    resolution: {integrity: sha512-VLmcImNHAF428UQR1Y4kHC9nN1b43WAV8v3grYZ7Ptf9yyGL/Ht18fvv/hWeowkdpQ0m01fiahKv497s/VRfhw==}
 
   '@podman-desktop/ui-svelte@1.15.0':
     resolution: {integrity: sha512-CK6pYOe5+CW6u55KPpDhTRAELRkCJOUXDxS4+2lzyKpE9naAHOlozSoCRHuH/KPbPg66wPooCg/u2+qJjDyM7Q==}
@@ -1371,8 +1371,8 @@ packages:
       vitest:
         optional: true
 
-  '@testing-library/user-event@14.6.0':
-    resolution: {integrity: sha512-+jsfK7kVJbqnCYtLTln8Ja/NmVrZRwBJHmHR9IxIVccMWSOZ6Oy0FkDJNeyVu4QSpMNmRfy10Xb76ObRDlWWBQ==}
+  '@testing-library/user-event@14.6.1':
+    resolution: {integrity: sha512-vq7fv0rnt+QTXgPxr5Hjc210p6YKq2kmdziLgnsZGgLJ9e6VAShx1pACLuRjd/AS/sr7phAR58OIIpf0LlmQNw==}
     engines: {node: '>=12', npm: '>=6'}
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
@@ -5107,7 +5107,7 @@ snapshots:
 
   '@podman-desktop/api@1.15.0': {}
 
-  '@podman-desktop/tests-playwright@1.16.0-202501211238-da4f1249c05': {}
+  '@podman-desktop/tests-playwright@1.16.0-202501221520-078290a3048': {}
 
   '@podman-desktop/ui-svelte@1.15.0(svelte-fa@4.0.3(svelte@5.19.1))(svelte@5.19.1)':
     dependencies:
@@ -5241,7 +5241,7 @@ snapshots:
       vite: 5.4.11(@types/node@20.17.14)
       vitest: 2.1.8(@types/node@20.17.14)(jsdom@26.0.0)
 
-  '@testing-library/user-event@14.6.0(@testing-library/dom@10.4.0)':
+  '@testing-library/user-event@14.6.1(@testing-library/dom@10.4.0)':
     dependencies:
       '@testing-library/dom': 10.4.0
 
