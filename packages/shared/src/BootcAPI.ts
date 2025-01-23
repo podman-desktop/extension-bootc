@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ export abstract class BootcApi {
   abstract launchVM(build: BootcBuildInfo): Promise<void>;
   abstract buildExists(folder: string, types: BuildType[]): Promise<boolean>;
   abstract buildImage(build: BootcBuildInfo, overwrite?: boolean): Promise<void>;
-  abstract pullImage(image: string): Promise<void>;
+  abstract pullImage(image: string, arch?: string): Promise<void>;
   abstract inspectImage(image: ImageInfo): Promise<ImageInspectInfo>;
   abstract inspectManifest(image: ImageInfo): Promise<ManifestInspectInfo>;
   abstract deleteBuilds(builds: BootcBuildInfo[]): Promise<void>;
@@ -41,6 +41,7 @@ export abstract class BootcApi {
   abstract isLinux(): Promise<boolean>;
   abstract isMac(): Promise<boolean>;
   abstract isWindows(): Promise<boolean>;
+  abstract getArch(): Promise<string>;
   abstract getUidGid(): Promise<string>;
   abstract getExamples(): Promise<ExamplesList>;
   abstract loadLogsFromFolder(folder: string): Promise<string>;
