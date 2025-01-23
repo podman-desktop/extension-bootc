@@ -51,11 +51,7 @@ vi.mock('@podman-desktop/api', async () => {
         };
       },
     },
-    env: {
-      isMac: true,
-      isLinux: false,
-      isWindows: false,
-    },
+    env: vi.fn(),
     process: {
       exec: vi.fn(),
     },
