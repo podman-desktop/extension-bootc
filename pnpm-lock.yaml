@@ -93,8 +93,8 @@ importers:
         version: 7.6.3
     devDependencies:
       '@podman-desktop/api':
-        specifier: 1.15.0
-        version: 1.15.0
+        specifier: 1.16.0
+        version: 1.16.0
       '@types/node':
         specifier: ^20
         version: 20.17.16
@@ -1217,8 +1217,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@podman-desktop/api@1.15.0':
-    resolution: {integrity: sha512-rYI2Fh/fRfNKtZAIz3OCk3GITJq5+oNxgU4aYVRWmPaX4Y5TSQoGr30Wwu4MGy02IQp3KY18JNe9/msWUE1MJA==}
+  '@podman-desktop/api@1.16.0':
+    resolution: {integrity: sha512-ZgSN3oJkwzoz2oMBO77EA+7rugt7R7kL6JmVtq5siXrRqj2Nn9tj0KYMv/jzz9KhlaHI2/ELN0qLWLNFuvxu0Q==}
 
   '@podman-desktop/tests-playwright@1.17.0-202501271319-8881f624cb1':
     resolution: {integrity: sha512-QNJG3J8NMF/JfBLgquyvdh5CmeRVb0zY9vqXB1WWikVFJEjSSZ1fA4AYqmjzd7Xgdgc6QlpZ3Aww57m1zZxUkg==}
@@ -5114,7 +5114,7 @@ snapshots:
     dependencies:
       playwright: 1.50.0
 
-  '@podman-desktop/api@1.15.0': {}
+  '@podman-desktop/api@1.16.0': {}
 
   '@podman-desktop/tests-playwright@1.17.0-202501271319-8881f624cb1': {}
 
