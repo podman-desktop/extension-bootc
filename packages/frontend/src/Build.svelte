@@ -596,49 +596,53 @@ $: if (availableArchitectures) {
           <div class="pt-3 space-y-3 h-fit">
             <div class="mb-2">
               <span class="text-md font-semibold mb-2 block">Disk image type</span>
-              <div class="flex flex-col ml-1 space-y-2">
-                <Checkbox
-                  checked={buildType.includes('raw')}
-                  title="raw-checkbox"
-                  on:click={e => updateBuildType('raw', e.detail)}>
-                  RAW image with partition table (*.raw)
-                </Checkbox>
-                <Checkbox
-                  checked={buildType.includes('qcow2')}
-                  title="qcow2-checkbox"
-                  on:click={e => updateBuildType('qcow2', e.detail)}>
-                  Virtualization Guest Image (*.qcow2)
-                </Checkbox>
-                <Checkbox
-                  checked={buildType.includes('anaconda-iso')}
-                  title="iso-checkbox"
-                  on:click={e => updateBuildType('anaconda-iso', e.detail)}>
-                  Unattended Anaconda ISO Installer (*.iso)
-                </Checkbox>
-                <Checkbox
-                  checked={buildType.includes('vmdk')}
-                  title="vmdk-checkbox"
-                  on:click={e => updateBuildType('vmdk', e.detail)}>
-                  Virtual Machine Disk image (*.vmdk)
-                </Checkbox>
-                <Checkbox
-                  checked={buildType.includes('ami')}
-                  title="ami-checkbox"
-                  on:click={e => updateBuildType('ami', e.detail)}>
-                  Amazon Machine Image (*.ami)
-                </Checkbox>
-                <Checkbox
-                  checked={buildType.includes('vhd')}
-                  title="vhd-checkbox"
-                  on:click={e => updateBuildType('vhd', e.detail)}>
-                  Virtual Hard Disk (*.vhd)
-                </Checkbox>
-                <Checkbox
-                  checked={buildType.includes('gce')}
-                  title="gce-checkbox"
-                  on:click={e => updateBuildType('gce', e.detail)}>
-                  Google Cloud Engine (*.gce)
-                </Checkbox>
+              <div class="grid grid-cols-2 gap-8">
+                <div class="flex flex-col ml-1 space-y-2">
+                  <Checkbox
+                    checked={buildType.includes('raw')}
+                    title="raw-checkbox"
+                    on:click={e => updateBuildType('raw', e.detail)}>
+                    RAW image with partition table (*.raw)
+                  </Checkbox>
+                  <Checkbox
+                    checked={buildType.includes('qcow2')}
+                    title="qcow2-checkbox"
+                    on:click={e => updateBuildType('qcow2', e.detail)}>
+                    Virtualization Guest Image (*.qcow2)
+                  </Checkbox>
+                  <Checkbox
+                    checked={buildType.includes('anaconda-iso')}
+                    title="iso-checkbox"
+                    on:click={e => updateBuildType('anaconda-iso', e.detail)}>
+                    Unattended Anaconda ISO Installer (*.iso)
+                  </Checkbox>
+                  <Checkbox
+                    checked={buildType.includes('vmdk')}
+                    title="vmdk-checkbox"
+                    on:click={e => updateBuildType('vmdk', e.detail)}>
+                    Virtual Machine Disk image (*.vmdk)
+                  </Checkbox>
+                </div>
+                <div class="flex flex-col ml-1 space-y-2">
+                  <Checkbox
+                    checked={buildType.includes('ami')}
+                    title="ami-checkbox"
+                    on:click={e => updateBuildType('ami', e.detail)}>
+                    Amazon Machine Image (*.ami)
+                  </Checkbox>
+                  <Checkbox
+                    checked={buildType.includes('vhd')}
+                    title="vhd-checkbox"
+                    on:click={e => updateBuildType('vhd', e.detail)}>
+                    Virtual Hard Disk (*.vhd)
+                  </Checkbox>
+                  <Checkbox
+                    checked={buildType.includes('gce')}
+                    title="gce-checkbox"
+                    on:click={e => updateBuildType('gce', e.detail)}>
+                    Google Cloud Engine (*.gce)
+                  </Checkbox>
+                </div>
               </div>
             </div>
             <div>
@@ -779,103 +783,105 @@ $: if (availableArchitectures) {
                 config
               </span>
               {#if showBuildConfig}
-                <p class="text-sm text-[var(--pd-content-text)] mb-2">
-                  Supplying the following fields will create a build config file that contains the build options for the
-                  disk image. This will be saved in the <b>same directory as your output folder</b>. More information
-                  can be found in the <Link
-                    externalRef="https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file\#-build-config"
-                    >bootc-image-builder documentation</Link
-                  >.
-                </p>
+                <div class="ml-4">
+                  <p class="text-sm text-[var(--pd-content-text)] mb-2">
+                    Supplying the following fields will create a build config file that contains the build options for
+                    the disk image. This will be saved in the <b>same directory as your output folder</b>. More
+                    information can be found in the <Link
+                      externalRef="https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file\#-build-config"
+                      >bootc-image-builder documentation</Link
+                    >.
+                  </p>
 
-                <div>
-                  <span class="block mt-4">Users</span>
-                </div>
-
-                {#each buildConfigUsers as user, index}
-                  <div class="flex flex-row justify-center items-center w-full py-1">
-                    <Input
-                      bind:value={user.name}
-                      id="buildConfigName.${index}"
-                      placeholder="Username"
-                      aria-label="buildConfigName.${index}"
-                      class="mr-2" />
-
-                    <Input
-                      bind:value={user.password}
-                      id="buildConfigPassword.${index}"
-                      placeholder="Password"
-                      aria-label="buildConfigPassword.${index}"
-                      class="mr-2" />
-
-                    <Input
-                      bind:value={user.key}
-                      id="buildConfigKey.${index}"
-                      placeholder="SSH key"
-                      aria-label="buildConfigKey.${index}"
-                      class="mr-2" />
-
-                    <!-- On input, comma deliminate, as user.groups is string[] -->
-                    <Input
-                      bind:value={user.groups}
-                      id="buildConfigGroups.${index}"
-                      placeholder="Groups (comma deliminated)"
-                      aria-label="buildConfigGroups.${index}" />
-
-                    <Button
-                      type="link"
-                      hidden={index === buildConfigUsers.length - 1}
-                      on:click={() => deleteUser(index)}
-                      icon={faMinusCircle} />
-                    <Button
-                      type="link"
-                      hidden={index < buildConfigUsers.length - 1}
-                      on:click={addUser}
-                      icon={faPlusCircle} />
+                  <div>
+                    <span class="block mt-4">Users</span>
                   </div>
-                {/each}
 
-                <div>
-                  <span class="block mt-6">Filesystems</span>
-                </div>
+                  {#each buildConfigUsers as user, index}
+                    <div class="flex flex-row justify-center items-center w-full py-1">
+                      <Input
+                        bind:value={user.name}
+                        id="buildConfigName.${index}"
+                        placeholder="Username"
+                        aria-label="buildConfigName.${index}"
+                        class="mr-2" />
 
-                {#each buildConfigFilesystems as filesystem, index}
-                  <div class="flex flex-row justify-center items-center w-full py-1">
-                    <Input
-                      bind:value={filesystem.mountpoint}
-                      id="buildConfigFilesystemMountpoint.${index}"
-                      placeholder="Mountpoint (ex. /mnt)"
-                      class="mr-2" />
+                      <Input
+                        bind:value={user.password}
+                        id="buildConfigPassword.${index}"
+                        placeholder="Password"
+                        aria-label="buildConfigPassword.${index}"
+                        class="mr-2" />
 
-                    <Input
-                      bind:value={filesystem.minsize}
-                      id="buildConfigFilesystemMinimumSize.${index}"
-                      placeholder="Minimum size (ex. '30 GiB')" />
+                      <Input
+                        bind:value={user.key}
+                        id="buildConfigKey.${index}"
+                        placeholder="SSH key"
+                        aria-label="buildConfigKey.${index}"
+                        class="mr-2" />
 
-                    <Button
-                      type="link"
-                      hidden={index === buildConfigFilesystems.length - 1}
-                      on:click={() => deleteFilesystem(index)}
-                      icon={faMinusCircle} />
+                      <!-- On input, comma deliminate, as user.groups is string[] -->
+                      <Input
+                        bind:value={user.groups}
+                        id="buildConfigGroups.${index}"
+                        placeholder="Groups (comma deliminated)"
+                        aria-label="buildConfigGroups.${index}" />
 
-                    <Button
-                      type="link"
-                      hidden={index < buildConfigFilesystems.length - 1}
-                      on:click={addFilesystem}
-                      icon={faPlusCircle} />
+                      <Button
+                        type="link"
+                        hidden={index === buildConfigUsers.length - 1}
+                        on:click={() => deleteUser(index)}
+                        icon={faMinusCircle} />
+                      <Button
+                        type="link"
+                        hidden={index < buildConfigUsers.length - 1}
+                        on:click={addUser}
+                        icon={faPlusCircle} />
+                    </div>
+                  {/each}
+
+                  <div>
+                    <span class="block mt-6">Filesystems</span>
                   </div>
-                {/each}
 
-                <div>
-                  <span class="block mt-6">Kernel</span>
+                  {#each buildConfigFilesystems as filesystem, index}
+                    <div class="flex flex-row justify-center items-center w-full py-1">
+                      <Input
+                        bind:value={filesystem.mountpoint}
+                        id="buildConfigFilesystemMountpoint.${index}"
+                        placeholder="Mountpoint (ex. /mnt)"
+                        class="mr-2" />
+
+                      <Input
+                        bind:value={filesystem.minsize}
+                        id="buildConfigFilesystemMinimumSize.${index}"
+                        placeholder="Minimum size (ex. '30 GiB')" />
+
+                      <Button
+                        type="link"
+                        hidden={index === buildConfigFilesystems.length - 1}
+                        on:click={() => deleteFilesystem(index)}
+                        icon={faMinusCircle} />
+
+                      <Button
+                        type="link"
+                        hidden={index < buildConfigFilesystems.length - 1}
+                        on:click={addFilesystem}
+                        icon={faPlusCircle} />
+                    </div>
+                  {/each}
+
+                  <div>
+                    <span class="block mt-6">Kernel</span>
+                  </div>
+
+                  <Input
+                    bind:value={buildConfigKernelArguments}
+                    name="buildConfigKernelArguments"
+                    id="buildConfigKernelArguments"
+                    placeholder="Kernel arguments (ex. quiet)"
+                    class="w-full" />
                 </div>
-
-                <Input
-                  bind:value={buildConfigKernelArguments}
-                  name="buildConfigKernelArguments"
-                  id="buildConfigKernelArguments"
-                  placeholder="Kernel arguments (ex. quiet)"
-                  class="w-full" />
               {/if}
             </div>
             <div class="mb-2">
@@ -890,26 +896,28 @@ $: if (availableArchitectures) {
                 file
               </span>
               {#if showBuildConfigFile}
-                <p class="text-sm text-[var(--pd-content-text)] mb-2">
-                  Supplying a file will override <b>ANY</b> changes done in the build config interactive mode. More
-                  information can be found in the <Link
-                    externalRef="https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file\#-build-config"
-                    >bootc-image-builder documentation</Link
-                  >.
-                </p>
-                <div>
-                  <span class="block mt-4">File</span>
-                </div>
-                <div class="mb-2">
-                  <div class="flex flex-row space-x-3">
-                    <Input
-                      name="buildconfig"
-                      id="buildconfig"
-                      bind:value={buildConfigFile}
-                      placeholder="Build configuration file (config.toml or config.json)"
-                      class="w-full"
-                      aria-label="buildconfig-select" />
-                    <Button on:click={() => getBuildConfigFile()}>Browse...</Button>
+                <div class="ml-4">
+                  <p class="text-sm text-[var(--pd-content-text)] mb-2">
+                    Supplying a file will override <b>ANY</b> changes done in the build config interactive mode. More
+                    information can be found in the <Link
+                      externalRef="https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file\#-build-config"
+                      >bootc-image-builder documentation</Link
+                    >.
+                  </p>
+                  <div>
+                    <span class="block mt-4">File</span>
+                  </div>
+                  <div class="mb-2">
+                    <div class="flex flex-row space-x-3">
+                      <Input
+                        name="buildconfig"
+                        id="buildconfig"
+                        bind:value={buildConfigFile}
+                        placeholder="Build configuration file (config.toml or config.json)"
+                        class="w-full"
+                        aria-label="buildconfig-select" />
+                      <Button on:click={() => getBuildConfigFile()}>Browse...</Button>
+                    </div>
                   </div>
                 </div>
               {/if}
@@ -925,61 +933,63 @@ $: if (availableArchitectures) {
                 ><Fa icon={showAdvanced ? faCaretDown : faCaretRight} class="inline-block mr-1" />Advanced options
               </span>
               {#if showAdvanced}
-                <!-- chown, this option is only available for Linux users -->
-                {#if isLinux}
-                  <div class="mb-2">
-                    <label for="chown" class="block mb-2 font-semibold">Change file owner and group</label>
-                    <div class="flex flex-row space-x-3">
-                      <Input
-                        name="chown"
-                        id="chown"
-                        bind:value={buildChown}
-                        placeholder="UID and GID parameters (ex. 1000:1000)"
-                        class="w-full"
-                        aria-label="chown-select" />
+                <div class="ml-4">
+                  <!-- chown, this option is only available for Linux users -->
+                  {#if isLinux}
+                    <div class="mb-2">
+                      <label for="chown" class="block mb-2 font-semibold">Change file owner and group</label>
+                      <div class="flex flex-row space-x-3">
+                        <Input
+                          name="chown"
+                          id="chown"
+                          bind:value={buildChown}
+                          placeholder="UID and GID parameters (ex. 1000:1000)"
+                          class="w-full"
+                          aria-label="chown-select" />
+                      </div>
+                      <p class="text-sm text-[var(--pd-content-text)] pt-2">
+                        Linux only. By default the UID and GID of the current user is used. This option allows you to
+                        change the owner and group of the files in the output directory.
+                      </p>
                     </div>
-                    <p class="text-sm text-[var(--pd-content-text)] pt-2">
-                      Linux only. By default the UID and GID of the current user is used. This option allows you to
-                      change the owner and group of the files in the output directory.
-                    </p>
+                  {/if}
+
+                  <!-- AWS -->
+                  <div>
+                    <span class="font-semibold block">Upload image to AWS</span>
                   </div>
-                {/if}
 
-                <!-- AWS -->
-                <div>
-                  <span class="font-semibold block">Upload image to AWS</span>
+                  <label for="amiName" class="block mt-2 text-sm font-bold">AMI Name</label>
+                  <Input
+                    bind:value={awsAmiName}
+                    name="amiName"
+                    id="amiName"
+                    placeholder="AMI Name to be used"
+                    class="w-full" />
+
+                  <label for="awsBucket" class="block mt-2 text-sm font-bold">S3 Bucket</label>
+                  <Input
+                    bind:value={awsBucket}
+                    name="awsBucket"
+                    id="awsBucket"
+                    placeholder="AWS S3 bucket"
+                    class="w-full" />
+
+                  <label for="awsRegion" class="block mt-2 text-sm font-bold">S3 Region</label>
+                  <Input
+                    bind:value={awsRegion}
+                    name="awsRegion"
+                    id="awsRegion"
+                    placeholder="AWS S3 region"
+                    class="w-full" />
+
+                  <p class="text-sm text-[var(--pd-content-text)] pt-2">
+                    This will upload the image to a specific AWS S3 bucket. Credentials stored at ~/.aws/credentials
+                    will be used for uploading. You must have <Link
+                      externalRef="https://docs.aws.amazon.com/vm-import/latest/userguide/required-permissions.html"
+                      >vmimport service role</Link> configured to upload to the bucket.
+                  </p>
                 </div>
-
-                <label for="amiName" class="block mt-2 text-sm font-bold">AMI Name</label>
-                <Input
-                  bind:value={awsAmiName}
-                  name="amiName"
-                  id="amiName"
-                  placeholder="AMI Name to be used"
-                  class="w-full" />
-
-                <label for="awsBucket" class="block mt-2 text-sm font-bold">S3 Bucket</label>
-                <Input
-                  bind:value={awsBucket}
-                  name="awsBucket"
-                  id="awsBucket"
-                  placeholder="AWS S3 bucket"
-                  class="w-full" />
-
-                <label for="awsRegion" class="block mt-2 text-sm font-bold">S3 Region</label>
-                <Input
-                  bind:value={awsRegion}
-                  name="awsRegion"
-                  id="awsRegion"
-                  placeholder="AWS S3 region"
-                  class="w-full" />
-
-                <p class="text-sm text-[var(--pd-content-text)] pt-2">
-                  This will upload the image to a specific AWS S3 bucket. Credentials stored at ~/.aws/credentials will
-                  be used for uploading. You must have <Link
-                    externalRef="https://docs.aws.amazon.com/vm-import/latest/userguide/required-permissions.html"
-                    >vmimport service role</Link> configured to upload to the bucket.
-                </p>
               {/if}
             </div>
           </div>
