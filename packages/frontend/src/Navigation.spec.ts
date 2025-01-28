@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,11 +39,15 @@ test('Expect dashboard to be selected', async () => {
 
   const dashboard = screen.getByText('Dashboard');
   expect(dashboard).toBeInTheDocument();
-  expect(dashboard.parentElement).toHaveClass('text-[color:var(--pd-secondary-nav-text-selected)]');
+  expect(dashboard.parentElement?.parentElement).toHaveClass('text-[color:var(--pd-secondary-nav-text-selected)]');
 
   const diskImages = screen.getByText('Disk Images');
   expect(diskImages).toBeInTheDocument();
-  expect(diskImages.parentElement).not.toHaveClass('text-[color:var(--pd-secondary-nav-text-selected)]');
+  expect(diskImages.parentElement?.parentElement).not.toHaveClass('text-[color:var(--pd-secondary-nav-text-selected)]');
+
+  const examples = screen.getByText('Examples');
+  expect(examples).toBeInTheDocument();
+  expect(examples.parentElement?.parentElement).not.toHaveClass('text-[color:var(--pd-secondary-nav-text-selected)]');
 });
 
 test('Expect disk images to be selected', async () => {
@@ -51,9 +55,29 @@ test('Expect disk images to be selected', async () => {
 
   const dashboard = screen.getByText('Dashboard');
   expect(dashboard).toBeInTheDocument();
-  expect(dashboard.parentElement).not.toHaveClass('text-[color:var(--pd-secondary-nav-text-selected)]');
+  expect(dashboard.parentElement?.parentElement).not.toHaveClass('text-[color:var(--pd-secondary-nav-text-selected)]');
 
   const diskImages = screen.getByText('Disk Images');
   expect(diskImages).toBeInTheDocument();
-  expect(diskImages.parentElement).toHaveClass('text-[color:var(--pd-secondary-nav-text-selected)]');
+  expect(diskImages.parentElement?.parentElement).toHaveClass('text-[color:var(--pd-secondary-nav-text-selected)]');
+
+  const examples = screen.getByText('Examples');
+  expect(examples).toBeInTheDocument();
+  expect(examples.parentElement?.parentElement).not.toHaveClass('text-[color:var(--pd-secondary-nav-text-selected)]');
+});
+
+test('Expect examples to be selected', async () => {
+  render(Navigation, { meta: { url: '/examples' } as TinroRouteMeta });
+
+  const dashboard = screen.getByText('Dashboard');
+  expect(dashboard).toBeInTheDocument();
+  expect(dashboard.parentElement?.parentElement).not.toHaveClass('text-[color:var(--pd-secondary-nav-text-selected)]');
+
+  const diskImages = screen.getByText('Disk Images');
+  expect(diskImages).toBeInTheDocument();
+  expect(diskImages.parentElement?.parentElement).not.toHaveClass('text-[color:var(--pd-secondary-nav-text-selected)]');
+
+  const examples = screen.getByText('Examples');
+  expect(examples).toBeInTheDocument();
+  expect(examples.parentElement?.parentElement).toHaveClass('text-[color:var(--pd-secondary-nav-text-selected)]');
 });
