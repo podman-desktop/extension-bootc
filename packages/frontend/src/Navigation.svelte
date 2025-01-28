@@ -6,7 +6,7 @@ export let meta: TinroRouteMeta;
 </script>
 
 <nav
-  class="z-1 w-leftsidebar min-w-leftsidebar shadow flex-col justify-between flex bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
+  class="z-1 w-leftsidebar min-w-leftsidebar shadow-sm flex-col justify-between flex bg-[var(--pd-secondary-nav-bg)] border-[var(--pd-global-nav-bg-border)] border-r-[1px]"
   aria-label="Navigation">
   <div class="flex items-center">
     <a href="/" title="Navigate to dashboard" class="pt-4 pl-3 px-5 mb-10 flex items-center ml-[4px]">

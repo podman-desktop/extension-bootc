@@ -19,7 +19,7 @@ $: solid =
 
 <div class="grid place-content-center" style="position:relative">
   <div
-    class="grid place-content-center rounded aspect-square text-xs"
+    class="grid place-content-center rounded-sm aspect-square text-xs"
     class:bg-green-600={status === 'success'}
     class:bg-sky-400={status === 'running'}
     class:bg-red-600={status === 'error'}

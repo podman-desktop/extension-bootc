@@ -67,7 +67,7 @@ onMount(async () => {
 
 <div class="no-underline">
   <div
-    class="bg-[var(--pd-content-card-bg)] hover:bg-[var(--pd-content-card-hover-bg)] flex-grow p-4 h-full rounded-md flex-nowrap flex flex-col"
+    class="bg-[var(--pd-content-card-bg)] hover:bg-[var(--pd-content-card-hover-bg)] grow p-4 h-full rounded-md flex-nowrap flex flex-col"
     role="region"
     aria-label={example.name}>
     <!-- Show 'architectures' in small font at the bottom-->
