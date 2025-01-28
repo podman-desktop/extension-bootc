@@ -731,7 +731,7 @@ $: if (availableArchitectures) {
                     disabled={!availableArchitectures.includes('arm64')} />
                   <label
                     for="arm64"
-                    class="h-full flex items-center p-5 cursor-pointer rounded-md bg-[var(--pd-content-card-inset-bg)] focus:outline-none border-[var(--pd-content-card-border-selected)] peer-checked:bg-[var(--pd-content-card-hover-inset-bg)] {availableArchitectures.includes(
+                    class="h-full flex items-center p-5 cursor-pointer rounded-md bg-[var(--pd-content-card-inset-bg)] focus:outline-hidden border-[var(--pd-content-card-border-selected)] peer-checked:bg-[var(--pd-content-card-hover-inset-bg)] {availableArchitectures.includes(
                       'arm64',
                     )
                       ? 'border-2 cursor-pointer'
@@ -754,7 +754,7 @@ $: if (availableArchitectures) {
                     disabled={!availableArchitectures.includes('amd64')} />
                   <label
                     for="amd64"
-                    class="h-full flex items-center p-5 cursor-pointer rounded-md bg-[var(--pd-content-card-inset-bg)] focus:outline-none border-[var(--pd-content-card-border-selected)] peer-checked:bg-[var(--pd-content-card-hover-inset-bg)] {availableArchitectures.includes(
+                    class="h-full flex items-center p-5 cursor-pointer rounded-md bg-[var(--pd-content-card-inset-bg)] focus:outline-hidden border-[var(--pd-content-card-border-selected)] peer-checked:bg-[var(--pd-content-card-hover-inset-bg)] {availableArchitectures.includes(
                       'amd64',
                     )
                       ? 'border-2 cursor-pointer'
