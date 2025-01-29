@@ -5,7 +5,7 @@ import { StarIcon } from '@podman-desktop/ui-svelte/icons';
 // status: one of running, success, error
 // any other status will result in a standard outlined box
 export let status = '';
-export let icon: any = undefined;
+export let icon: unknown = undefined;
 export let size = 20;
 
 $: solid =

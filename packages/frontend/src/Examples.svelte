@@ -16,7 +16,9 @@ onMount(async () => {
   // onmount get the examples
   let examples = await bootcClient.getExamples();
 
-  const categoryDict = Object.fromEntries(examples.categories.map((category: { id: any }) => [category.id, category]));
+  const categoryDict = Object.fromEntries(
+    examples.categories.map((category: { id: string }) => [category.id, category]),
+  );
 
   const output: Map<Category, Example[]> = new Map();
 

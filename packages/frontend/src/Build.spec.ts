@@ -214,7 +214,7 @@ test('Check that preselecting an image works', async () => {
   expect(select.children[1].textContent).toEqual('image2:latest');
 
   // Expect the one we passed in to be selected
-  const selectedImage = select.value as unknown as any[];
+  const selectedImage = select.value;
   expect(selectedImage).toBeDefined();
   expect(selectedImage).toEqual('image2:latest');
 });
