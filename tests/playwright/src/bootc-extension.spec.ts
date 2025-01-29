@@ -17,20 +17,20 @@
  ***********************************************************************/
 
 import type { Page } from '@playwright/test';
+import type { Runner } from '@podman-desktop/tests-playwright';
 import {
   NavigationBar,
-  Runner,
   deleteImage,
   removeFolderIfExists,
   waitForPodmanMachineStartup,
   test,
   expect as playExpect,
   RunnerOptions,
+  ArchitectureType,
 } from '@podman-desktop/tests-playwright';
 import * as path from 'node:path';
 import * as os from 'node:os';
 import { BootcPage } from './model/bootc-page';
-import { ArchitectureType } from '@podman-desktop/tests-playwright';
 import { fileURLToPath } from 'node:url';
 
 let page: Page;
@@ -115,7 +115,7 @@ test.describe('BootC Extension', () => {
         let imagesPage = await navigationBar.openImages();
         await playExpect(imagesPage.heading).toBeVisible();
 
-        let buildImagePage = await imagesPage.openBuildImage();
+        const buildImagePage = await imagesPage.openBuildImage();
         await playExpect(buildImagePage.heading).toBeVisible();
 
         imagesPage = await buildImagePage.buildImage(

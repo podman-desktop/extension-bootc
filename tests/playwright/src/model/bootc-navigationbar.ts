@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
 import { BootcDashboardPage } from './bootc-dashboard-page';
-import { BootcPage } from './bootc-page';
 import { BootcExamples } from './bootc-examples-page';
 import { BootcImagesPage } from './bootc-images-page';
 

@@ -20,6 +20,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import { RpcBrowser } from '/@shared/src/messages/MessageProxy';
 import { RPCReadable } from './rpcReadable';
 import { bootcClient, rpcBrowser } from '/@/api/client';
+
 vi.mock('/@/api/client', async () => {
   const window = {
     addEventListener: (_: string, _f: (message: unknown) => void) => {},

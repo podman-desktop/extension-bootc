@@ -1,10 +1,10 @@
 <script lang="ts">
-import { DetailsPage, Tab, Button } from '@podman-desktop/ui-svelte';
+import { DetailsPage, Button } from '@podman-desktop/ui-svelte';
 import MarkdownRenderer from './markdown/MarkdownRenderer.svelte';
 import ExampleDetailsLayout from './ExampleDetailsLayout.svelte';
 import { router } from 'tinro';
 import { onMount } from 'svelte';
-import { faArrowUpRightFromSquare, faRocket } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { bootcClient } from '/@/api/client';
 import type { Example } from '/@shared/src/models/examples';
 import DiskImageIcon from './DiskImageIcon.svelte';

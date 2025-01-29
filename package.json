@@ -15,8 +15,8 @@
     "watch": "concurrently \"cd packages/frontend && npm run watch\" \"cd packages/backend && npm run watch\"",
     "format:check": "prettier --check \"**/src/**/*.{ts,svelte}\"",
     "format:fix": "prettier --write \"**/src/**/*.{ts,svelte}\"",
-    "lint:check": "eslint . --ext js,ts,tsx",
-    "lint:fix": "eslint . --fix --ext js,ts,tsx",
+    "lint:check": "eslint . --cache",
+    "lint:fix": "eslint . --cache --fix",
     "svelte:check": "svelte-check",
     "test:backend": "vitest run -r packages/backend --passWithNoTests --coverage",
     "test:frontend": "vitest -c packages/frontend/vite.config.js run packages/frontend --passWithNoTests --coverage",
@@ -34,33 +34,41 @@
     "wrap-ansi": "^7.0.0"
   },
   "lint-staged": {
-    "*.{js,ts,svelte}": [
-      "eslint --fix",
-      "prettier --write"
+    "*.{js,ts,tsx,svelte}": [
+      "eslint --cache --fix",
+      "prettier --cache --write"
     ],
     "*.{md,css,json}": "prettier --write"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
+    "@eslint/compat": "^1.2.5",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
-    "@typescript-eslint/parser": "^8.0.1",
+    "@typescript-eslint/parser": "^8.22.0",
     "@vitest/coverage-v8": "^2.1.8",
     "autoprefixer": "^10.4.20",
+    "commitlint": "^19.6.0",
     "concurrently": "^9.1.2",
-    "eslint": "^8.57.1",
+    "eslint": "^9.19.0",
     "eslint-import-resolver-custom-alias": "^1.3.2",
     "eslint-import-resolver-typescript": "^3.7.0",
     "eslint-plugin-etc": "^2.0.3",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-no-null": "^1.0.2",
     "eslint-plugin-redundant-undefined": "^1.0.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-sonarjs": "^3.0.1",
+    "eslint-plugin-svelte": "^2.46.1",
+    "eslint-plugin-unicorn": "^56.0.1",
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
     "prettier": "^3.4.2",
     "prettier-plugin-svelte": "^3.3.3",
+    "svelte-check": "^4.1.4",
+    "svelte-eslint-parser": "^0.43.0",
     "typescript": "5.7.3",
+    "typescript-eslint": "^8.22.0",
     "vite": "^5.4.11",
     "vitest": "^2.1.8"
   },
