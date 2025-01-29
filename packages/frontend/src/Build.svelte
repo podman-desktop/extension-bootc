@@ -124,7 +124,7 @@ async function fillBuildOptions(historyInfo: BootcBuildInfo[] = []) {
     initialImage = findImage(`${historyInfo[0].image}:${historyInfo[0].tag}`);
   }
 
-  if (initialImage && initialImage.RepoTags && initialImage.RepoTags.length > 0) {
+  if (initialImage?.RepoTags && initialImage.RepoTags.length > 0) {
     selectedImage = initialImage.RepoTags[0];
   }
 }
@@ -369,7 +369,7 @@ function deleteFilesystem(index: number) {
 function removeEmptyStrings(obj: any): any {
   if (Array.isArray(obj)) {
     return obj.map(removeEmptyStrings); // Recurse for each item in arrays
-  } else if (typeof obj === 'object' && obj !== null) {
+  } else if (obj && typeof obj === 'object') {
     return Object.entries(obj)
       .filter(([_, value]) => value !== '' && value !== undefined) // Filter out entries with empty string or undefined values
       .reduce((acc, [key, value]) => {
@@ -456,9 +456,10 @@ async function detectFedoraImageFilesystem(selectedImage: string) {
   // the format for example will be: "ostree.linux": "5.14.0-437.el9.x86_64", or "ostree.linux": "6.8.9-300.fc40.aarch64",
   // we can use this to determine if the bootc image was built upon.
   // We will use regex to determine if it is fedora or not by checking if it contains "fcNUMBER" where NUMBER is the version of Fedora.
-  if (imageLabels && imageLabels['ostree.linux']) {
+  if (imageLabels?.['ostree.linux']) {
     const label = imageLabels['ostree.linux'];
-    if (label.match(/fc\d+/)) {
+    const regEx: RegExp = RegExp(/fc\d+/);
+    if (regEx.exec(label)) {
       // Make sure that we show the fedora disclaimer and auto-select xfs if buildFilesystem is empty.
       fedoraDetected = true;
       if (buildFilesystem === '') {

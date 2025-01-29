@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import os from 'os';
+import os from 'node:os';
 import type { Webview, FileSystemWatcher } from '@podman-desktop/api';
 import { fs } from '@podman-desktop/api';
 import { HistoryNotifier } from './historyNotifier';

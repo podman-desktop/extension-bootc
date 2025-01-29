@@ -18,8 +18,7 @@
 
 import type { Locator, Page } from '@playwright/test';
 import { expect as playExpect } from '@playwright/test';
-import { waitUntil } from '@podman-desktop/tests-playwright';
-import { ArchitectureType } from '@podman-desktop/tests-playwright';
+import { waitUntil, ArchitectureType } from '@podman-desktop/tests-playwright';
 import { BootcNavigationBar } from './bootc-navigationbar';
 import { BootcImageDetailsPage } from './bootc-image-details';
 

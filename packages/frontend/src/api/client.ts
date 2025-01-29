@@ -18,6 +18,7 @@
 
 import type { BootcApi } from '/@shared/src/BootcAPI';
 import { RpcBrowser } from '/@shared/src/messages/MessageProxy';
+
 export interface RouterState {
   url: string;
 }
