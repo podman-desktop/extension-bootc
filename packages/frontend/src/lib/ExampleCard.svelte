@@ -60,7 +60,7 @@ onMount(async () => {
     }));
 
     // Ensure the selected architecture matches one of the options
-    selectedArch = archOptions.find(option => option.value === defaultArch)?.value || archOptions[0]?.value || '';
+    selectedArch = archOptions.find(option => option.value === defaultArch)?.value ?? archOptions[0]?.value ?? '';
   }
 });
 </script>
