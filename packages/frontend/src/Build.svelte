@@ -366,7 +366,7 @@ function deleteFilesystem(index: number) {
 // Remove any empty strings in the object before passing it in to the backend
 // this is useful as we are using "bind:input" with groups / form fields and the first entry will always be blank when submitting
 // this will remove any empty strings from the object before passing it in.
-function removeEmptyStrings(obj: any): any {
+function removeEmptyStrings(obj: unknown): object {
   if (Array.isArray(obj)) {
     return obj.map(removeEmptyStrings); // Recurse for each item in arrays
   } else if (obj && typeof obj === 'object') {
@@ -375,7 +375,7 @@ function removeEmptyStrings(obj: any): any {
       .reduce((acc, [key, value]) => {
         acc[key] = removeEmptyStrings(value); // Recurse for nested objects/arrays
         return acc;
-      }, {} as any);
+      }, {});
   }
   return obj;
 }

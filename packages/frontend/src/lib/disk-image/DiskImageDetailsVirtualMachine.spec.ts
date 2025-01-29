@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,28 +43,10 @@ vi.mock('/@/api/client', async () => {
 });
 
 beforeAll(() => {
-  (window as any).ResizeObserver = ResizeObserver;
-  (window as any).getConfigurationValue = vi.fn().mockResolvedValue(undefined);
-  (window as any).matchMedia = vi.fn().mockReturnValue({
-    addListener: vi.fn(),
-  });
-
-  Object.defineProperty(window, 'matchMedia', {
-    value: () => {
-      return {
-        matches: false,
-        addListener: () => {},
-        removeListener: () => {},
-      };
-    },
+  Object.defineProperty(window, 'ResizeObserver', {
+    value: vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() }),
   });
 });
-
-class ResizeObserver {
-  observe = vi.fn();
-  disconnect = vi.fn();
-  unobserve = vi.fn();
-}
 
 test('Render virtual machine terminal window', async () => {
   vi.mocked(bootcClient.getConfigurationValue).mockResolvedValue(14);

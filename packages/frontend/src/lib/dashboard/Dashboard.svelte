@@ -11,7 +11,7 @@ import { Button, NavPage } from '@podman-desktop/ui-svelte';
 let pullInProgress = false;
 let imageExists = false;
 let displayDisclaimer = false;
-let bootcAvailableImages: any[] = [];
+let bootcAvailableImages: ImageInfo[] = [];
 
 const exampleImage = 'quay.io/bootc-extension/httpd:latest';
 const bootcImageBuilderSite = 'https://github.com/osbuild/bootc-image-builder';
