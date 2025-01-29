@@ -34,7 +34,6 @@ export class BootcPage {
   readonly vmdkCheckbox: Locator;
   readonly amiCheckbox: Locator;
   readonly vhdCheckbox: Locator;
-  readonly gceCheckbox: Locator;
   readonly amd64Button: Locator;
   readonly arm64Button: Locator;
   readonly buildButton: Locator;
@@ -59,7 +58,6 @@ export class BootcPage {
     this.vmdkCheckbox = webview.getByLabel('vmdk-checkbox');
     this.amiCheckbox = webview.getByLabel('ami-checkbox');
     this.vhdCheckbox = webview.getByLabel('vhd-checkbox');
-    this.gceCheckbox = webview.getByLabel('gce-checkbox');
     this.amd64Button = webview.getByLabel('amd64-button');
     this.arm64Button = webview.getByLabel('arm64-button');
     this.bootcListPage = webview.getByRole('region', { name: 'Bootable Containers', exact: true });
@@ -125,10 +123,6 @@ export class BootcPage {
         await this.vhdCheckbox.check();
         await playExpect(this.vhdCheckbox).toBeChecked();
         break;
-      case 'gce':
-        await this.gceCheckbox.check();
-        await playExpect(this.gceCheckbox).toBeChecked();
-        break;
       default:
         throw new Error(`Unknown type: ${type}`);
     }
@@ -185,8 +179,6 @@ export class BootcPage {
     await playExpect(this.amiCheckbox).not.toBeChecked();
     await this.vhdCheckbox.uncheck();
     await playExpect(this.vhdCheckbox).not.toBeChecked();
-    await this.gceCheckbox.uncheck();
-    await playExpect(this.gceCheckbox).not.toBeChecked();
   }
 
   async getCurrentStatusOfLatestEntry(): Promise<string> {
