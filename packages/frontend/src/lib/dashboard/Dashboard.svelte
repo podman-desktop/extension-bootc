@@ -7,6 +7,7 @@ import { bootcClient, rpcBrowser } from '../../api/client';
 import { Messages } from '/@shared/src/messages/Messages';
 import { router } from 'tinro';
 import { Button, NavPage } from '@podman-desktop/ui-svelte';
+import type { ImageInfo } from '@podman-desktop/api';
 
 let pullInProgress = false;
 let imageExists = false;
@@ -60,7 +61,7 @@ onMount(async () => {
 
 // Each time bootcAvailableImages updates, check if 'quay.io/bootc-extension/httpd' is in RepoTags
 $: {
-  if (bootcAvailableImages?.some(image => image.RepoTags.includes(exampleImage))) {
+  if (bootcAvailableImages?.some(image => image.RepoTags?.includes(exampleImage))) {
     imageExists = true;
   }
 }

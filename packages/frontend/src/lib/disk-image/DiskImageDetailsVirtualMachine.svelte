@@ -145,11 +145,10 @@ async function initTerminal() {
   logsTerminal.loadAddon(attachAddon);
 
   // This is required for keyboard input to work since we are using the attach addon
-  logsTerminal.onKey((e: object) => {
-    e = e.key;
+  logsTerminal.onKey((e: { key: string }) => {
     if (socket !== undefined) {
       const encoder = new TextEncoder();
-      const binaryData = encoder.encode(e);
+      const binaryData = encoder.encode(e.key);
       socket.send(binaryData.buffer);
     }
   });
