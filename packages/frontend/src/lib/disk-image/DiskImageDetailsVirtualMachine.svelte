@@ -159,14 +159,17 @@ async function initTerminal(): Promise<void> {
     // and "meta" key (macOS). Sometimes on macOS the ctrl key is used, so we safely assume that either meta or ctrl is meant
     // for paste.
     if ((arg.ctrlKey || arg.metaKey) && arg.code === 'KeyV' && arg.type === 'keydown') {
-      bootcClient.readFromClipboard().then(clipboardText => {
-        // Send to socket
-        if (socket !== undefined) {
-          const encoder = new TextEncoder();
-          const binaryData = encoder.encode(clipboardText);
-          socket.send(binaryData.buffer);
-        }
-      });
+      bootcClient
+        .readFromClipboard()
+        .then(clipboardText => {
+          // Send to socket
+          if (socket !== undefined) {
+            const encoder = new TextEncoder();
+            const binaryData = encoder.encode(clipboardText);
+            socket.send(binaryData.buffer);
+          }
+        })
+        .catch((e: unknown) => console.error('error while reading clipboard', e));
     }
     return true;
   });
@@ -178,7 +181,7 @@ async function launchVM(build: BootcBuildInfo): Promise<void> {
 
   // This is launched IN THE BACKGROUND. We do not wait for the VM to boot before showing the terminal.
   // we instead are notified by subscribing to Messages.MSG_VM_LAUNCH_ERROR messages from RPC
-  bootcClient.launchVM(build);
+  await bootcClient.launchVM(build);
 
   // Initialize the terminal so it awaits the websocket connection.
   await initTerminal();
@@ -231,7 +234,7 @@ onMount(async () => {
   // Subscribe for any terminal errors when trying to deploy the VM
   // since these are not caught by the WebSocket error handler
   // and instead notified
-  notifySubscriber = rpcBrowser.subscribe(Messages.MSG_VM_LAUNCH_ERROR, async msg => {
+  notifySubscriber = rpcBrowser.subscribe(Messages.MSG_VM_LAUNCH_ERROR, msg => {
     // If msg.error contains an error, we will display it to the user
     if (msg.error) {
       connectionStatus = VM_LAUNCH_ERROR_MESSAGE;
@@ -258,10 +261,10 @@ onMount(async () => {
   }
 });
 
-onDestroy(() => {
+onDestroy(async () => {
   // Make sure that we stop the VM / kill it
   // run this in the background since we do not want to wait for the VM to stop before closing the page.
-  stopVM();
+  await stopVM();
 
   // Clean up all other connections and resources
   resizeObserver?.unobserve(logsXtermDiv);

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@
 import { router } from 'tinro';
 import { bootcClient } from '../api/client';
 
-export async function goToDiskImages(): Promise<void> {
+export function goToDiskImages(): void {
   router.goto('/disk-images');
 }
 
 export async function gotoBuild(): Promise<void> {
-  bootcClient.telemetryLogUsage('nav-build');
+  await bootcClient.telemetryLogUsage('nav-build');
   router.goto('/disk-images/build');
 }

@@ -301,7 +301,7 @@ async function buildBootcImage(): Promise<void> {
     // the reason being is that the validation / error logic happens in buildDiskImage
     // in the backend and it will error out there as that is where we can console.log
     // as well as notify the user of the error via showErrorMessage / showInformationMessage, etc.
-    bootcClient.buildImage(buildOptions, overwrite);
+    await bootcClient.buildImage(buildOptions, overwrite);
 
     // Continue doing listHistoryInfo until the build container name, tag, type and arch show up
     // this means we can safely exit and see it in the dashboard as it's now in the history / running in the background.
@@ -396,7 +396,7 @@ onMount(async () => {
     await fillChownOption();
   }
 
-  validate();
+  await validate();
 });
 
 /// Find the selected image and update availableArchitectures with the architecture of the image
@@ -480,21 +480,19 @@ async function updateBuildType(type: BuildType, selected: boolean): Promise<void
   } else {
     buildType = buildType.filter(t => t !== type);
   }
-  validate();
+  await validate();
 }
 
 // validate every time a selection changes in the form or available architectures
 $: if (selectedImage || buildFolder || buildArch || overwrite) {
-  validate();
+  validate().catch((e: unknown) => console.error('error validating on change', e));
 }
 
 // Each time an image is selected, we need to update the available architectures
 // to do that, inspect the image and get the architecture.
 $: if (selectedImage) {
-  (async (): Promise<void> => {
-    await updateAvailableArchitectures(selectedImage);
-    await detectFedoraImageFilesystem(selectedImage);
-  })();
+  updateAvailableArchitectures(selectedImage).catch((e: unknown) => console.error('error updating architectures', e));
+  detectFedoraImageFilesystem(selectedImage).catch((e: unknown) => console.error('error detecting filesystem', e));
 }
 
 $: if (availableArchitectures) {

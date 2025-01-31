@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ vi.mock('/@/api/client', async () => {
   return {
     rpcBrowser: rpcBrowser,
     bootcClient: {
-      listHistoryInfo: vi.fn(),
+      listHistoryInfo: vi.fn().mockResolvedValue([]),
     },
   };
 });
@@ -52,7 +52,7 @@ beforeEach(() => {
 test('check updater is called once at subscription', async () => {
   const spyOnListHistoryInfo = vi.spyOn(bootcClient, 'listHistoryInfo');
   const rpcWritable = RPCReadable<string[]>([], [], () => {
-    bootcClient.listHistoryInfo();
+    bootcClient.listHistoryInfo().catch((e: unknown) => console.error('error listing history', e));
     return Promise.resolve(['']);
   });
   rpcWritable.subscribe(_ => {});
@@ -62,11 +62,11 @@ test('check updater is called once at subscription', async () => {
 test('check updater is called twice if there is one event fired', async () => {
   const spyOnListHistoryInfo = vi.spyOn(bootcClient, 'listHistoryInfo');
   const rpcWritable = RPCReadable<string[]>([], ['event'], () => {
-    bootcClient.listHistoryInfo();
+    bootcClient.listHistoryInfo().catch((e: unknown) => console.error('error listing history', e));
     return Promise.resolve(['']);
   });
   rpcWritable.subscribe(_ => {});
-  rpcBrowser.invoke('event');
+  rpcBrowser.invoke('event').catch((e: unknown) => console.error('error sending event', e));
   // wait for the timeout in the debouncer
   await new Promise(resolve => setTimeout(resolve, 600));
   expect(spyOnListHistoryInfo).toHaveBeenCalledTimes(2);
@@ -75,14 +75,14 @@ test('check updater is called twice if there is one event fired', async () => {
 test('check updater is called only twice because of the debouncer if there is more than one event in a row', async () => {
   const spyOnListHistoryInfo = vi.spyOn(bootcClient, 'listHistoryInfo');
   const rpcWritable = RPCReadable<string[]>([], ['event2'], () => {
-    bootcClient.listHistoryInfo();
+    bootcClient.listHistoryInfo().catch((e: unknown) => console.error('error listing history', e));
     return Promise.resolve(['']);
   });
   rpcWritable.subscribe(_ => {});
-  rpcBrowser.invoke('event2');
-  rpcBrowser.invoke('event2');
-  rpcBrowser.invoke('event2');
-  rpcBrowser.invoke('event2');
+  rpcBrowser.invoke('event2').catch((e: unknown) => console.error('error sending event', e));
+  rpcBrowser.invoke('event2').catch((e: unknown) => console.error('error sending event', e));
+  rpcBrowser.invoke('event2').catch((e: unknown) => console.error('error sending event', e));
+  rpcBrowser.invoke('event2').catch((e: unknown) => console.error('error sending event', e));
   // wait for the timeout in the debouncer
   await new Promise(resolve => setTimeout(resolve, 600));
   expect(spyOnListHistoryInfo).toHaveBeenCalledTimes(2);

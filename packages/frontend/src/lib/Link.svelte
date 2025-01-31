@@ -8,13 +8,13 @@ export let externalRef: string | undefined = undefined;
 export let folder: string | undefined = undefined;
 export let title: string | undefined = undefined;
 
-function click(): void {
+async function click(): Promise<void> {
   if (internalRef) {
     router.goto(internalRef);
   } else if (externalRef) {
-    bootcClient.openLink(externalRef);
+    await bootcClient.openLink(externalRef);
   } else if (folder) {
-    bootcClient.openFolder(folder);
+    await bootcClient.openFolder(folder);
   }
 }
 </script>
