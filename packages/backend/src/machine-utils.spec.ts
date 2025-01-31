@@ -24,10 +24,10 @@ import * as fs from 'node:fs';
 import * as os from 'node:os';
 
 const config: Configuration = {
-  get: () => {
+  get: (): void => {
     // not implemented
   },
-  has: () => true,
+  has: (): boolean => true,
   update: vi.fn(),
 };
 
@@ -44,8 +44,8 @@ const fakeConnection: ContainerProviderConnection = {
 vi.mock('@podman-desktop/api', async () => {
   return {
     configuration: {
-      getConfiguration: () => config,
-      onDidChangeConfiguration: () => {
+      getConfiguration: (): Configuration => config,
+      onDidChangeConfiguration: (): object => {
         return {
           dispose: vi.fn(),
         };

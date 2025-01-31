@@ -26,9 +26,9 @@ vi.mock('/@/api/client', async () => ({
     getConfigurationValue: vi.fn(),
   },
   rpcBrowser: {
-    subscribe: () => {
+    subscribe: (): object => {
       return {
-        unsubscribe: () => {},
+        unsubscribe: (): void => {},
       };
     },
   },
@@ -42,8 +42,8 @@ beforeAll(() => {
     value: () => {
       return {
         matches: false,
-        addListener: () => {},
-        removeListener: () => {},
+        addListener: (): void => {},
+        removeListener: (): void => {},
       };
     },
   });

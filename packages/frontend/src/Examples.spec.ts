@@ -35,9 +35,9 @@ vi.mock('./api/client', async () => {
       getArch: vi.fn(),
     },
     rpcBrowser: {
-      subscribe: () => {
+      subscribe: (): object => {
         return {
-          unsubscribe: () => {},
+          unsubscribe: (): void => {},
         };
       },
     },

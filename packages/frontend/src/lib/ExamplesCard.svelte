@@ -34,7 +34,7 @@ onMount(async () => {
 });
 
 // Function to update examples based on available images
-function updateExamplesWithPulledImages() {
+function updateExamplesWithPulledImages(): void {
   if (bootcAvailableImages) {
     // Set each state to 'unpulled' by default before updating, as this prevents 'flickering'
     // and unsure states when images are being updated

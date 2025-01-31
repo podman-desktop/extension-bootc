@@ -112,9 +112,9 @@ vi.mock('./api/client', async () => {
       isWindows: vi.fn().mockImplementation(() => mockIsWindows),
     },
     rpcBrowser: {
-      subscribe: () => {
+      subscribe: (): object => {
         return {
-          unsubscribe: () => {},
+          unsubscribe: (): void => {},
         };
       },
     },

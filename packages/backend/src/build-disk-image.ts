@@ -29,7 +29,7 @@ import * as machineUtils from './machine-utils';
 import { getConfigurationValue, telemetryLogger } from './extension';
 import { getContainerEngine } from './container-utils';
 
-export async function buildExists(folder: string, types: BuildType[]) {
+export async function buildExists(folder: string, types: BuildType[]): Promise<boolean> {
   let exists = false;
   types.forEach(type => {
     let imageName = ''; // Initialize imageName as an empty string

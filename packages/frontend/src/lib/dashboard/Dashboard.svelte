@@ -28,7 +28,7 @@ async function gotoBuild(): Promise<void> {
   router.goto(`/disk-images/build/${encodeURIComponent(image)}/${encodeURIComponent(tag)}`);
 }
 
-async function pullExampleImage() {
+async function pullExampleImage(): Promise<void> {
   pullInProgress = true;
   displayDisclaimer = false;
   bootcClient.pullImage(exampleImage);
@@ -94,11 +94,11 @@ $: {
 
         <!-- Build / pull buttons -->
         {#if imageExists}
-          <Button on:click={() => gotoBuild()} icon={faCube} aria-label="Build image" title="Build"
+          <Button on:click={gotoBuild} icon={faCube} aria-label="Build image" title="Build"
             >Build {exampleImage}</Button>
         {:else}
           <Button
-            on:click={() => pullExampleImage()}
+            on:click={pullExampleImage}
             icon={faArrowCircleDown}
             inProgress={pullInProgress}
             aria-label="Pull image"

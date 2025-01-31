@@ -68,7 +68,7 @@ export async function inspectManifest(engineId: string, image: string): Promise<
 }
 
 // Pull the image
-export async function pullImage(connection: ContainerProviderConnection, image: string, arch?: string) {
+export async function pullImage(connection: ContainerProviderConnection, image: string, arch?: string): Promise<void> {
   // Throughout bootc-image-builder and bootc, we just use "arm64" and "amd64" for the architecture,
   // make sure that arch is either "arm64" or "amd64" before passing it to the API, and rename it to linux/arm64 or linux/amd64
   // otherwise we just leave it as undefined.
@@ -94,7 +94,7 @@ export async function pullImage(connection: ContainerProviderConnection, image: 
 }
 
 // Delete all copies of the given image except for the current one
-export async function deleteOldImages(engineId: string, currentImage: string) {
+export async function deleteOldImages(engineId: string, currentImage: string): Promise<void> {
   console.log('Deleting old images: ', currentImage);
   try {
     // List all the images and check to see if it exists
@@ -173,7 +173,7 @@ export async function waitForContainerToExit(containerId: string, maxRetryCount:
     console.log('Waiting for container to exit: ', containerId);
 
     await Promise.race([
-      (async () => {
+      (async (): Promise<void> => {
         const containers = await extensionApi.containerEngine.listContainers();
         let containerFound = false;
 
@@ -218,7 +218,7 @@ export async function waitForContainerToExit(containerId: string, maxRetryCount:
 }
 
 // List containers, find the container by name if it exists, and then delete it.
-export async function removeContainerIfExists(engineId: string, container: string) {
+export async function removeContainerIfExists(engineId: string, container: string): Promise<void> {
   try {
     // List all the containers and check to see  if it exists
     const containers = await extensionApi.containerEngine.listContainers();
@@ -287,7 +287,7 @@ async function getVolumesMatchingContainer(engineId: string, container: string):
 }
 
 // Remove the container and volumes
-export async function removeContainerAndVolumes(engineId: string, container: string) {
+export async function removeContainerAndVolumes(engineId: string, container: string): Promise<void> {
   try {
     // Due to limitations of the API, we must use listVolumes to get the list of volumes before
     // we delete the container or else the "lingering" volumes will have no container information

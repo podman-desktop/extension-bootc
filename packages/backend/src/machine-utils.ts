@@ -56,7 +56,8 @@ function getPodmanMachineName(connection: ContainerProviderConnection): string {
 }
 
 // Async function to get machine information in JSON format
-async function getMachineInfo(connection: extensionApi.ContainerProviderConnection) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getMachineInfo(connection: extensionApi.ContainerProviderConnection): Promise<any> {
   const { stdout: machineInfoJson } = await extensionApi.process.exec(
     getPodmanCli(),
     ['machine', 'info', '--format', 'json'],
@@ -70,7 +71,8 @@ async function getMachineInfo(connection: extensionApi.ContainerProviderConnecti
 }
 
 // Read the machine configuration and error out if we are uanble to read it.
-async function readMachineConfig(machineConfigDir: string, currentMachine: string) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function readMachineConfig(machineConfigDir: string, currentMachine: string): Promise<any> {
   const filepath = path.join(machineConfigDir, `${currentMachine}.json`);
 
   // Check if the file exists before reading it
@@ -83,7 +85,7 @@ async function readMachineConfig(machineConfigDir: string, currentMachine: strin
 }
 
 // Check if the current podman machine is rootful
-export async function isPodmanMachineRootful(connection: extensionApi.ContainerProviderConnection) {
+export async function isPodmanMachineRootful(connection: extensionApi.ContainerProviderConnection): Promise<boolean> {
   try {
     const machineInfo = await getMachineInfo(connection);
     const machineConfig = await readMachineConfig(machineInfo.Host.MachineConfigDir, getPodmanMachineName(connection));
@@ -111,7 +113,7 @@ export async function isPodmanMachineRootful(connection: extensionApi.ContainerP
 }
 
 // Check if the current podman machine is v5 or above
-export async function isPodmanV5Machine(connection: extensionApi.ContainerProviderConnection) {
+export async function isPodmanV5Machine(connection: extensionApi.ContainerProviderConnection): Promise<boolean> {
   try {
     const machineInfo = await getMachineInfo(connection);
 

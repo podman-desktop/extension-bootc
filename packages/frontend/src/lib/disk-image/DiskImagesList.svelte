@@ -39,7 +39,7 @@ onMount(() => {
 
 // Bulk delete the selected builds
 let bulkDeleteInProgress = false;
-async function deleteSelectedBuilds() {
+async function deleteSelectedBuilds(): Promise<void> {
   const selected = history.filter(history => history.selected);
   if (selected.length === 0) {
     return;
@@ -66,19 +66,19 @@ let statusColumn = new TableColumn<BootcBuildInfo>('Status', {
 let imageColumn = new TableColumn<BootcBuildInfo>('Image', {
   width: '2fr',
   renderer: DiskImageColumnImage,
-  comparator: (a, b) => a.image.localeCompare(b.image),
+  comparator: (a, b): number => a.image.localeCompare(b.image),
 });
 
 let typeColumn = new TableColumn<BootcBuildInfo, string>('Type', {
-  renderMapping: object => object.type.join(),
+  renderMapping: (object: BootcBuildInfo): string => object.type.join(),
   renderer: TableSimpleColumn,
-  comparator: (a, b) => a.type.join().localeCompare(b.type.join()),
+  comparator: (a, b): number => a.type.join().localeCompare(b.type.join()),
 });
 
 let archColumn = new TableColumn<BootcBuildInfo, string>('Arch', {
-  renderMapping: object => object.arch ?? '',
+  renderMapping: (object: BootcBuildInfo): string => object.arch ?? '',
   renderer: TableSimpleColumn,
-  comparator: (a, b) => {
+  comparator: (a, b): number => {
     if (a.arch && b.arch) {
       return a.arch.localeCompare(b.arch);
     } else if (a.arch) {
@@ -90,7 +90,7 @@ let archColumn = new TableColumn<BootcBuildInfo, string>('Arch', {
 
 let folderColumn = new TableColumn<BootcBuildInfo>('Folder', {
   renderer: DiskImageColumnFolder,
-  comparator: (a, b) => a.folder.localeCompare(b.folder),
+  comparator: (a, b): number => a.folder.localeCompare(b.folder),
 });
 
 const columns = [
@@ -103,7 +103,7 @@ const columns = [
 ];
 
 const row = new TableRow<BootcBuildInfo>({
-  selectable: _build => true,
+  selectable: (_build): boolean => true,
 });
 </script>
 
@@ -115,7 +115,7 @@ const row = new TableRow<BootcBuildInfo>({
   <svelte:fragment slot="bottom-additional-actions">
     {#if selectedItemsNumber > 0}
       <Button
-        on:click={() => deleteSelectedBuilds()}
+        on:click={deleteSelectedBuilds}
         title="Delete {selectedItemsNumber} selected items"
         inProgress={bulkDeleteInProgress}
         icon={faTrash} />
@@ -132,7 +132,9 @@ const row = new TableRow<BootcBuildInfo>({
       columns={columns}
       row={row}
       defaultSortColumn="Name"
-      on:update={() => (history = history)}>
+      on:update={(): void => {
+        history = history;
+      }}>
     </Table>
 
     {#if $filtered.length === 0 && searchTerm}
