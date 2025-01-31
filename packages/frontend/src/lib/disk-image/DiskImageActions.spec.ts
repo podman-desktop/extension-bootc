@@ -20,6 +20,7 @@ import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import { bootcClient } from '/@/api/client';
 import { screen, render } from '@testing-library/svelte';
 import DiskImageActions from './DiskImageActions.svelte';
+import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
 vi.mock('/@/api/client', async () => {
   return {
@@ -28,7 +29,7 @@ vi.mock('/@/api/client', async () => {
       isWindows: vi.fn(),
     },
     rpcBrowser: {
-      subscribe: (): object => {
+      subscribe: (): Subscriber => {
         return {
           unsubscribe: (): void => {},
         };

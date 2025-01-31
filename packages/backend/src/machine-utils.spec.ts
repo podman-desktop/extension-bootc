@@ -45,9 +45,9 @@ vi.mock('@podman-desktop/api', async () => {
   return {
     configuration: {
       getConfiguration: (): Configuration => config,
-      onDidChangeConfiguration: (): object => {
+      onDidChangeConfiguration: (): extensionApi.ConfigurationChangeEvent => {
         return {
-          dispose: vi.fn(),
+          affectsConfiguration: vi.fn(),
         };
       },
     },

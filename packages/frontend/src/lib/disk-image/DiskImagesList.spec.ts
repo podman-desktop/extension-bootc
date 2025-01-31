@@ -21,6 +21,7 @@ import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import { bootcClient } from '/@/api/client';
 import { beforeEach } from 'node:test';
 import DiskImagesList from './DiskImagesList.svelte';
+import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
 const mockHistoryInfo: BootcBuildInfo[] = [
   {
@@ -56,7 +57,7 @@ vi.mock('/@/api/client', async () => {
       isWindows: vi.fn(),
     },
     rpcBrowser: {
-      subscribe: (): object => {
+      subscribe: (): Subscriber => {
         return {
           unsubscribe: (): void => {},
         };

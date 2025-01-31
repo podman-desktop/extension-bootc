@@ -23,6 +23,7 @@ import { expect, test, vi } from 'vitest';
 import { bootcClient } from '../../api/client';
 import Dashboard from './Dashboard.svelte';
 import type { ImageInfo } from '@podman-desktop/api';
+import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
 const exampleTestImage = `quay.io/bootc-extension/httpd:latest`;
 
@@ -55,7 +56,7 @@ vi.mock('../../api/client', async () => {
       isWindows: vi.fn(),
     },
     rpcBrowser: {
-      subscribe: (): object => {
+      subscribe: (): Subscriber => {
         return {
           unsubscribe: (): void => {},
         };

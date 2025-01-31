@@ -19,6 +19,7 @@ import { beforeEach, vi, test, expect } from 'vitest';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import { screen, render } from '@testing-library/svelte';
 import DiskImageColumnActions from '/@/lib/disk-image/DiskImageColumnActions.svelte';
+import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
 const mockHistoryInfo: BootcBuildInfo = {
   id: 'name1',
@@ -38,7 +39,7 @@ vi.mock('/@/api/client', async () => {
       isWindows: vi.fn(),
     },
     rpcBrowser: {
-      subscribe: (): object => {
+      subscribe: (): Subscriber => {
         return {
           unsubscribe: (): void => {},
         };

@@ -24,6 +24,7 @@ import { bootcClient } from '/@/api/client';
 import DiskImageDetails from './DiskImageDetails.svelte';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import { tick } from 'svelte';
+import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
 const image: BootcBuildInfo = {
   id: 'id1',
@@ -42,7 +43,7 @@ vi.mock('/@/api/client', async () => {
       isWindows: vi.fn(),
     },
     rpcBrowser: {
-      subscribe: (): object => {
+      subscribe: (): Subscriber => {
         return {
           unsubscribe: (): void => {},
         };
