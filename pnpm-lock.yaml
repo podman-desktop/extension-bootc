@@ -120,8 +120,8 @@ importers:
         version: 7.7.0
     devDependencies:
       '@podman-desktop/api':
-        specifier: 1.15.0
-        version: 1.15.0
+        specifier: 1.16.1
+        version: 1.16.1
       '@types/node':
         specifier: ^20
         version: 20.17.16
@@ -299,7 +299,7 @@ importers:
         version: 1.50.0
       '@podman-desktop/tests-playwright':
         specifier: next
-        version: 1.17.0-202501301835-4d5a165b5c1
+        version: 1.17.0-202501311546-4055653a772
       '@types/node':
         specifier: ^20
         version: 20.17.16
@@ -1295,11 +1295,11 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@podman-desktop/api@1.15.0':
-    resolution: {integrity: sha512-rYI2Fh/fRfNKtZAIz3OCk3GITJq5+oNxgU4aYVRWmPaX4Y5TSQoGr30Wwu4MGy02IQp3KY18JNe9/msWUE1MJA==}
+  '@podman-desktop/api@1.16.1':
+    resolution: {integrity: sha512-x0z5AE9RVeie2lF75vbVa4fnj0/GXellth0xIHWWyuhoskhPHlqaXcvfjFH9pKcU1BubadErRaZy36ntQqE26A==}
 
-  '@podman-desktop/tests-playwright@1.17.0-202501301835-4d5a165b5c1':
-    resolution: {integrity: sha512-2/Q+/hBgc6dW/FOW/OvX1mdqgP6TqIuVQvdoy5yLrdfhv/ZOYEj0Y5/BWICE9qAy6BsxW7nk8HOxJ9ThbXWRCg==}
+  '@podman-desktop/tests-playwright@1.17.0-202501311546-4055653a772':
+    resolution: {integrity: sha512-eKkMbDqhywDNXOE4/SLSLLcsJpKBpeu8D13R49wsY3ImCOvQgTgBZu97YiUybYg/hTq3F0n4yUuYETKQcP03Wg==}
 
   '@podman-desktop/ui-svelte@1.16.0':
     resolution: {integrity: sha512-sNe4Gk/+3bQEhtrTSkN5zRSB/S2p0DGEOpHCeugfB6vz4xy1MLrG6xGsqDAV8CDSiT92tn0oTyyI6zposyKu5g==}
@@ -5466,9 +5466,9 @@ snapshots:
     dependencies:
       playwright: 1.50.0
 
-  '@podman-desktop/api@1.15.0': {}
+  '@podman-desktop/api@1.16.1': {}
 
-  '@podman-desktop/tests-playwright@1.17.0-202501301835-4d5a165b5c1': {}
+  '@podman-desktop/tests-playwright@1.17.0-202501311546-4055653a772': {}
 
   '@podman-desktop/ui-svelte@1.16.0(svelte-fa@4.0.3(svelte@5.19.5))(svelte@5.19.5)':
     dependencies:
