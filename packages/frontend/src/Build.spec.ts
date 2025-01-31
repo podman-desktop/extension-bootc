@@ -27,6 +27,7 @@ import { bootcClient } from './api/client';
 import { router } from 'tinro';
 import userEvent from '@testing-library/user-event';
 import { historyInfo } from './stores/historyInfo';
+import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
 const mockHistoryInfo: BootcBuildInfo[] = [
   {
@@ -112,7 +113,7 @@ vi.mock('./api/client', async () => {
       isWindows: vi.fn().mockImplementation(() => mockIsWindows),
     },
     rpcBrowser: {
-      subscribe: (): object => {
+      subscribe: (): Subscriber => {
         return {
           unsubscribe: (): void => {},
         };

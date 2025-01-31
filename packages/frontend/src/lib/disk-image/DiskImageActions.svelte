@@ -33,11 +33,7 @@ onMount(async () => {
 <!-- Only show the Terminal button if object.arch actually exists or else we will not be able to pass in the architecture information to the build correctly.
 Only show if on macOS as well as that is the only option we support at the moment -->
 {#if object.arch && !isWindows}
-  <ListItemButtonIcon title="Launch VM" onClick={(): Promise<void> => gotoVM()} detailed={detailed} icon={faTerminal} />
+  <ListItemButtonIcon title="Launch VM" onClick={gotoVM} detailed={detailed} icon={faTerminal} />
 {/if}
-<ListItemButtonIcon title="Build Logs" onClick={(): Promise<void> => gotoLogs()} detailed={detailed} icon={faFileAlt} />
-<ListItemButtonIcon
-  title="Delete Build"
-  onClick={(): Promise<void> => deleteBuild()}
-  detailed={detailed}
-  icon={faTrash} />
+<ListItemButtonIcon title="Build Logs" onClick={gotoLogs} detailed={detailed} icon={faFileAlt} />
+<ListItemButtonIcon title="Delete Build" onClick={deleteBuild} detailed={detailed} icon={faTrash} />

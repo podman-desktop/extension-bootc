@@ -26,6 +26,7 @@ import type { ImageInfo } from '@podman-desktop/api';
 import Examples from './Examples.svelte';
 import { bootcClient } from './api/client';
 import { tick } from 'svelte';
+import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
 vi.mock('./api/client', async () => {
   return {
@@ -35,7 +36,7 @@ vi.mock('./api/client', async () => {
       getArch: vi.fn(),
     },
     rpcBrowser: {
-      subscribe: (): object => {
+      subscribe: (): Subscriber => {
         return {
           unsubscribe: (): void => {},
         };

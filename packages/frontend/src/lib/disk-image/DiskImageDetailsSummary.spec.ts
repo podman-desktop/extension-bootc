@@ -22,6 +22,7 @@ import { beforeEach, expect, test, vi } from 'vitest';
 
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import DiskImageDetailsSummary from './DiskImageDetailsSummary.svelte';
+import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
 const image: BootcBuildInfo = {
   id: 'id1',
@@ -36,7 +37,7 @@ const image: BootcBuildInfo = {
 vi.mock('/@/api/client', async () => {
   return {
     rpcBrowser: {
-      subscribe: (): object => {
+      subscribe: (): Subscriber => {
         return {
           unsubscribe: (): void => {},
         };

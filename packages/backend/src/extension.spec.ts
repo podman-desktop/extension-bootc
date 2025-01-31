@@ -42,10 +42,11 @@ vi.mock('@podman-desktop/api', async () => {
   return {
     version: '1.8.0',
     env: {
-      createTelemetryLogger: (): object => ({
-        logUsage: mocks.logUsageMock,
-        logError: mocks.logErrorMock,
-      }),
+      createTelemetryLogger: (): podmanDesktopApi.TelemetryLogger =>
+        ({
+          logUsage: mocks.logUsageMock,
+          logError: mocks.logErrorMock,
+        }) as unknown as podmanDesktopApi.TelemetryLogger,
     },
     commands: {
       registerCommand: vi.fn(),
@@ -54,24 +55,26 @@ vi.mock('@podman-desktop/api', async () => {
       static readonly joinPath = (): object => ({ fsPath: '.' });
     },
     window: {
-      createWebviewPanel: (): object => ({
-        webview: {
-          html: '',
-          onDidReceiveMessage: vi.fn(),
-          postMessage: vi.fn(),
-        },
-        onDidChangeViewState: vi.fn(),
-      }),
+      createWebviewPanel: (): podmanDesktopApi.WebviewPanel =>
+        ({
+          webview: {
+            html: '',
+            onDidReceiveMessage: vi.fn(),
+            postMessage: vi.fn(),
+          },
+          onDidChangeViewState: vi.fn(),
+        }) as unknown as podmanDesktopApi.WebviewPanel,
       listWebviews: vi.fn().mockReturnValue([{ viewType: 'a' }, { id: 'test', viewType: 'bootc' }, { viewType: 'b' }]),
     },
     navigation: {
       navigateToWebview: vi.fn(),
     },
     fs: {
-      createFileSystemWatcher: (): object => ({
+      createFileSystemWatcher: (): podmanDesktopApi.FileSystemWatcher => ({
         onDidCreate: vi.fn(),
         onDidDelete: vi.fn(),
         onDidChange: vi.fn(),
+        dispose: vi.fn(),
       }),
     },
   };

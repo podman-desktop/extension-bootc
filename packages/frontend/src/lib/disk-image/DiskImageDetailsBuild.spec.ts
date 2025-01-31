@@ -19,6 +19,7 @@ import { render, screen, waitFor } from '@testing-library/svelte';
 import { vi, test, expect, beforeAll } from 'vitest';
 import DiskImageDetailsBuild from './DiskImageDetailsBuild.svelte';
 import { bootcClient } from '/@/api/client';
+import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
 vi.mock('/@/api/client', async () => ({
   bootcClient: {
@@ -26,7 +27,7 @@ vi.mock('/@/api/client', async () => ({
     getConfigurationValue: vi.fn(),
   },
   rpcBrowser: {
-    subscribe: (): object => {
+    subscribe: (): Subscriber => {
       return {
         unsubscribe: (): void => {},
       };

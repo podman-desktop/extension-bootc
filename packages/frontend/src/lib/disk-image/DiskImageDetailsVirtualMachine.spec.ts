@@ -20,11 +20,12 @@ import { vi, test, expect, beforeAll } from 'vitest';
 import { bootcClient } from '/@/api/client';
 import DiskImageDetailsVirtualMachine from './DiskImageDetailsVirtualMachine.svelte';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
+import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
 vi.mock('/@/api/client', async () => {
   return {
     rpcBrowser: {
-      subscribe: (): object => {
+      subscribe: (): Subscriber => {
         return {
           unsubscribe: (): void => {},
         };
