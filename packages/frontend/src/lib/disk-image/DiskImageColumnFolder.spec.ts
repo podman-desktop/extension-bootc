@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,9 +35,9 @@ const mockHistoryInfo: BootcBuildInfo = {
 vi.mock('/@/api/client', async () => {
   return {
     rpcBrowser: {
-      subscribe: () => {
+      subscribe: (): object => {
         return {
-          unsubscribe: () => {},
+          unsubscribe: (): void => {},
         };
       },
     },

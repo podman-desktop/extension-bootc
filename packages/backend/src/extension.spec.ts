@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ vi.mock('@podman-desktop/api', async () => {
   return {
     version: '1.8.0',
     env: {
-      createTelemetryLogger: () => ({
+      createTelemetryLogger: (): object => ({
         logUsage: mocks.logUsageMock,
         logError: mocks.logErrorMock,
       }),
@@ -51,10 +51,10 @@ vi.mock('@podman-desktop/api', async () => {
       registerCommand: vi.fn(),
     },
     Uri: class {
-      static readonly joinPath = () => ({ fsPath: '.' });
+      static readonly joinPath = (): object => ({ fsPath: '.' });
     },
     window: {
-      createWebviewPanel: () => ({
+      createWebviewPanel: (): object => ({
         webview: {
           html: '',
           onDidReceiveMessage: vi.fn(),
@@ -68,7 +68,7 @@ vi.mock('@podman-desktop/api', async () => {
       navigateToWebview: vi.fn(),
     },
     fs: {
-      createFileSystemWatcher: () => ({
+      createFileSystemWatcher: (): object => ({
         onDidCreate: vi.fn(),
         onDidDelete: vi.fn(),
         onDidChange: vi.fn(),

@@ -24,9 +24,9 @@ import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 vi.mock('/@/api/client', async () => {
   return {
     rpcBrowser: {
-      subscribe: () => {
+      subscribe: (): object => {
         return {
-          unsubscribe: () => {},
+          unsubscribe: (): void => {},
         };
       },
     },

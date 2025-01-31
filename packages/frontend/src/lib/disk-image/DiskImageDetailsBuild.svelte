@@ -24,7 +24,7 @@ let termFit: FitAddon;
 let logsTerminal: Terminal;
 let logInterval: NodeJS.Timeout;
 
-async function fetchFolderLogs() {
+async function fetchFolderLogs(): Promise<void> {
   if (!folder) {
     return;
   }
@@ -43,7 +43,7 @@ async function fetchFolderLogs() {
   }
 }
 
-async function refreshTerminal() {
+async function refreshTerminal(): Promise<void> {
   // missing element, return
   if (!logsXtermDiv) {
     console.log('missing xterm div, exiting...');

@@ -71,18 +71,18 @@ let buildConfigKernelArguments: string;
 
 // Show/hide advanced options
 let showAdvanced = false; // State to show/hide advanced options
-function toggleAdvanced() {
+function toggleAdvanced(): void {
   showAdvanced = !showAdvanced;
 }
 
 // Show/hide build config options
 let showBuildConfig = false;
-function toggleBuildConfig() {
+function toggleBuildConfig(): void {
   showBuildConfig = !showBuildConfig;
 }
 
 let showBuildConfigFile = false;
-function toggleBuildConfigFile() {
+function toggleBuildConfigFile(): void {
   showBuildConfigFile = !showBuildConfigFile;
 }
 
@@ -103,7 +103,7 @@ async function findImagesAssociatedToManifest(manifest: ManifestInspectInfo): Pr
 
 // Function that will use listHistoryInfo, if there is anything in the list, pick the first one in the list (as it's the most recent)
 // and fill buildFolder, buildType and buildArch with the values from the selected image.
-async function fillBuildOptions(historyInfo: BootcBuildInfo[] = []) {
+async function fillBuildOptions(historyInfo: BootcBuildInfo[] = []): Promise<void> {
   // Fill the build options from history
   if (historyInfo.length > 0) {
     const latestBuild = historyInfo[0];
@@ -129,7 +129,7 @@ async function fillBuildOptions(historyInfo: BootcBuildInfo[] = []) {
   }
 }
 
-async function fillArchitectures(historyInfo: BootcBuildInfo[]) {
+async function fillArchitectures(historyInfo: BootcBuildInfo[]): Promise<void> {
   // If there is only one available architecture, select it automatically.
   if (availableArchitectures.length === 1) {
     buildArch = availableArchitectures[0];
@@ -149,7 +149,7 @@ async function fillArchitectures(historyInfo: BootcBuildInfo[]) {
 
 // This will fill the chown function by getting the user and group ID from the OS
 // and filling in the information in the chown input field.
-async function fillChownOption() {
+async function fillChownOption(): Promise<void> {
   try {
     const gidUid = await bootcClient.getUidGid();
     buildChown = gidUid;
@@ -158,7 +158,7 @@ async function fillChownOption() {
   }
 }
 
-async function validate() {
+async function validate(): Promise<void> {
   let prereqs = await bootcClient.checkPrereqs();
   if (prereqs) {
     errorFormValidation = prereqs;
@@ -208,7 +208,7 @@ async function validate() {
   errorFormValidation = undefined;
 }
 
-async function buildBootcImage() {
+async function buildBootcImage(): Promise<void> {
   // you can't get here without a selected image, but this
   // avoids a svelte error
   if (!selectedImage) {
@@ -333,33 +333,33 @@ async function buildBootcImage() {
   }
 }
 
-async function getPath() {
+async function getPath(): Promise<void> {
   buildFolder = await bootcClient.selectOutputFolder();
 }
 
-async function getBuildConfigFile() {
+async function getBuildConfigFile(): Promise<void> {
   buildConfigFile = await bootcClient.selectBuildConfigFile();
 }
 
-function cleanup() {
+function cleanup(): void {
   buildInProgress = false;
   buildErrorMessage = '';
   errorFormValidation = '';
 }
 
-function addUser() {
+function addUser(): void {
   buildConfigUsers = [...buildConfigUsers, { name: '', password: '', key: '', groups: '' }];
 }
 
-function deleteUser(index: number) {
+function deleteUser(index: number): void {
   buildConfigUsers = buildConfigUsers.filter((_, i) => i !== index);
 }
 
-function addFilesystem() {
+function addFilesystem(): void {
   buildConfigFilesystems = [...buildConfigFilesystems, { mountpoint: '', minsize: '' }];
 }
 
-function deleteFilesystem(index: number) {
+function deleteFilesystem(index: number): void {
   buildConfigFilesystems = buildConfigFilesystems.filter((_, i) => i !== index);
 }
 
@@ -400,7 +400,7 @@ onMount(async () => {
 });
 
 /// Find the selected image and update availableArchitectures with the architecture of the image
-async function updateAvailableArchitectures(selectedImage: string) {
+async function updateAvailableArchitectures(selectedImage: string): Promise<void> {
   const image = findImage(selectedImage);
   if (image) {
     // If it is a manifest, we can just inspectManifest and get the architecture(s) from there
@@ -433,7 +433,7 @@ async function updateAvailableArchitectures(selectedImage: string) {
 
 // Updates the filesystem selection based upon the select image,
 // specifically if the image is Fedora we will  have to select the filesystem (it cannot be default).
-async function detectFedoraImageFilesystem(selectedImage: string) {
+async function detectFedoraImageFilesystem(selectedImage: string): Promise<void> {
   const image = findImage(selectedImage);
   let imageLabels = image?.Labels;
 
@@ -474,7 +474,7 @@ async function detectFedoraImageFilesystem(selectedImage: string) {
 }
 
 // update the array of build types
-async function updateBuildType(type: BuildType, selected: boolean) {
+async function updateBuildType(type: BuildType, selected: boolean): Promise<void> {
   if (selected) {
     buildType.push(type);
   } else {
@@ -491,7 +491,7 @@ $: if (selectedImage || buildFolder || buildArch || overwrite) {
 // Each time an image is selected, we need to update the available architectures
 // to do that, inspect the image and get the architecture.
 $: if (selectedImage) {
-  (async () => {
+  (async (): Promise<void> => {
     await updateAvailableArchitectures(selectedImage);
     await detectFedoraImageFilesystem(selectedImage);
   })();
@@ -525,7 +525,7 @@ $: if (availableArchitectures) {
       <EmptyScreen icon={faTriangleExclamation} title="Error with image build" message={buildErrorMessage}>
         <Button
           class="py-3"
-          on:click={() => {
+          on:click={(): void => {
             cleanup();
             router.goto('/');
           }}>
@@ -592,7 +592,7 @@ $: if (availableArchitectures) {
                 placeholder="Output folder"
                 class="w-full"
                 aria-label="folder-select" />
-              <Button on:click={() => getPath()}>Browse...</Button>
+              <Button on:click={(): Promise<void> => getPath()}>Browse...</Button>
             </div>
           </div>
           <div class="pt-3 space-y-3 h-fit">
@@ -603,25 +603,25 @@ $: if (availableArchitectures) {
                   <Checkbox
                     checked={buildType.includes('raw')}
                     title="raw-checkbox"
-                    on:click={e => updateBuildType('raw', e.detail)}>
+                    on:click={(e): Promise<void> => updateBuildType('raw', e.detail)}>
                     RAW image with partition table (*.raw)
                   </Checkbox>
                   <Checkbox
                     checked={buildType.includes('qcow2')}
                     title="qcow2-checkbox"
-                    on:click={e => updateBuildType('qcow2', e.detail)}>
+                    on:click={(e): Promise<void> => updateBuildType('qcow2', e.detail)}>
                     Virtualization Guest Image (*.qcow2)
                   </Checkbox>
                   <Checkbox
                     checked={buildType.includes('anaconda-iso')}
                     title="iso-checkbox"
-                    on:click={e => updateBuildType('anaconda-iso', e.detail)}>
+                    on:click={(e): Promise<void> => updateBuildType('anaconda-iso', e.detail)}>
                     Unattended Anaconda ISO Installer (*.iso)
                   </Checkbox>
                   <Checkbox
                     checked={buildType.includes('vmdk')}
                     title="vmdk-checkbox"
-                    on:click={e => updateBuildType('vmdk', e.detail)}>
+                    on:click={(e): Promise<void> => updateBuildType('vmdk', e.detail)}>
                     Virtual Machine Disk image (*.vmdk)
                   </Checkbox>
                 </div>
@@ -629,19 +629,19 @@ $: if (availableArchitectures) {
                   <Checkbox
                     checked={buildType.includes('ami')}
                     title="ami-checkbox"
-                    on:click={e => updateBuildType('ami', e.detail)}>
+                    on:click={(e): Promise<void> => updateBuildType('ami', e.detail)}>
                     Amazon Machine Image (*.ami)
                   </Checkbox>
                   <Checkbox
                     checked={buildType.includes('vhd')}
                     title="vhd-checkbox"
-                    on:click={e => updateBuildType('vhd', e.detail)}>
+                    on:click={(e): Promise<void> => updateBuildType('vhd', e.detail)}>
                     Virtual Hard Disk (*.vhd)
                   </Checkbox>
                   <Checkbox
                     checked={buildType.includes('gce')}
                     title="gce-checkbox"
-                    on:click={e => updateBuildType('gce', e.detail)}>
+                    on:click={(e): Promise<void> => updateBuildType('gce', e.detail)}>
                     Google Cloud Engine (*.gce)
                   </Checkbox>
                 </div>
@@ -832,7 +832,7 @@ $: if (availableArchitectures) {
                       <Button
                         type="link"
                         hidden={index === buildConfigUsers.length - 1}
-                        on:click={() => deleteUser(index)}
+                        on:click={(): void => deleteUser(index)}
                         icon={faMinusCircle} />
                       <Button
                         type="link"
@@ -862,7 +862,7 @@ $: if (availableArchitectures) {
                       <Button
                         type="link"
                         hidden={index === buildConfigFilesystems.length - 1}
-                        on:click={() => deleteFilesystem(index)}
+                        on:click={(): void => deleteFilesystem(index)}
                         icon={faMinusCircle} />
 
                       <Button
@@ -918,7 +918,7 @@ $: if (availableArchitectures) {
                         placeholder="Build configuration file (config.toml or config.json)"
                         class="w-full"
                         aria-label="buildconfig-select" />
-                      <Button on:click={() => getBuildConfigFile()}>Browse...</Button>
+                      <Button on:click={getBuildConfigFile}>Browse...</Button>
                     </div>
                   </div>
                 </div>
@@ -1005,8 +1005,7 @@ $: if (availableArchitectures) {
         {#if buildInProgress}
           <Button class="w-full" disabled={true}>Creating build task</Button>
         {:else}
-          <Button on:click={() => buildBootcImage()} disabled={errorFormValidation != undefined} class="w-full"
-            >Build</Button>
+          <Button on:click={buildBootcImage} disabled={errorFormValidation != undefined} class="w-full">Build</Button>
           <!-- If on Linux, warn that during the build, credentials will be asked in order to run an escalated privileged build prompt -->
           {#if isLinux}
             <p class="text-sm text-[var(--pd-content-text)] pt-1">

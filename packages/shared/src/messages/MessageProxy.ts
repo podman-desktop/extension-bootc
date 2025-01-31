@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ export class RpcExtension {
     this.init();
   }
 
-  init() {
+  init(): void {
     this.webview.onDidReceiveMessage(async (message: unknown) => {
       if (!isMessageRequest(message)) {
         console.error('Received incompatible message.', message);
@@ -103,7 +103,7 @@ export class RpcExtension {
     });
   }
 
-  registerInstance<T extends Record<keyof T, UnaryRPC>>(classType: new (...args: any[]) => T, instance: T) {
+  registerInstance<T extends Record<keyof T, UnaryRPC>>(classType: new (...args: any[]) => T, instance: T): void {
     const methodNames = Object.getOwnPropertyNames(classType.prototype).filter(
       name => name !== 'constructor' && typeof instance[name as keyof T] === 'function',
     );
@@ -114,7 +114,7 @@ export class RpcExtension {
     });
   }
 
-  register(channel: string, method: (body: any) => Promise<any>) {
+  register(channel: string, method: (body: any) => Promise<any>): void {
     this.methods.set(channel, method);
   }
 }
@@ -139,7 +139,7 @@ export class RpcBrowser {
     this.init();
   }
 
-  init() {
+  init(): void {
     // eslint-disable-next-line sonarjs/post-message
     this.window.addEventListener('message', (event: MessageEvent) => {
       const message = event.data;
@@ -218,7 +218,7 @@ export class RpcBrowser {
   subscribe(msgId: string, f: (msg: any) => void): Subscriber {
     this.subscribers.set(msgId, f);
     return {
-      unsubscribe: () => {
+      unsubscribe: (): void => {
         this.subscribers.delete(msgId);
       },
     };

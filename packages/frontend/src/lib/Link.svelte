@@ -8,7 +8,7 @@ export let externalRef: string | undefined = undefined;
 export let folder: string | undefined = undefined;
 export let title: string | undefined = undefined;
 
-function click() {
+function click(): void {
   if (internalRef) {
     router.goto(internalRef);
   } else if (externalRef) {
@@ -19,6 +19,6 @@ function click() {
 }
 </script>
 
-<Link title={title} aria-label={$$props['aria-label']} on:click={() => click()}>
+<Link title={title} aria-label={$$props['aria-label']} on:click={click}>
   <slot />
 </Link>

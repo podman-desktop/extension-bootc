@@ -37,16 +37,16 @@ const GUIDE_LINK = 'https://github.com/containers/podman-desktop-extension-bootc
 
 // Event handlers for the WebSocket connection
 // which are needed to update the connection status
-function closeHandler(event: CloseEvent) {
+function closeHandler(event: CloseEvent): void {
   connectionStatus = 'VM stopped';
 }
 
-function openHandler(event: Event) {
+function openHandler(event: Event): void {
   connectionStatus = 'VM started';
   noLogs = false;
 }
 
-function errorHandler(event: Event) {
+function errorHandler(event: Event): void {
   console.error('VM WebSocket error:', event);
   connectionStatus = 'VM error';
 }
@@ -65,13 +65,13 @@ async function waitForPort(port: number): Promise<boolean> {
       // Attempt to create a WebSocket connection.
       const socket = new WebSocket(`ws://127.0.0.1:${port}`);
 
-      socket.onopen = () => {
+      socket.onopen = (): void => {
         clearInterval(interval);
         resolve(true);
         socket.close();
       };
 
-      socket.onerror = () => {
+      socket.onerror = (): void => {
         // Keep the interval running, and no need to clear on error.
         socket.close(); // Close the socket when an error occurs.
       };
@@ -79,7 +79,7 @@ async function waitForPort(port: number): Promise<boolean> {
   });
 }
 
-async function initTerminal() {
+async function initTerminal(): Promise<void> {
   // If there is a missing element for the terminal / for some reason the page does not load correctly,
   // end early.
   if (!logsXtermDiv) {

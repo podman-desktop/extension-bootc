@@ -124,7 +124,7 @@ onMount(async () => {
           >Build image</Button>
       {:else if example?.state === 'unpulled'}
         <Button
-          on:click={() => pullImage(selectedArch)}
+          on:click={(): Promise<void> => pullImage(selectedArch)}
           icon={faArrowDown}
           aria-label="Pull image"
           title="Pull image"
