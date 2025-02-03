@@ -17,9 +17,9 @@
  ***********************************************************************/
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { Disposable, Webview } from '@podman-desktop/api';
-
-const specialChannels = ['launchVM'];
+import type { Webview, Disposable } from '@podman-desktop/api';
+import { noTimeoutChannels } from './NoTimeoutChannels';
+import { getChannel } from './utils';
 
 export interface IMessage {
   id: number;
@@ -56,9 +56,7 @@ export class RpcExtension implements Disposable {
   #webviewDisposable: Disposable | undefined;
   methods: Map<string, (...args: unknown[]) => Promise<unknown>> = new Map();
 
-  constructor(private webview: Webview) {
-    this.init();
-  }
+  constructor(private webview: Webview) {}
 
   dispose(): void {
     this.#webviewDisposable?.dispose();
@@ -108,14 +106,17 @@ export class RpcExtension implements Disposable {
     });
   }
 
-  registerInstance<T extends Record<keyof T, UnaryRPC>>(classType: new (...args: any[]) => T, instance: T): void {
-    const methodNames = Object.getOwnPropertyNames(classType.prototype).filter(
+  registerInstance<T extends Record<keyof T, UnaryRPC>>(
+    classType: { CHANNEL: string; prototype: T },
+    instance: T,
+  ): void {
+    const methodNames = Object.getOwnPropertyNames(Object.getPrototypeOf(instance)).filter(
       name => name !== 'constructor' && typeof instance[name as keyof T] === 'function',
     );
 
     methodNames.forEach(name => {
       const method = (instance[name as keyof T] as any).bind(instance);
-      this.register(name, method);
+      this.register(getChannel(classType, name as keyof T), method);
     });
   }
 
@@ -128,10 +129,12 @@ export interface Subscriber {
   unsubscribe(): void;
 }
 
+export type Listener = (value: any) => void;
+
 export class RpcBrowser {
   counter: number = 0;
   promises: Map<number, { resolve: (value: unknown) => unknown; reject: (value: unknown) => void }> = new Map();
-  subscribers: Map<string, (msg: any) => void> = new Map();
+  subscribers: Map<string, Set<Listener>> = new Map();
 
   getUniqueId(): number {
     return ++this.counter;
@@ -163,8 +166,7 @@ export class RpcBrowser {
         }
         this.promises.delete(message.id);
       } else if (this.isSubscribedMessage(message)) {
-        const handler = this.subscribers.get(message.id);
-        handler?.(message.body);
+        this.subscribers.get(message.id)?.forEach(handler => handler(message.body));
       } else {
         console.error('Received incompatible message.', message);
         return;
@@ -172,7 +174,7 @@ export class RpcBrowser {
     });
   }
 
-  getProxy<T>(): T {
+  getProxy<T>(classType: { CHANNEL: string; prototype: T }): T {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const thisRef = this;
     const proxyHandler: ProxyHandler<object> = {
@@ -180,7 +182,7 @@ export class RpcBrowser {
         if (typeof prop === 'string') {
           return (...args: unknown[]) => {
             const channel = prop.toString();
-            return thisRef.invoke(channel, ...args);
+            return thisRef.invoke(getChannel(classType, channel as keyof T), ...args);
           };
         }
         return Reflect.get(target, prop, receiver);
@@ -205,26 +207,26 @@ export class RpcBrowser {
       args: args,
     } as IMessageRequest);
 
-    // Add a timeout of 5 seconds for each call. However, if there is any "special" call that should not have a timeout, we can add a check here.
-    if (!specialChannels.includes(channel)) {
+    // Add some timeout
+    if (!noTimeoutChannels.includes(channel)) {
       setTimeout(() => {
         const { reject } = this.promises.get(requestId) ?? {};
         if (!reject) return;
         reject(new Error('Timeout'));
         this.promises.delete(requestId);
-      }, 5000); // 5 seconds
+      }, 5_000); // 5 seconds
     }
 
     // Create a Promise
     return promise;
   }
 
-  // (feloy) need to subscribe several times?
-  subscribe(msgId: string, f: (msg: any) => void): Subscriber {
-    this.subscribers.set(msgId, f);
+  subscribe(msgId: string, f: Listener): Subscriber {
+    this.subscribers.set(msgId, (this.subscribers.get(msgId) ?? new Set()).add(f));
+
     return {
       unsubscribe: (): void => {
-        this.subscribers.delete(msgId);
+        this.subscribers.get(msgId)?.delete(f);
       },
     };
   }

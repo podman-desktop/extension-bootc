@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import type { BootcApi } from '/@shared/src/BootcAPI';
+import { BootcApi } from '/@shared/src/BootcAPI';
 import { RpcBrowser } from '/@shared/src/messages/MessageProxy';
 
 export interface RouterState {
@@ -25,7 +25,7 @@ export interface RouterState {
 
 const podmanDesktopApi = acquirePodmanDesktopApi();
 export const rpcBrowser: RpcBrowser = new RpcBrowser(window, podmanDesktopApi);
-export const bootcClient: BootcApi = rpcBrowser.getProxy<BootcApi>();
+export const bootcClient: BootcApi = rpcBrowser.getProxy<BootcApi>(BootcApi);
 
 export const saveRouterState = (state: RouterState): void => {
   podmanDesktopApi.setState(state);
