@@ -17,7 +17,7 @@
  ***********************************************************************/
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import type { Webview } from '@podman-desktop/api';
+import type { Disposable, Webview } from '@podman-desktop/api';
 
 const specialChannels = ['launchVM'];
 
@@ -52,15 +52,20 @@ export function isMessageResponse(content: unknown): content is IMessageResponse
   return isMessageRequest(content) && 'status' in content;
 }
 
-export class RpcExtension {
+export class RpcExtension implements Disposable {
+  #webviewDisposable: Disposable | undefined;
   methods: Map<string, (...args: unknown[]) => Promise<unknown>> = new Map();
 
   constructor(private webview: Webview) {
     this.init();
   }
 
+  dispose(): void {
+    this.#webviewDisposable?.dispose();
+  }
+
   init(): void {
-    this.webview.onDidReceiveMessage(async (message: unknown) => {
+    this.#webviewDisposable = this.webview.onDidReceiveMessage(async (message: unknown) => {
       if (!isMessageRequest(message)) {
         console.error('Received incompatible message.', message);
         return;
@@ -200,14 +205,14 @@ export class RpcBrowser {
       args: args,
     } as IMessageRequest);
 
-    // Add a timeout of 10 seconds for each call. However, if there is any "special" call that should not have a timeout, we can add a check here.
+    // Add a timeout of 5 seconds for each call. However, if there is any "special" call that should not have a timeout, we can add a check here.
     if (!specialChannels.includes(channel)) {
       setTimeout(() => {
         const { reject } = this.promises.get(requestId) ?? {};
         if (!reject) return;
         reject(new Error('Timeout'));
         this.promises.delete(requestId);
-      }, 10000); // 10 seconds
+      }, 5000); // 5 seconds
     }
 
     // Create a Promise
