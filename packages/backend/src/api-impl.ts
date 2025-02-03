@@ -34,6 +34,7 @@ import examplesCatalog from '../assets/examples.json';
 import type { ExamplesList } from '/@shared/src/models/examples';
 
 export class BootcApiImpl implements BootcApi {
+  static readonly CHANNEL: string = 'BootcApi';
   private history: History;
   private webview: podmanDesktopApi.Webview;
 

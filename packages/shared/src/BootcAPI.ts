@@ -21,6 +21,7 @@ import type { ImageInfo, ImageInspectInfo, ManifestInspectInfo } from '@podman-d
 import type { ExamplesList } from './models/examples';
 
 export abstract class BootcApi {
+  static readonly CHANNEL: string = 'BootcApi';
   abstract checkPrereqs(): Promise<string | undefined>;
   abstract checkVMLaunchPrereqs(build: BootcBuildInfo): Promise<string | undefined>;
   abstract launchVM(build: BootcBuildInfo): Promise<void>;
