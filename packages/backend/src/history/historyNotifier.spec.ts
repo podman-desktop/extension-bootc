@@ -25,10 +25,11 @@ import { HistoryNotifier } from './historyNotifier';
 vi.mock('@podman-desktop/api', () => {
   return {
     fs: {
-      createFileSystemWatcher: (): object => ({
+      createFileSystemWatcher: (): FileSystemWatcher => ({
         onDidCreate: vi.fn(),
         onDidDelete: vi.fn(),
         onDidChange: vi.fn(),
+        dispose: vi.fn(),
       }),
     },
     window: {

@@ -52,7 +52,7 @@ vi.mock('@podman-desktop/api', async () => {
       registerCommand: vi.fn(),
     },
     Uri: class {
-      static readonly joinPath = (): object => ({ fsPath: '.' });
+      static readonly joinPath = (): podmanDesktopApi.Uri => ({ fsPath: '.' }) as podmanDesktopApi.Uri;
     },
     window: {
       createWebviewPanel: (): podmanDesktopApi.WebviewPanel =>

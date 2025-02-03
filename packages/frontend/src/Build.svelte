@@ -1005,7 +1005,7 @@ $: if (availableArchitectures) {
         {#if buildInProgress}
           <Button class="w-full" disabled={true}>Creating build task</Button>
         {:else}
-          <Button on:click={buildBootcImage} disabled={errorFormValidation != undefined} class="w-full">Build</Button>
+          <Button on:click={buildBootcImage} disabled={errorFormValidation !== undefined} class="w-full">Build</Button>
           <!-- If on Linux, warn that during the build, credentials will be asked in order to run an escalated privileged build prompt -->
           {#if isLinux}
             <p class="text-sm text-[var(--pd-content-text)] pt-1">
