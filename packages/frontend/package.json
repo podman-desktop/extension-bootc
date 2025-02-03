@@ -38,7 +38,7 @@
     "@types/humanize-duration": "^3.27.4",
     "@types/node": "^20.17.16",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
-    "@typescript-eslint/parser": "^8.22.0",
+    "@typescript-eslint/parser": "^8.23.0",
     "autoprefixer": "^10.4.20",
     "filesize": "^10.1.6",
     "humanize-duration": "^3.32.1",
