@@ -47,6 +47,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
 
   telemetryLogger.logUsage('start');
 
+  await fs.promises.mkdir(extensionContext.storagePath, { recursive: true });
   const history = new History(extensionContext.storagePath);
   await history.loadFile();
 
