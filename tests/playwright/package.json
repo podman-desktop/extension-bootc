@@ -10,8 +10,8 @@
   "author": "Red Hat",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@playwright/test": "^1.50.1",
-    "@podman-desktop/tests-playwright": "next",
+    "@playwright/test": "1.50.0",
+    "@podman-desktop/tests-playwright": "1.16.1",
     "@types/node": "^20",
     "electron": "^34.0.2",
     "typescript": "^5.7.3",
