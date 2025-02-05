@@ -76,8 +76,8 @@
           "badge": {
             "label": "bootc",
             "color": {
-              "dark": "bg-sky-300",
-              "light": "bg-sky-300"
+              "dark": "#7dd3fc",
+              "light": "#7dd3fc"
             }
           }
         }
