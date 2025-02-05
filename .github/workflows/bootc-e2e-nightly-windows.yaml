@@ -175,7 +175,7 @@ jobs:
           -e OUTPUT_FOLDER=/data \
           -e DEBUG=true \
           -v $PWD:/data:z \
-          quay.io/odockal/pde2e-podman:v0.0.1-windows  \
+          quay.io/odockal/pde2e-podman:v0.0.3-windows  \
             pd-e2e/podman.ps1 \
               -downloadUrl ${{ env.PODMAN_URL }} \
               -version ${{ env.PODMAN_VERSION }} \
