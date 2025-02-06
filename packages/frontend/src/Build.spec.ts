@@ -19,7 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { vi, test, expect } from 'vitest';
-import { screen, render, waitFor } from '@testing-library/svelte';
+import { screen, render } from '@testing-library/svelte';
 import Build from './Build.svelte';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import type { ImageInfo, ImageInspectInfo, ManifestInspectInfo } from '@podman-desktop/api';
@@ -536,7 +536,7 @@ test('Show the image if isManifest: true and Labels is empty', async () => {
   vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
   render(Build, { imageName: 'testmanifest1', imageTag: 'latest' });
 
-  waitFor(() => {
+  await vi.waitFor(() => {
     expect(spyOnInspectManifest).toHaveBeenCalled();
   });
 
@@ -657,7 +657,7 @@ test('have amd64 and arm64 NOT disabled if inspectManifest contains both archite
   vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
   render(Build, { imageName: 'testmanifest1', imageTag: 'latest' });
 
-  waitFor(() => {
+  await vi.waitFor(() => {
     expect(spyOnInspectManifest).toHaveBeenCalled();
   });
 

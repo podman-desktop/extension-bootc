@@ -31,13 +31,14 @@ async function gotoBuild(): Promise<void> {
 async function pullExampleImage(): Promise<void> {
   pullInProgress = true;
   displayDisclaimer = false;
-  bootcClient.pullImage(exampleImage);
+  await bootcClient.pullImage(exampleImage);
 
   // After 5 seconds, check if pull is still in progress and display disclaimer if true
-  setTimeout(async () => {
+  setTimeout(() => {
     if (pullInProgress) {
       displayDisclaimer = true;
-      await tick(); // Ensure UI updates to reflect the new state
+      // Ensure UI updates to reflect the new state
+      tick().catch((e: unknown) => console.error('error updating disclaimer', e));
     }
   }, 5000);
 }
@@ -45,7 +46,7 @@ async function pullExampleImage(): Promise<void> {
 onMount(async () => {
   bootcAvailableImages = await bootcClient.listBootcImages();
 
-  return rpcBrowser.subscribe(Messages.MSG_IMAGE_PULL_UPDATE, async msg => {
+  return rpcBrowser.subscribe(Messages.MSG_IMAGE_PULL_UPDATE, msg => {
     if (msg.image === exampleImage) {
       pullInProgress = !msg.success;
       if (!pullInProgress) {
@@ -54,7 +55,12 @@ onMount(async () => {
     }
     // Update the list of available images after a successful pull
     if (msg.success) {
-      bootcAvailableImages = await bootcClient.listBootcImages();
+      bootcClient
+        .listBootcImages()
+        .then(images => {
+          bootcAvailableImages = images;
+        })
+        .catch((e: unknown) => console.error('error while updating images', e));
     }
   });
 });

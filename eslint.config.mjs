@@ -131,8 +131,8 @@ export default [
       '@typescript-eslint/consistent-type-imports': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/await-thenable': 'error',
-      '@typescript-eslint/no-floating-promises': 'off',
-      '@typescript-eslint/no-misused-promises': 'off',
+      '@typescript-eslint/no-floating-promises': ['error', { ignoreVoid: false }],
+      '@typescript-eslint/no-misused-promises': 'error',
       '@typescript-eslint/prefer-optional-chain': 'error',
       '@typescript-eslint/explicit-function-return-type': 'error',
       '@typescript-eslint/prefer-nullish-coalescing': [

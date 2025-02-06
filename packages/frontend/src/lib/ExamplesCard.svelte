@@ -20,8 +20,13 @@ onMount(async () => {
   updateExamplesWithPulledImages();
 
   // Update the available bootc images if we receive a msg image pull update from the UI
-  return rpcBrowser.subscribe(Messages.MSG_IMAGE_PULL_UPDATE, async msg => {
-    bootcAvailableImages = await bootcClient.listBootcImages();
+  return rpcBrowser.subscribe(Messages.MSG_IMAGE_PULL_UPDATE, msg => {
+    bootcClient
+      .listBootcImages()
+      .then(images => {
+        bootcAvailableImages = images;
+      })
+      .catch((e: unknown) => console.error('error while updating images', e));
 
     if (msg.image) {
       const example = examples.find(example => example.image === msg.image);

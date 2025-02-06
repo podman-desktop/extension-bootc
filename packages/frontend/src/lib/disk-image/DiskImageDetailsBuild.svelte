@@ -83,8 +83,10 @@ onMount(async () => {
   // Fetch logs initially and set up the interval to run every 2 seconds
   // we do this to avoid having to setup a file watcher since long-running commands to the backend is
   // not possible through RPC calls (yet).
-  fetchFolderLogs();
-  logInterval = setInterval(fetchFolderLogs, refreshInterval);
+  await fetchFolderLogs();
+  logInterval = setInterval(() => {
+    fetchFolderLogs;
+  }, refreshInterval);
 
   // Resize the terminal each time we change the div size
   resizeObserver = new ResizeObserver(() => {
