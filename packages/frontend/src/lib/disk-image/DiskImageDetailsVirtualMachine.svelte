@@ -181,7 +181,7 @@ async function launchVM(build: BootcBuildInfo): Promise<void> {
 
   // This is launched IN THE BACKGROUND. We do not wait for the VM to boot before showing the terminal.
   // we instead are notified by subscribing to Messages.MSG_VM_LAUNCH_ERROR messages from RPC
-  await bootcClient.launchVM(build);
+  bootcClient.launchVM(build).catch((e: unknown) => console.error('error launching VM', e));
 
   // Initialize the terminal so it awaits the websocket connection.
   await initTerminal();
