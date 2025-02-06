@@ -99,7 +99,7 @@
     "@types/node": "^20",
     "@typescript-eslint/eslint-plugin": "^8.23.0",
     "@typescript-eslint/parser": "^8.23.0",
-    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/coverage-v8": "^3.0.5",
     "@xterm/xterm": "^5.5.0",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/addon-attach": "^0.11.0",
@@ -113,8 +113,8 @@
     "eslint-plugin-sonarjs": "^3.0.1",
     "prettier": "^3.4.2",
     "typescript": "5.7.3",
-    "vite": "^5.4.11",
-    "vitest": "^2.1.8"
+    "vite": "6.0.11",
+    "vitest": "^3.0.5"
   },
   "dependencies": {
     "semver": "^7.7.1"
