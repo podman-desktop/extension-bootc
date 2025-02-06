@@ -2,8 +2,8 @@
 import type { Example, Category } from '/@shared/src/models/examples';
 import { onMount } from 'svelte';
 import { NavPage } from '@podman-desktop/ui-svelte';
-import { bootcClient } from './api/client';
-import ExamplesCard from './lib/ExamplesCard.svelte';
+import { bootcClient } from '/@/api/client';
+import ExamplesCard from './ExamplesCard.svelte';
 
 let groups: Map<Category, Example[]> = new Map();
 

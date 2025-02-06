@@ -24,11 +24,11 @@ import type { ExamplesList } from '/@shared/src/models/examples';
 import type { ImageInfo } from '@podman-desktop/api';
 
 import Examples from './Examples.svelte';
-import { bootcClient } from './api/client';
+import { bootcClient } from '/@/api/client';
 import { tick } from 'svelte';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
-vi.mock('./api/client', async () => {
+vi.mock('/@/api/client', async () => {
   return {
     bootcClient: {
       getExamples: vi.fn(),

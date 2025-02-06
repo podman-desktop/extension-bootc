@@ -8,11 +8,11 @@ import { onMount } from 'svelte';
 import { getRouterState, rpcBrowser } from './api/client';
 import { Messages } from '/@shared/src/messages/Messages';
 import DiskImageDetails from './lib/disk-image/DiskImageDetails.svelte';
-import Examples from './Examples.svelte';
+import Examples from './lib/examples/Examples.svelte';
 import Navigation from './Navigation.svelte';
 import DiskImagesList from './lib/disk-image/DiskImagesList.svelte';
 import Dashboard from './lib/dashboard/Dashboard.svelte';
-import ExampleDetails from './lib/ExampleDetails.svelte';
+import ExampleDetails from './lib/examples/ExampleDetails.svelte';
 
 router.mode.hash();
 

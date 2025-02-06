@@ -4,7 +4,7 @@ import { faArrowDown, faArrowUpRightFromSquare } from '@fortawesome/free-solid-s
 import { bootcClient } from '/@/api/client';
 import { Button, Dropdown } from '@podman-desktop/ui-svelte';
 import { router } from 'tinro';
-import DiskImageIcon from './DiskImageIcon.svelte';
+import DiskImageIcon from '../DiskImageIcon.svelte';
 import { filesize } from 'filesize';
 import { onMount } from 'svelte';
 
