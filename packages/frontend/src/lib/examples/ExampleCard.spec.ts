@@ -25,7 +25,7 @@ import { router } from 'tinro';
 import type { Example, ExampleState } from '/@shared/src/models/examples';
 
 // Mock bootcClient methods
-vi.mock('../api/client', () => {
+vi.mock('/@/api/client', () => {
   return {
     bootcClient: {
       getArch: vi.fn(),

@@ -1,13 +1,13 @@
 <script lang="ts">
 import { DetailsPage, Button } from '@podman-desktop/ui-svelte';
-import MarkdownRenderer from './markdown/MarkdownRenderer.svelte';
+import MarkdownRenderer from '/@/lib/markdown/MarkdownRenderer.svelte';
 import ExampleDetailsLayout from './ExampleDetailsLayout.svelte';
 import { router } from 'tinro';
 import { onMount } from 'svelte';
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { bootcClient } from '/@/api/client';
 import type { Example } from '/@shared/src/models/examples';
-import DiskImageIcon from './DiskImageIcon.svelte';
+import DiskImageIcon from '/@/lib/DiskImageIcon.svelte';
 
 export let id: string;
 let example: Example;

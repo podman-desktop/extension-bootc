@@ -1,9 +1,9 @@
 <script lang="ts">
-import Card from './Card.svelte';
+import Card from '/@/lib/Card.svelte';
 import ExampleCard from './ExampleCard.svelte';
 import type { Example, Category } from '/@shared/src/models/examples';
 import { onMount } from 'svelte';
-import { bootcClient, rpcBrowser } from '../api/client';
+import { bootcClient, rpcBrowser } from '/@/api/client';
 import type { ImageInfo } from '@podman-desktop/api';
 import { Messages } from '/@shared/src/messages/Messages';
 
