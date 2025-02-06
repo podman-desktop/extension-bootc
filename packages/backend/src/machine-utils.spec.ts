@@ -41,6 +41,8 @@ const fakeConnection: ContainerProviderConnection = {
   vmType: 'applehv',
 };
 
+vi.mock('node:fs');
+vi.mock('node:os');
 vi.mock('@podman-desktop/api', async () => {
   return {
     configuration: {
@@ -51,7 +53,11 @@ vi.mock('@podman-desktop/api', async () => {
         };
       },
     },
-    env: vi.fn(),
+    env: {
+      isLinux: false,
+      isMac: false,
+      isWindows: false,
+    },
     process: {
       exec: vi.fn(),
     },
@@ -67,7 +73,7 @@ vi.mock('@podman-desktop/api', async () => {
 });
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
 });
 
 test('Check isPodmanMachineRootful functionality', async () => {
@@ -91,7 +97,6 @@ test('Check isPodmanMachineRootful functionality', async () => {
   );
 
   // Mock existsSync to return true (the "fake" file is there)
-  vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
 
   // Mock the readFile function to return the "fake" file with rootful being true
@@ -120,7 +125,6 @@ test('Fail isPodmanMachineRootful functionality be false if Rootful does not exi
   );
 
   // Mock existsSync to return true (the "fake" file is there)
-  vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
 
   // Mock the readFile function to return the "fake" file with Rootful not existing
@@ -149,7 +153,6 @@ test('Pass true if Rootful is in HostUser', async () => {
   );
 
   // Mock existsSync to return true (the "fake" file is there)
-  vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
 
   // Mock the readFile function to return the "fake" file with Rootful not existing
@@ -169,7 +172,6 @@ test('Check isPodmanV5Machine on 4.9', async () => {
   );
 
   // Mock existsSync to return true (the "fake" file is there)
-  vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
 
   // Mock the readFile function to return the "fake" file with rootful being true
@@ -192,7 +194,6 @@ test('Check isPodmanV5Machine on 5.0', async () => {
   );
 
   // Mock existsSync to return true (the "fake" file is there)
-  vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
 
   // Mock the readFile function to return the "fake" file with rootful being true
@@ -215,7 +216,6 @@ test('Check isPodmanV5Machine on 5.0.0-dev resolves to be true', async () => {
   );
 
   // Mock existsSync to return true (the "fake" file is there)
-  vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
 
   // Mock the readFile function to return the "fake" file with rootful being true
@@ -235,7 +235,6 @@ test('Fail if machine version is 4.0.0 for isPodmanV5Machine', async () => {
   );
 
   // Mock existsSync to return true (the "fake" file is there)
-  vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
 
   // Mock the readFile function to return the "fake" file with rootful being true
@@ -255,7 +254,6 @@ test('Fail if machine version is 4.0.0-dev for isPodmanV5Machine', async () => {
   );
 
   // Mock existsSync to return true (the "fake" file is there)
-  vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
 
   // Mock the readFile function to return the "fake" file with rootful being true
@@ -264,7 +262,6 @@ test('Fail if machine version is 4.0.0-dev for isPodmanV5Machine', async () => {
 });
 
 test('Fail prereq if not Podman v5 (macos/windows)', async () => {
-  vi.mock('node:os');
   vi.spyOn(os, 'platform').mockImplementation(() => 'darwin');
   const fakeMachineInfoJSON = {
     Version: {
@@ -281,7 +278,6 @@ test('Fail prereq if not Podman v5 (macos/windows)', async () => {
 });
 
 test('Fail prereq if not rootful (macos/windows)', async () => {
-  vi.mock('node:os');
   vi.spyOn(os, 'platform').mockImplementation(() => 'darwin');
   const fakeMachineInfoJSON = {
     Host: {
@@ -297,7 +293,6 @@ test('Fail prereq if not rootful (macos/windows)', async () => {
     Promise.resolve({ stdout: JSON.stringify(fakeMachineInfoJSON) } as extensionApi.RunResult),
   );
 
-  vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
   vi.spyOn(fs.promises, 'readFile').mockReturnValueOnce(
     Promise.resolve(JSON.stringify({ HostUser: { Rootful: false } })),
@@ -309,8 +304,9 @@ test('Fail prereq if not rootful (macos/windows)', async () => {
 });
 
 test('Pass prereq if rootful v5 machine (macos/windows)', async () => {
-  vi.mock('node:os');
-  vi.spyOn(os, 'platform').mockImplementation(() => 'darwin');
+  vi.mocked(extensionApi.env).isMac = true;
+  vi.mocked(extensionApi.env).isWindows = true;
+  vi.mocked(extensionApi.env).isLinux = true;
   const fakeMachineInfoJSON = {
     Host: {
       CurrentMachine: '',
@@ -327,7 +323,6 @@ test('Pass prereq if rootful v5 machine (macos/windows)', async () => {
   );
 
   // Mock existsSync to return true (the "fake" file is there)
-  vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
 
   // Mock the readFile function to return the "fake" file with rootful being true
@@ -338,7 +333,6 @@ test('Pass prereq if rootful v5 machine (macos/windows)', async () => {
 });
 
 test('Pass prereq (linux)', async () => {
-  vi.mock('node:os');
-  vi.spyOn(os, 'platform').mockImplementation(() => 'linux');
+  vi.mocked(extensionApi.env).isLinux = true;
   expect(await machineUtils.checkPrereqs(fakeConnection)).toEqual(undefined);
 });
