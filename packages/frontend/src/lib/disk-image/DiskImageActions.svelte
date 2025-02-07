@@ -6,10 +6,13 @@ import { router } from 'tinro';
 import { bootcClient } from '/@/api/client';
 import { onMount } from 'svelte';
 
-export let object: BootcBuildInfo;
-export let detailed = false;
+interface Props {
+  object: BootcBuildInfo;
+  detailed?: boolean;
+}
 
-let isWindows = false;
+let { object, detailed = false }: Props = $props();
+let isWindows = $state(false);
 
 // Delete the build
 async function deleteBuild(): Promise<void> {

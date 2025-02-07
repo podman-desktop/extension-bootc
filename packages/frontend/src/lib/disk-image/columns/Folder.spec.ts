@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { test, expect } from 'vitest';
+import { beforeEach, vi, test, expect } from 'vitest';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import { screen, render } from '@testing-library/svelte';
-import DiskImageColumnImage from './DiskImageColumnImage.svelte';
+import DiskImageColumnFolder from './Folder.svelte';
+import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
 const mockHistoryInfo: BootcBuildInfo = {
   id: 'name1',
@@ -32,20 +33,28 @@ const mockHistoryInfo: BootcBuildInfo = {
   status: 'running',
 };
 
-test('Expect to render as name:tag', async () => {
-  render(DiskImageColumnImage, { object: mockHistoryInfo });
-
-  const name = screen.getByText('image1:latest');
-  expect(name).not.toBeNull();
+vi.mock('/@/api/client', async () => {
+  return {
+    rpcBrowser: {
+      subscribe: (): Subscriber => {
+        return {
+          unsubscribe: (): void => {},
+        };
+      },
+    },
+  };
 });
 
-test('Expect click goes to details page', async () => {
-  render(DiskImageColumnImage, { object: mockHistoryInfo });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
-  const name = screen.getByText('image1:latest');
-  expect(name).not.toBeNull();
+test('Expect to render folder column with a button to open the folder', async () => {
+  render(DiskImageColumnFolder, { object: mockHistoryInfo });
 
-  name.click();
+  const folder = screen.getByText('/foo/image1');
+  expect(folder).not.toBeNull();
 
-  expect(window.location.href).toContain('/summary');
+  // Expect button to be there with a link to the build
+  expect(screen.getByRole('link', { name: '/foo/image1' })).not.toBeNull();
 });
