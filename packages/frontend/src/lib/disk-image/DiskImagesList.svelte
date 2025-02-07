@@ -2,13 +2,13 @@
 import { onMount } from 'svelte';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import DiskImageColumnActions from './DiskImageColumnActions.svelte';
+import DiskImageColumnActions from './columns/Actions.svelte';
 import { bootcClient } from '/@/api/client';
 import BootcStatus from '../BootcStatus.svelte';
 import { searchPattern, filtered } from '../../stores/historyInfo';
 import DiskImageIcon from '../DiskImageIcon.svelte';
-import DiskImageColumnFolder from './DiskImageColumnFolder.svelte';
-import DiskImageColumnImage from './DiskImageColumnImage.svelte';
+import DiskImageColumnFolder from './columns/Folder.svelte';
+import DiskImageColumnImage from './columns/Image.svelte';
 import {
   Button,
   Table,
@@ -21,11 +21,16 @@ import {
 import DiskImageEmptyScreen from './DiskImageEmptyScreen.svelte';
 import { gotoBuild } from '../navigation';
 
-// Search functionality
-export let searchTerm = '';
-$: searchPattern.set(searchTerm);
+interface Props {
+  searchTerm?: string;
+}
+let { searchTerm = '' }: Props = $props();
 
-let history: BootcBuildInfoWithSelected[] = [];
+$effect(() => {
+  searchPattern.set(searchTerm);
+});
+
+let history = $state<BootcBuildInfoWithSelected[]>([]);
 
 interface BootcBuildInfoWithSelected extends BootcBuildInfo {
   selected: boolean;
@@ -38,7 +43,8 @@ onMount(() => {
 });
 
 // Bulk delete the selected builds
-let bulkDeleteInProgress = false;
+let bulkDeleteInProgress = $state(false);
+
 async function deleteSelectedBuilds(): Promise<void> {
   const selected = history.filter(history => history.selected);
   if (selected.length === 0) {
@@ -53,8 +59,8 @@ async function deleteSelectedBuilds(): Promise<void> {
   bulkDeleteInProgress = false;
 }
 
-let selectedItemsNumber: number;
-let table: Table;
+let selectedItemsNumber = $state<number>(0);
+let table = $state<Table>();
 
 // COLUMNS
 let statusColumn = new TableColumn<BootcBuildInfo>('Status', {

@@ -18,7 +18,7 @@
 import { beforeEach, vi, test, expect } from 'vitest';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import { screen, render } from '@testing-library/svelte';
-import DiskImageColumnActions from '/@/lib/disk-image/DiskImageColumnActions.svelte';
+import DiskImageColumnActions from '/@/lib/disk-image/columns/Actions.svelte';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
 const mockHistoryInfo: BootcBuildInfo = {

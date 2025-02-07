@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { beforeEach, vi, test, expect } from 'vitest';
+import { test, expect } from 'vitest';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import { screen, render } from '@testing-library/svelte';
-import DiskImageColumnFolder from './DiskImageColumnFolder.svelte';
-import type { Subscriber } from '/@shared/src/messages/MessageProxy';
+import DiskImageColumnImage from './Image.svelte';
 
 const mockHistoryInfo: BootcBuildInfo = {
   id: 'name1',
@@ -33,28 +32,20 @@ const mockHistoryInfo: BootcBuildInfo = {
   status: 'running',
 };
 
-vi.mock('/@/api/client', async () => {
-  return {
-    rpcBrowser: {
-      subscribe: (): Subscriber => {
-        return {
-          unsubscribe: (): void => {},
-        };
-      },
-    },
-  };
+test('Expect to render as name:tag', async () => {
+  render(DiskImageColumnImage, { object: mockHistoryInfo });
+
+  const name = screen.getByText('image1:latest');
+  expect(name).not.toBeNull();
 });
 
-beforeEach(() => {
-  vi.clearAllMocks();
-});
+test('Expect click goes to details page', async () => {
+  render(DiskImageColumnImage, { object: mockHistoryInfo });
 
-test('Expect to render folder column with a button to open the folder', async () => {
-  render(DiskImageColumnFolder, { object: mockHistoryInfo });
+  const name = screen.getByText('image1:latest');
+  expect(name).not.toBeNull();
 
-  const folder = screen.getByText('/foo/image1');
-  expect(folder).not.toBeNull();
+  name.click();
 
-  // Expect button to be there with a link to the build
-  expect(screen.getByRole('link', { name: '/foo/image1' })).not.toBeNull();
+  expect(window.location.href).toContain('/summary');
 });

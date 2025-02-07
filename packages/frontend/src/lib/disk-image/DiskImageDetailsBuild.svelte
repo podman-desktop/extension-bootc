@@ -9,20 +9,23 @@ import { router } from 'tinro';
 import { bootcClient } from '/@/api/client';
 import { getTerminalTheme } from '/@/lib/upstream/terminal-theme';
 
-export let folder: string | undefined;
+interface Props {
+  folder?: string;
+}
+let { folder }: Props = $props();
 
 // Log
-let logsXtermDiv: HTMLDivElement;
-let noLogs = true;
-let previousLogs: string = '';
-const refreshInterval = 2000;
+let logsXtermDiv = $state<HTMLDivElement>();
+let noLogs = $state(true);
+let previousLogs = $state('');
+const refreshInterval = $state(2000);
 
 // Terminal resize
-let resizeObserver: ResizeObserver;
-let termFit: FitAddon;
+let resizeObserver = $state<ResizeObserver>();
+let termFit = $state<FitAddon>();
 
-let logsTerminal: Terminal;
-let logInterval: NodeJS.Timeout;
+let logsTerminal = $state<Terminal>();
+let logInterval = $state<NodeJS.Timeout>();
 
 async function fetchFolderLogs(): Promise<void> {
   if (!folder) {
@@ -37,7 +40,7 @@ async function fetchFolderLogs(): Promise<void> {
   if (logs !== previousLogs) {
     // Write only the new logs to the log
     const newLogs = logs.slice(previousLogs.length);
-    logsTerminal.write(newLogs);
+    logsTerminal?.write(newLogs);
     previousLogs = logs; // Update the stored logs
     noLogs = false; // Make sure that the logs are visible
   }
@@ -71,7 +74,7 @@ async function refreshTerminal(): Promise<void> {
 
   // Call fit addon each time we resize the window
   window.addEventListener('resize', () => {
-    termFit.fit();
+    termFit?.fit();
   });
   termFit.fit();
 }
@@ -94,12 +97,16 @@ onMount(async () => {
   });
 
   // Observe the terminal div
-  resizeObserver.observe(logsXtermDiv);
+  if (logsXtermDiv) {
+    resizeObserver.observe(logsXtermDiv);
+  }
 });
 
 onDestroy(() => {
   // Cleanup the observer on destroy
-  resizeObserver?.unobserve(logsXtermDiv);
+  if (logsXtermDiv) {
+    resizeObserver?.unobserve(logsXtermDiv);
+  }
 
   // Clear the interval when the component is destroyed
   clearInterval(logInterval);
