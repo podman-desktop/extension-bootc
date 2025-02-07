@@ -1,7 +1,10 @@
 <script lang="ts">
 import Label from '/@/lib/upstream/Label.svelte';
 
-export let status: string;
+interface Props {
+  status: string;
+}
+let { status }: Props = $props();
 
 function getClassColor(): string {
   if (status.includes('VM stopped') || status.includes('VM error') || status.includes('VM launch error')) {

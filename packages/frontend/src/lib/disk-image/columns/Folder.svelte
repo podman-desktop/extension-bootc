@@ -1,8 +1,8 @@
 <script lang="ts">
 import Link from '/@/lib/Link.svelte';
-import type { BootcBuildInfo } from '/@shared/src/models/bootc';
+import type { Props } from './props';
 
-export let object: BootcBuildInfo;
+let { object }: Props = $props();
 </script>
 
 <div class="text-[var(--pd-table-body-text)] overflow-hidden text-ellipsis">

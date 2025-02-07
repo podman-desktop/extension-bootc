@@ -14,24 +14,28 @@ import { Messages } from '/@shared/src/messages/Messages';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 
-export let build: BootcBuildInfo;
+interface Props {
+  build: BootcBuildInfo | undefined;
+}
+let { build }: Props = $props();
 
 // Terminal and WebSocket connection variables
-let logsXtermDiv: HTMLDivElement;
-let noLogs = true;
-let resizeObserver: ResizeObserver;
-let termFit: FitAddon;
-let attachAddon: AttachAddon;
-let logsTerminal: Terminal;
-let socket: WebSocket;
-let launchInProgress = false;
+let logsXtermDiv = $state<HTMLDivElement>();
+let noLogs = $state(true);
+let resizeObserver = $state<ResizeObserver>();
+let termFit = $state<FitAddon>();
+let attachAddon = $state<AttachAddon>();
+let logsTerminal = $state<Terminal>();
+let socket = $state<WebSocket>();
+let launchInProgress = $state(false);
 
 // Status information regarding any VM launch errors (since we subscribe and get the notification)
-let connectionStatus = '';
-let socketStatus = '';
-let vmLaunchError: string;
-let vmLaunchPrereqs: string | undefined;
-let notifySubscriber: Subscriber;
+let connectionStatus = $state('');
+let socketStatus = $state('');
+let vmLaunchError = $state<string>();
+let vmLaunchPrereqs = $state<string>();
+let notifySubscriber = $state<Subscriber>();
+
 const VM_LAUNCH_ERROR_MESSAGE = 'VM launch error';
 const GUIDE_LINK = 'https://github.com/containers/podman-desktop-extension-bootc/blob/main/docs/vm_launcher.md';
 
@@ -134,7 +138,7 @@ async function initTerminal(): Promise<void> {
 
   // Call fit addon each time we resize the window
   window.addEventListener('resize', () => {
-    termFit.fit();
+    termFit?.fit();
   });
   termFit.fit();
 
@@ -192,7 +196,7 @@ async function launchVM(build: BootcBuildInfo): Promise<void> {
   const startTime = Date.now();
   const timeout = 30_000; // 30 seconds
 
-  while (logsTerminal.buffer.normal.length < 1) {
+  while (!logsTerminal?.buffer.normal.length || logsTerminal.buffer.normal.length < 1) {
     if (Date.now() - startTime > timeout) {
       console.error('Timeout waiting for terminal logs');
       break;
@@ -216,12 +220,12 @@ async function launchVM(build: BootcBuildInfo): Promise<void> {
 // be present in the terminal.
 async function resetTerminalTheme(): Promise<void> {
   // Wait until we have more than 100 lines in the buffer before resetting the terminal
-  while (logsTerminal.buffer.normal.length < 100) {
+  while (!logsTerminal?.buffer.normal.length || logsTerminal.buffer.normal.length < 100) {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
 
   // Reset the terminal
-  logsTerminal.reset();
+  logsTerminal?.reset();
 }
 
 async function stopVM(): Promise<void> {
@@ -251,13 +255,17 @@ onMount(async () => {
   });
 
   // Observe the terminal div
-  resizeObserver.observe(logsXtermDiv);
+  if (logsXtermDiv) {
+    resizeObserver.observe(logsXtermDiv);
+  }
 
-  // Launch the VM if we pass all the prerequisites, otherwise we will show the empty screen with content / information checks.
-  vmLaunchPrereqs = await bootcClient.checkVMLaunchPrereqs(build);
+  if (build) {
+    // Launch the VM if we pass all the prerequisites, otherwise we will show the empty screen with content / information checks.
+    vmLaunchPrereqs = await bootcClient.checkVMLaunchPrereqs(build);
 
-  if (!vmLaunchPrereqs) {
-    await launchVM(build);
+    if (!vmLaunchPrereqs) {
+      await launchVM(build);
+    }
   }
 });
 
@@ -267,7 +275,9 @@ onDestroy(async () => {
   await stopVM();
 
   // Clean up all other connections and resources
-  resizeObserver?.unobserve(logsXtermDiv);
+  if (logsXtermDiv) {
+    resizeObserver?.unobserve(logsXtermDiv);
+  }
   socket?.close();
   logsTerminal?.dispose();
   notifySubscriber?.unsubscribe();

@@ -14,15 +14,15 @@ import DiskImageDetailsVirtualMachine from './DiskImageDetailsVirtualMachine.sve
 import type { Unsubscriber } from 'svelte/store';
 import { bootcClient } from '/@/api/client';
 
-export let id: string;
+interface Props {
+  id: string;
+}
+let { id }: Props = $props();
 
-let diskImage: BootcBuildInfo;
-
-let detailsPage: DetailsPage;
-
-let historyInfoUnsubscribe: Unsubscriber;
-
-let isWindows = false;
+let diskImage = $state<BootcBuildInfo>();
+let detailsPage = $state<DetailsPage>();
+let historyInfoUnsubscribe = $state<Unsubscriber>();
+let isWindows = $state(false);
 
 onMount(async () => {
   // See if we are on mac or linux or not for the VM tab

@@ -5,7 +5,10 @@ import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import Cell from '/@/lib/upstream/DetailsCell.svelte';
 import Link from '../Link.svelte';
 
-export let image: BootcBuildInfo | undefined;
+interface Props {
+  image?: BootcBuildInfo;
+}
+let { image }: Props = $props();
 </script>
 
 <Table>
