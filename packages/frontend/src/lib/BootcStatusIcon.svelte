@@ -21,13 +21,13 @@ $: solid =
 <div class="grid place-content-center" style="position:relative">
   <div
     class="grid place-content-center rounded-sm aspect-square text-xs"
-    class:bg-green-600={status === 'success'}
-    class:bg-sky-400={status === 'running'}
-    class:bg-red-600={status === 'error'}
-    class:bg-amber-600={status === 'lost'}
+    class:bg-[var(--pd-status-running)]={status === 'success'}
+    class:bg-[var(--pd-status-created)]={status === 'running'}
+    class:bg-[var(--pd-status-terminated)]={status === 'error'}
+    class:bg-[var(--pd-status-degraded)]={status === 'lost'}
     class:p-0.5={!solid}
     class:p-1={solid}
-    class:border-gray-700={!solid}
+    class:border-[var(--pd-status-not-running)]={!solid}
     class:text-[var(--pd-status-not-running)]={!solid}
     class:text-[var(--pd-status-contrast)]={solid}
     role="status"
