@@ -1,7 +1,10 @@
 <script lang="ts">
 import SvelteMarkdown from 'svelte-markdown';
 
-export let source: string | undefined;
+interface Props {
+  source?: string;
+}
+let { source }: Props = $props();
 </script>
 
 <article class="prose min-w-full text-base">

@@ -9,10 +9,10 @@ import { router } from 'tinro';
 import { Button, NavPage } from '@podman-desktop/ui-svelte';
 import type { ImageInfo } from '@podman-desktop/api';
 
-let pullInProgress = false;
-let imageExists = false;
-let displayDisclaimer = false;
-let bootcAvailableImages: ImageInfo[] = [];
+let pullInProgress = $state(false);
+let imageExists = $state(false);
+let displayDisclaimer = $state(false);
+let bootcAvailableImages: ImageInfo[] = $state([]);
 
 const exampleImage = 'quay.io/bootc-extension/httpd:latest';
 const bootcImageBuilderSite = 'https://github.com/osbuild/bootc-image-builder';
@@ -66,11 +66,11 @@ onMount(async () => {
 });
 
 // Each time bootcAvailableImages updates, check if 'quay.io/bootc-extension/httpd' is in RepoTags
-$: {
+$effect(() => {
   if (bootcAvailableImages?.some(image => image.RepoTags?.includes(exampleImage))) {
     imageExists = true;
   }
-}
+});
 </script>
 
 <NavPage searchEnabled={false} title="Dashboard">
@@ -79,7 +79,7 @@ $: {
       <div class="flex flex-col h-full items-center text-center space-y-3">
         <!-- Bootable Container Icon -->
         <div class="py-2">
-          <svelte:component this={BootcSelkie} size="120" />
+          <BootcSelkie size="120" />
         </div>
 
         <h1 class="text-xl pb-4 text-[var(--pd-content-header)]">Welcome to Bootable Containers</h1>
