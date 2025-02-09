@@ -16,7 +16,7 @@ import ExampleDetails from './lib/examples/ExampleDetails.svelte';
 
 router.mode.hash();
 
-let isMounted = false;
+let isMounted = $state(false);
 
 onMount(() => {
   // Load router state on application startup
