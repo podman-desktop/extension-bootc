@@ -46,7 +46,7 @@ onMount(() => {
 let bulkDeleteInProgress = $state(false);
 
 async function deleteSelectedBuilds(): Promise<void> {
-  const selected = history.filter(history => history.selected);
+  const selected = history.filter(history => history.selected).map(history => history.id);
   if (selected.length === 0) {
     return;
   }

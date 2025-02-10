@@ -16,7 +16,7 @@ let isWindows = $state(false);
 
 // Delete the build
 async function deleteBuild(): Promise<void> {
-  await bootcClient.deleteBuilds([object]);
+  await bootcClient.deleteBuilds([object.id]);
 }
 
 // Navigate to the build

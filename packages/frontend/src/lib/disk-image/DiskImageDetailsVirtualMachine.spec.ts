@@ -69,6 +69,8 @@ test('Render virtual machine terminal window', async () => {
   await waitFor(() => {
     expect(bootcClient.launchVM).toHaveBeenCalled();
   });
+  expect(bootcClient.checkVMLaunchPrereqs).toHaveBeenCalledWith('id1');
+  expect(bootcClient.launchVM).toHaveBeenCalledWith('id1');
 });
 
 test('Show prereqs message if prereq check fails (returns ANY string)', async () => {

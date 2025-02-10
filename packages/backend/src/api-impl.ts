@@ -54,7 +54,11 @@ export class BootcApiImpl implements BootcApi {
     return checkPrereqs(await getContainerEngine());
   }
 
-  async checkVMLaunchPrereqs(build: BootcBuildInfo): Promise<string | undefined> {
+  async checkVMLaunchPrereqs(buildId: string): Promise<string | undefined> {
+    const build = this.history.getHistory().find(build => build.id === buildId);
+    if (!build) {
+      return Promise.reject(new Error(`Could not find build: ${buildId}`));
+    }
     return createVMManager(build).checkVMLaunchPrereqs();
   }
 
@@ -66,11 +70,16 @@ export class BootcApiImpl implements BootcApi {
     return buildDiskImage(build, this.history, overwrite);
   }
 
-  async launchVM(build: BootcBuildInfo): Promise<void> {
+  async launchVM(buildId: string): Promise<void> {
     try {
-      await createVMManager(build).launchVM();
-      // Notify it has successfully launched
-      await this.notify(Messages.MSG_VM_LAUNCH_ERROR, { success: 'Launched!', error: '' });
+      const build = this.history.getHistory().find(build => build.id === buildId);
+      if (!build) {
+        await this.notify(Messages.MSG_VM_LAUNCH_ERROR, { success: '', error: 'Could not find build to launch' });
+      } else {
+        await createVMManager(build).launchVM();
+        // Notify it has successfully launched
+        await this.notify(Messages.MSG_VM_LAUNCH_ERROR, { success: 'Launched!', error: '' });
+      }
     } catch (e) {
       // Make sure that we are able to display the "stderr" information if it exists as that actually shows
       // the error when running the command.
@@ -90,13 +99,18 @@ export class BootcApiImpl implements BootcApi {
     return stopCurrentVM();
   }
 
-  async deleteBuilds(builds: BootcBuildInfo[]): Promise<void> {
+  async deleteBuilds(buildIds: string[]): Promise<void> {
     const response = await podmanDesktopApi.window.showWarningMessage(
       `Are you sure you want to remove the selected disk images from the build history? This will remove the history of the build as well as remove any lingering build containers.`,
       'Yes',
       'No',
     );
     if (response === 'Yes') {
+      // create an array of builds. invalid build ids are ignored
+      const builds = buildIds
+        .map(id => this.history.getHistory().find(build => build.id === id))
+        .filter(build => build) as BootcBuildInfo[];
+
       // Map each build to a delete operation promise
       const deletePromises = builds.map(build => this.deleteBuildContainer(build));
 
@@ -330,6 +344,7 @@ export class BootcApiImpl implements BootcApi {
   // this method is internal and meant to be used by the API implementation
   protected async notify(id: string, body: unknown = {}): Promise<void> {
     // Must pass in an empty body, if it is undefined this fails
+    console.log('notify frontend: ' + id);
     await this.webview.postMessage({
       id,
       body,
