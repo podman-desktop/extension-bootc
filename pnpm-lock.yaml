@@ -212,7 +212,7 @@ importers:
         version: 5.0.3(svelte@5.19.9)(vite@6.0.11(@types/node@20.17.17)(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.7.0))
       '@tailwindcss/typography':
         specifier: ^0.5.16
-        version: 0.5.16(tailwindcss@4.0.4)
+        version: 0.5.16(tailwindcss@4.0.6)
       '@tailwindcss/vite':
         specifier: ^4.0.4
         version: 4.0.4(vite@6.0.11(@types/node@20.17.17)(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.7.0))
@@ -283,8 +283,8 @@ importers:
         specifier: ^0.4.1
         version: 0.4.1(svelte@5.19.9)
       tailwindcss:
-        specifier: ^4.0.4
-        version: 4.0.4
+        specifier: ^4.0.6
+        version: 4.0.6
       vite:
         specifier: 6.0.11
         version: 6.0.11(@types/node@20.17.17)(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.7.0)
@@ -3980,6 +3980,9 @@ packages:
   tailwindcss@4.0.4:
     resolution: {integrity: sha512-/ezDLEkOLf1lXkr9F2iI5BHJbexJpty5zkV2B8bGHCqAdbc9vk85Jgdkq+ZOvNkNPa3yAaqJ8DjRt584Bc84kw==}
 
+  tailwindcss@4.0.6:
+    resolution: {integrity: sha512-mysewHYJKaXgNOW6pp5xon/emCsfAMnO8WMaGKZZ35fomnR/T5gYnRg2/yRTTrtXiEl1tiVkeRt0eMO6HxEZqw==}
+
   tapable@2.2.1:
     resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
     engines: {node: '>=6'}
@@ -5671,13 +5674,13 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.0.4
       '@tailwindcss/oxide-win32-x64-msvc': 4.0.4
 
-  '@tailwindcss/typography@0.5.16(tailwindcss@4.0.4)':
+  '@tailwindcss/typography@0.5.16(tailwindcss@4.0.6)':
     dependencies:
       lodash.castarray: 4.4.0
       lodash.isplainobject: 4.0.6
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
-      tailwindcss: 4.0.4
+      tailwindcss: 4.0.6
 
   '@tailwindcss/vite@4.0.4(vite@6.0.11(@types/node@20.17.17)(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.7.0))':
     dependencies:
@@ -8631,6 +8634,8 @@ snapshots:
   symbol-tree@3.2.4: {}
 
   tailwindcss@4.0.4: {}
+
+  tailwindcss@4.0.6: {}
 
   tapable@2.2.1: {}
 
