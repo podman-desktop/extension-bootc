@@ -98,6 +98,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
 
   // Register the 'api' for the webview to communicate to the backend
   const rpcExtension = new RpcExtension(panel.webview);
+  rpcExtension.init();
   extensionContext.subscriptions.push(rpcExtension);
 
   const bootcApi = new BootcApiImpl(extensionContext, panel.webview);
