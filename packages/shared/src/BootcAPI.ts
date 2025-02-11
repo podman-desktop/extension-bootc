@@ -23,14 +23,14 @@ import type { ExamplesList } from './models/examples';
 export abstract class BootcApi {
   static readonly CHANNEL: string = 'BootcApi';
   abstract checkPrereqs(): Promise<string | undefined>;
-  abstract checkVMLaunchPrereqs(build: BootcBuildInfo): Promise<string | undefined>;
-  abstract launchVM(build: BootcBuildInfo): Promise<void>;
+  abstract checkVMLaunchPrereqs(buildId: string): Promise<string | undefined>;
+  abstract launchVM(buildId: string): Promise<void>;
   abstract buildExists(folder: string, types: BuildType[]): Promise<boolean>;
   abstract buildImage(build: BootcBuildInfo, overwrite?: boolean): Promise<void>;
   abstract pullImage(image: string, arch?: string): Promise<void>;
   abstract inspectImage(image: ImageInfo): Promise<ImageInspectInfo>;
   abstract inspectManifest(image: ImageInfo): Promise<ManifestInspectInfo>;
-  abstract deleteBuilds(builds: BootcBuildInfo[]): Promise<void>;
+  abstract deleteBuilds(buildIds: string[]): Promise<void>;
   abstract selectOutputFolder(): Promise<string>;
   abstract selectBuildConfigFile(): Promise<string>;
   abstract listBootcImages(): Promise<ImageInfo[]>;

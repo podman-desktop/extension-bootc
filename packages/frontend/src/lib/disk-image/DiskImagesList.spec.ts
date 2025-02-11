@@ -113,6 +113,7 @@ test('Test clicking on delete button', async () => {
   deleteButton.click();
 
   expect(spyOnDelete).toHaveBeenCalled();
+  expect(spyOnDelete).toHaveBeenCalledWith(['name1']);
 });
 
 test('Test clicking on build button', async () => {
