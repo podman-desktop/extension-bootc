@@ -26,6 +26,7 @@ export interface BuildConfig {
   user?: BuildConfigUser[];
   filesystem?: BuildConfigFilesystem[];
   kernel?: BuildConfigKernel;
+  anacondaIsoInstallerModules?: BuildConfigAnacondaIsoInstallerModules;
   // In the future:
   // * Add installer.kickstart https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file#anaconda-iso-installer-options-installer-mapping
   // * Add anaconda iso modules https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file#anaconda-iso-installer-modules
@@ -41,6 +42,11 @@ export interface BuildConfigUser {
 export interface BuildConfigFilesystem {
   mountpoint: string;
   minsize: string;
+}
+
+export interface BuildConfigAnacondaIsoInstallerModules {
+  enable: string[];
+  disable: string[];
 }
 
 export interface BuildConfigKernel {

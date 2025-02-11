@@ -10,7 +10,12 @@ import {
   faPlusCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import { bootcClient } from './api/client';
-import type { BootcBuildInfo, BuildType, BuildConfig } from '/@shared/src/models/bootc';
+import type {
+  BootcBuildInfo,
+  BuildType,
+  BuildConfig,
+  BuildConfigAnacondaIsoInstallerModules,
+} from '/@shared/src/models/bootc';
 import Fa from 'svelte-fa';
 import { onMount } from 'svelte';
 import type { ImageInfo, ManifestInspectInfo } from '@podman-desktop/api';
@@ -68,6 +73,12 @@ let buildConfigUsers: { name: string; password: string; key: string; groups: str
 ];
 let buildConfigFilesystems: { mountpoint: string; minsize: string }[] = [{ mountpoint: '', minsize: '' }];
 let buildConfigKernelArguments: string;
+
+// ISO related, anaconda installer modules
+let buildConfigAnacondaIsoInstallerModules: BuildConfigAnacondaIsoInstallerModules = {
+  enable: [''],
+  disable: [''],
+};
 
 // Show/hide advanced options
 let showAdvanced = false; // State to show/hide advanced options
@@ -249,6 +260,7 @@ async function buildBootcImage(): Promise<void> {
     kernel: {
       append: buildConfigKernelArguments,
     },
+    anacondaIsoInstallerModules: buildConfigAnacondaIsoInstallerModules,
   }) as BuildConfig;
 
   const buildOptions: BootcBuildInfo = {
@@ -361,6 +373,26 @@ function addFilesystem(): void {
 
 function deleteFilesystem(index: number): void {
   buildConfigFilesystems = buildConfigFilesystems.filter((_, i) => i !== index);
+}
+
+function addEnabledAnacondaInstallerModule(): void {
+  buildConfigAnacondaIsoInstallerModules.enable = [...buildConfigAnacondaIsoInstallerModules.enable, ''];
+}
+
+function addDisabledAnacondaInstallerModule(): void {
+  buildConfigAnacondaIsoInstallerModules.disable = [...buildConfigAnacondaIsoInstallerModules.disable, ''];
+}
+
+function deleteEnabledAnacondaInstallerModule(index: number): void {
+  buildConfigAnacondaIsoInstallerModules.enable = buildConfigAnacondaIsoInstallerModules.enable.filter(
+    (_, i) => i !== index,
+  );
+}
+
+function deleteDisabledAnacondaInstallerModule(index: number): void {
+  buildConfigAnacondaIsoInstallerModules.disable = buildConfigAnacondaIsoInstallerModules.disable.filter(
+    (_, i) => i !== index,
+  );
 }
 
 // Remove any empty strings in the object before passing it in to the backend
@@ -777,7 +809,7 @@ $: if (availableArchitectures) {
               <!-- svelte-ignore a11y-no-static-element-interactions -->
               <span
                 class="font-semibold mb-2 block cursor-pointer"
-                aria-label="build-config-options"
+                aria-label="interactive-build-config-options"
                 on:click={toggleBuildConfig}
                 ><Fa icon={showBuildConfig ? faCaretDown : faCaretRight} class="inline-block mr-1" />Interactive build
                 config
@@ -881,6 +913,56 @@ $: if (availableArchitectures) {
                     id="buildConfigKernelArguments"
                     placeholder="Kernel arguments (ex. quiet)"
                     class="w-full" />
+
+                  <!-- The below section is related to anaconda-iso, only show if buildType has 'anaconda-iso' in it -->
+                  <div>
+                    <span class="block mt-6" aria-label="anaconda-iso-installer-module-title"
+                      >Anaconda ISO installer modules</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-4 mt-2">
+                    <div>
+                      <span class="block">Enable</span>
+                      {#each buildConfigAnacondaIsoInstallerModules.enable as _, index}
+                        <div class="flex flex-row justify-center items-center w-full py-1">
+                          <Input
+                            placeholder="Module name"
+                            class="mr-2"
+                            bind:value={buildConfigAnacondaIsoInstallerModules.enable[index]} />
+                          <Button
+                            type="link"
+                            hidden={index === buildConfigAnacondaIsoInstallerModules.enable.length - 1}
+                            on:click={(): void => deleteEnabledAnacondaInstallerModule(index)}
+                            icon={faMinusCircle} />
+                          <Button
+                            type="link"
+                            hidden={index < buildConfigAnacondaIsoInstallerModules.enable.length - 1}
+                            on:click={addEnabledAnacondaInstallerModule}
+                            icon={faPlusCircle} />
+                        </div>
+                      {/each}
+                    </div>
+                    <div>
+                      <span class="block">Disable</span>
+                      {#each buildConfigAnacondaIsoInstallerModules.disable as _, index}
+                        <div class="flex flex-row justify-center items-center w-full py-1">
+                          <Input
+                            placeholder="Module name"
+                            class="mr-2"
+                            bind:value={buildConfigAnacondaIsoInstallerModules.disable[index]} />
+                          <Button
+                            type="link"
+                            hidden={index === buildConfigAnacondaIsoInstallerModules.disable.length - 1}
+                            on:click={(): void => deleteDisabledAnacondaInstallerModule(index)}
+                            icon={faMinusCircle} />
+                          <Button
+                            type="link"
+                            hidden={index < buildConfigAnacondaIsoInstallerModules.disable.length - 1}
+                            on:click={addDisabledAnacondaInstallerModule}
+                            icon={faPlusCircle} />
+                        </div>
+                      {/each}
+                    </div>
+                  </div>
                 </div>
               {/if}
             </div>
@@ -1014,4 +1096,5 @@ $: if (availableArchitectures) {
         {/if}
       </div>
     {/if}
-  </div></FormPage>
+  </div>
+</FormPage>

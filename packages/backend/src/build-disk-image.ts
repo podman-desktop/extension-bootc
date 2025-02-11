@@ -511,6 +511,33 @@ export function createBuildConfigJSON(buildConfig: BuildConfig): Record<string, 
     config.kernel = buildConfig.kernel;
   }
 
+  /*
+  For anaconda modules, it'll be a bit different, within the JSON it's setup as:
+  {
+    "customizations": {
+      "installer": {
+        "modules": {
+          "enable": [
+            "org.fedoraproject.Anaconda.Modules.Localization"
+          ],
+          "disable": [
+            "org.fedoraproject.Anaconda.Modules.Users"
+          ]
+        }
+      }
+    }
+  }
+  So we make sure that we put it in the correct modules section
+  */
+  if (buildConfig.anacondaIsoInstallerModules) {
+    config.installer = {
+      modules: {
+        enable: buildConfig.anacondaIsoInstallerModules.enable,
+        disable: buildConfig.anacondaIsoInstallerModules.disable,
+      },
+    };
+  }
+
   return { customizations: config };
 }
 

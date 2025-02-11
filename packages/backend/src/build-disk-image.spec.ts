@@ -561,3 +561,24 @@ test('test building with a buildConfig JSON file that a temporary file for build
     expect(options.HostConfig.Binds[2]).toContain('config.json:ro');
   }
 });
+
+test('expect createBuildConfigJSON to work with anaconda iso modules being enabled / dsiabled', async () => {
+  const buildConfig = {
+    anacondaIsoInstallerModules: {
+      enable: ['test-module', 'test-module2'],
+      disable: ['test-module3', 'test-module4'],
+    },
+  } as BuildConfig;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const buildConfigJson: Record<string, any> = createBuildConfigJSON(buildConfig);
+  expect(buildConfigJson).toBeDefined();
+
+  // Expect enable to contain test-module and 2
+  expect(buildConfigJson.customizations.installer.modules.enable).toContain('test-module');
+  expect(buildConfigJson.customizations.installer.modules.enable).toContain('test-module2');
+
+  // Expect disable to contain test-module3 and 4
+  expect(buildConfigJson.customizations.installer.modules.disable).toContain('test-module3');
+  expect(buildConfigJson.customizations.installer.modules.disable).toContain('test-module4');
+});

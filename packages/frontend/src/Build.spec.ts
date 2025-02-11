@@ -845,3 +845,29 @@ test('confirm successful build goes to logs', async () => {
   await userEvent.click(build);
   expect(router.goto).toHaveBeenCalledWith(`/disk-image/bmFtZTE=/build`);
 });
+
+test('expect anaconda modules ISO section to be shown', async () => {
+  vi.mocked(bootcClient.inspectImage).mockResolvedValue(mockImageInspect);
+  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
+  vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
+  vi.mocked(bootcClient.buildExists).mockResolvedValue(false);
+  vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
+  render(Build);
+
+  // Wait until children length is 2 meaning it's fully rendered / propagated the changes
+  await vi.waitFor(() => {
+    if (screen.getByLabelText('image-select')?.children.length !== 2) {
+      throw new Error();
+    }
+  });
+
+  // Find the "build-config-options" aria-label span and click it
+  const buildConfigOptions = screen.getByLabelText('interactive-build-config-options');
+  expect(buildConfigOptions).toBeDefined();
+  await userEvent.click(buildConfigOptions);
+
+  // Expect anaconda modules to be shown
+  // Wait for Anaconda ISO installer modules to be shown (span)
+  const anacondaModules = screen.getByLabelText('anaconda-iso-installer-module-title');
+  expect(anacondaModules).toBeDefined();
+});
