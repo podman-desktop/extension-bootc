@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,10 @@ const config = {
     coverage: {
       provider: 'v8',
       reporter: ['lcov', 'text'],
+      extension: '.ts',
     },
-},
-resolve: {
+  },
+  resolve: {
     alias: {
       '@podman-desktop/api': path.resolve(__dirname, '__mocks__/@podman-desktop/api.js'),
       '/@/': join(PACKAGE_ROOT, 'src') + '/',
