@@ -109,7 +109,7 @@ export class BootcApiImpl implements BootcApi {
       // create an array of builds. invalid build ids are ignored
       const builds = buildIds
         .map(id => this.history.getHistory().find(build => build.id === id))
-        .filter(build => build) as BootcBuildInfo[];
+        .filter(build => !!build);
 
       // Map each build to a delete operation promise
       const deletePromises = builds.map(build => this.deleteBuildContainer(build));
