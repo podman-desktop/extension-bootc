@@ -57,7 +57,7 @@ export class BootcApiImpl implements BootcApi {
   async checkVMLaunchPrereqs(buildId: string): Promise<string | undefined> {
     const build = this.history.getHistory().find(build => build.id === buildId);
     if (!build) {
-      return Promise.reject(new Error(`Could not find build: ${buildId}`));
+      throw new Error(`Could not find build: ${buildId}`);
     }
     return createVMManager(build).checkVMLaunchPrereqs();
   }
@@ -344,7 +344,6 @@ export class BootcApiImpl implements BootcApi {
   // this method is internal and meant to be used by the API implementation
   protected async notify(id: string, body: unknown = {}): Promise<void> {
     // Must pass in an empty body, if it is undefined this fails
-    console.log('notify frontend: ' + id);
     await this.webview.postMessage({
       id,
       body,
