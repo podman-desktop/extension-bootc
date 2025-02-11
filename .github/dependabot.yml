@@ -22,3 +22,23 @@ updates:
         applies-to: version-updates
         patterns:
           - "@commitlint/*"
+      eslint:
+        applies-to: version-updates
+        patterns:
+          - "eslint"
+          - "@eslint/*"
+      typescript-eslint:
+        applies-to: version-updates
+        patterns:
+          - "@typescript-eslint/*"
+          - "typescript-eslint"
+      tailwindcss:
+        applies-to: version-updates
+        patterns:
+          - "@tailwindcss/*"
+          - "tailwindcss"
+      vitest:
+        applies-to: version-updates
+        patterns:
+          - "@vitest/*"
+          - "vitest"
