@@ -252,6 +252,13 @@ async function buildBootcImage(): Promise<void> {
     };
   });
 
+  // Remove any elements that have buildConfigAnacondaIsoInstallerModules that are empty strings
+  // as bootc-image-builder does not accept empty strings.
+  let convertedBuildConfigAnacondaIsoInstallerModules = {
+    enable: buildConfigAnacondaIsoInstallerModules.enable.filter(module => module !== ''),
+    disable: buildConfigAnacondaIsoInstallerModules.disable.filter(module => module !== ''),
+  };
+
   // Final object, remove any empty strings / null / undefined values as bootc-image-builder
   // does not accept empty strings / null / undefined values / ignore them.
   const buildConfig = removeEmptyStrings({
@@ -260,7 +267,7 @@ async function buildBootcImage(): Promise<void> {
     kernel: {
       append: buildConfigKernelArguments,
     },
-    anacondaIsoInstallerModules: buildConfigAnacondaIsoInstallerModules,
+    anacondaIsoInstallerModules: convertedBuildConfigAnacondaIsoInstallerModules,
   }) as BuildConfig;
 
   const buildOptions: BootcBuildInfo = {
@@ -398,17 +405,19 @@ function deleteDisabledAnacondaInstallerModule(index: number): void {
 // Remove any empty strings in the object before passing it in to the backend
 // this is useful as we are using "bind:input" with groups / form fields and the first entry will always be blank when submitting
 // this will remove any empty strings from the object before passing it in.
-function removeEmptyStrings(obj: object): object {
+// we do not need to work recursively since we are only working with the first level of the object.
+function removeEmptyStrings<T>(obj: T): T | undefined {
   if (Array.isArray(obj)) {
-    return obj.map(removeEmptyStrings); // Recurse for each item in arrays
-  } else if (obj && typeof obj === 'object') {
-    let initial: { [key: string]: object } = {};
-    return Object.entries(obj)
-      .filter(([_, value]) => value !== '' && value !== undefined) // Filter out entries with empty string or undefined values
-      .reduce((acc, [key, value]) => {
-        acc[key] = removeEmptyStrings(value); // Recurse for nested objects/arrays
-        return acc;
-      }, initial);
+    // Filter out empty strings, then check if array is empty
+    const filteredArray = obj.map(removeEmptyStrings).filter(value => value !== '' && value !== undefined);
+    return (filteredArray.length > 0 ? filteredArray : undefined) as T | undefined;
+  } else if (obj !== undefined && typeof obj === 'object') {
+    const filteredObject = Object.fromEntries(
+      Object.entries(obj ?? {})
+        .map(([key, value]) => [key, removeEmptyStrings(value)])
+        .filter(([_, value]) => value !== '' && value !== undefined),
+    );
+    return (Object.keys(filteredObject).length > 0 ? filteredObject : undefined) as T | undefined;
   }
   return obj;
 }
@@ -914,7 +923,6 @@ $: if (availableArchitectures) {
                     placeholder="Kernel arguments (ex. quiet)"
                     class="w-full" />
 
-                  <!-- The below section is related to anaconda-iso, only show if buildType has 'anaconda-iso' in it -->
                   <div>
                     <span class="block mt-6" aria-label="anaconda-iso-installer-module-title"
                       >Anaconda ISO installer modules</span>

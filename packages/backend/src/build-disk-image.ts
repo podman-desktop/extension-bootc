@@ -529,7 +529,10 @@ export function createBuildConfigJSON(buildConfig: BuildConfig): Record<string, 
   }
   So we make sure that we put it in the correct modules section
   */
-  if (buildConfig.anacondaIsoInstallerModules) {
+  if (
+    buildConfig.anacondaIsoInstallerModules &&
+    (buildConfig.anacondaIsoInstallerModules.enable.length > 0 || buildConfig)
+  ) {
     config.installer = {
       modules: {
         enable: buildConfig.anacondaIsoInstallerModules.enable,

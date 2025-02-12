@@ -562,7 +562,7 @@ test('test building with a buildConfig JSON file that a temporary file for build
   }
 });
 
-test('expect createBuildConfigJSON to work with anaconda iso modules being enabled / dsiabled', async () => {
+test('expect createBuildConfigJSON to work with anaconda iso modules being enabled / disabled', async () => {
   const buildConfig = {
     anacondaIsoInstallerModules: {
       enable: ['test-module', 'test-module2'],
