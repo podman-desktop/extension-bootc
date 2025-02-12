@@ -10,7 +10,12 @@ import {
   faPlusCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import { bootcClient } from './api/client';
-import type { BootcBuildInfo, BuildType, BuildConfig } from '/@shared/src/models/bootc';
+import type {
+  BootcBuildInfo,
+  BuildType,
+  BuildConfig,
+  BuildConfigAnacondaIsoInstallerModules,
+} from '/@shared/src/models/bootc';
 import Fa from 'svelte-fa';
 import { onMount } from 'svelte';
 import type { ImageInfo, ManifestInspectInfo } from '@podman-desktop/api';
@@ -68,6 +73,12 @@ let buildConfigUsers: { name: string; password: string; key: string; groups: str
 ];
 let buildConfigFilesystems: { mountpoint: string; minsize: string }[] = [{ mountpoint: '', minsize: '' }];
 let buildConfigKernelArguments: string;
+
+// ISO related, anaconda installer modules
+let buildConfigAnacondaIsoInstallerModules: BuildConfigAnacondaIsoInstallerModules = {
+  enable: [''],
+  disable: [''],
+};
 
 // Show/hide advanced options
 let showAdvanced = false; // State to show/hide advanced options
@@ -241,6 +252,13 @@ async function buildBootcImage(): Promise<void> {
     };
   });
 
+  // Remove any elements that have buildConfigAnacondaIsoInstallerModules that are empty strings
+  // as bootc-image-builder does not accept empty strings.
+  let convertedBuildConfigAnacondaIsoInstallerModules = {
+    enable: buildConfigAnacondaIsoInstallerModules.enable.filter(module => module !== ''),
+    disable: buildConfigAnacondaIsoInstallerModules.disable.filter(module => module !== ''),
+  };
+
   // Final object, remove any empty strings / null / undefined values as bootc-image-builder
   // does not accept empty strings / null / undefined values / ignore them.
   const buildConfig = removeEmptyStrings({
@@ -249,6 +267,7 @@ async function buildBootcImage(): Promise<void> {
     kernel: {
       append: buildConfigKernelArguments,
     },
+    anacondaIsoInstallerModules: convertedBuildConfigAnacondaIsoInstallerModules,
   }) as BuildConfig;
 
   const buildOptions: BootcBuildInfo = {
@@ -363,20 +382,42 @@ function deleteFilesystem(index: number): void {
   buildConfigFilesystems = buildConfigFilesystems.filter((_, i) => i !== index);
 }
 
+function addEnabledAnacondaInstallerModule(): void {
+  buildConfigAnacondaIsoInstallerModules.enable = [...buildConfigAnacondaIsoInstallerModules.enable, ''];
+}
+
+function addDisabledAnacondaInstallerModule(): void {
+  buildConfigAnacondaIsoInstallerModules.disable = [...buildConfigAnacondaIsoInstallerModules.disable, ''];
+}
+
+function deleteEnabledAnacondaInstallerModule(index: number): void {
+  buildConfigAnacondaIsoInstallerModules.enable = buildConfigAnacondaIsoInstallerModules.enable.filter(
+    (_, i) => i !== index,
+  );
+}
+
+function deleteDisabledAnacondaInstallerModule(index: number): void {
+  buildConfigAnacondaIsoInstallerModules.disable = buildConfigAnacondaIsoInstallerModules.disable.filter(
+    (_, i) => i !== index,
+  );
+}
+
 // Remove any empty strings in the object before passing it in to the backend
 // this is useful as we are using "bind:input" with groups / form fields and the first entry will always be blank when submitting
 // this will remove any empty strings from the object before passing it in.
-function removeEmptyStrings(obj: object): object {
+// we do not need to work recursively since we are only working with the first level of the object.
+function removeEmptyStrings<T>(obj: T): T | undefined {
   if (Array.isArray(obj)) {
-    return obj.map(removeEmptyStrings); // Recurse for each item in arrays
-  } else if (obj && typeof obj === 'object') {
-    let initial: { [key: string]: object } = {};
-    return Object.entries(obj)
-      .filter(([_, value]) => value !== '' && value !== undefined) // Filter out entries with empty string or undefined values
-      .reduce((acc, [key, value]) => {
-        acc[key] = removeEmptyStrings(value); // Recurse for nested objects/arrays
-        return acc;
-      }, initial);
+    // Filter out empty strings, then check if array is empty
+    const filteredArray = obj.map(removeEmptyStrings).filter(value => value !== '' && value !== undefined);
+    return (filteredArray.length > 0 ? filteredArray : undefined) as T | undefined;
+  } else if (obj !== undefined && typeof obj === 'object') {
+    const filteredObject = Object.fromEntries(
+      Object.entries(obj ?? {})
+        .map(([key, value]) => [key, removeEmptyStrings(value)])
+        .filter(([_, value]) => value !== '' && value !== undefined),
+    );
+    return (Object.keys(filteredObject).length > 0 ? filteredObject : undefined) as T | undefined;
   }
   return obj;
 }
@@ -777,7 +818,7 @@ $: if (availableArchitectures) {
               <!-- svelte-ignore a11y-no-static-element-interactions -->
               <span
                 class="font-semibold mb-2 block cursor-pointer"
-                aria-label="build-config-options"
+                aria-label="interactive-build-config-options"
                 on:click={toggleBuildConfig}
                 ><Fa icon={showBuildConfig ? faCaretDown : faCaretRight} class="inline-block mr-1" />Interactive build
                 config
@@ -881,6 +922,55 @@ $: if (availableArchitectures) {
                     id="buildConfigKernelArguments"
                     placeholder="Kernel arguments (ex. quiet)"
                     class="w-full" />
+
+                  <div>
+                    <span class="block mt-6" aria-label="anaconda-iso-installer-module-title"
+                      >Anaconda ISO installer modules</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-4 mt-2">
+                    <div>
+                      <span class="block">Enable</span>
+                      {#each buildConfigAnacondaIsoInstallerModules.enable as _, index}
+                        <div class="flex flex-row justify-center items-center w-full py-1">
+                          <Input
+                            placeholder="Module name"
+                            class="mr-2"
+                            bind:value={buildConfigAnacondaIsoInstallerModules.enable[index]} />
+                          <Button
+                            type="link"
+                            hidden={index === buildConfigAnacondaIsoInstallerModules.enable.length - 1}
+                            on:click={(): void => deleteEnabledAnacondaInstallerModule(index)}
+                            icon={faMinusCircle} />
+                          <Button
+                            type="link"
+                            hidden={index < buildConfigAnacondaIsoInstallerModules.enable.length - 1}
+                            on:click={addEnabledAnacondaInstallerModule}
+                            icon={faPlusCircle} />
+                        </div>
+                      {/each}
+                    </div>
+                    <div>
+                      <span class="block">Disable</span>
+                      {#each buildConfigAnacondaIsoInstallerModules.disable as _, index}
+                        <div class="flex flex-row justify-center items-center w-full py-1">
+                          <Input
+                            placeholder="Module name"
+                            class="mr-2"
+                            bind:value={buildConfigAnacondaIsoInstallerModules.disable[index]} />
+                          <Button
+                            type="link"
+                            hidden={index === buildConfigAnacondaIsoInstallerModules.disable.length - 1}
+                            on:click={(): void => deleteDisabledAnacondaInstallerModule(index)}
+                            icon={faMinusCircle} />
+                          <Button
+                            type="link"
+                            hidden={index < buildConfigAnacondaIsoInstallerModules.disable.length - 1}
+                            on:click={addDisabledAnacondaInstallerModule}
+                            icon={faPlusCircle} />
+                        </div>
+                      {/each}
+                    </div>
+                  </div>
                 </div>
               {/if}
             </div>
@@ -1014,4 +1104,5 @@ $: if (availableArchitectures) {
         {/if}
       </div>
     {/if}
-  </div></FormPage>
+  </div>
+</FormPage>
