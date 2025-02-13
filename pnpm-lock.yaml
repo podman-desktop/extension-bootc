@@ -205,8 +205,8 @@ importers:
         specifier: ^6.7.2
         version: 6.7.2
       '@podman-desktop/ui-svelte':
-        specifier: 1.16.1
-        version: 1.16.1(svelte-fa@4.0.3(svelte@5.20.0))(svelte@5.20.0)
+        specifier: 1.16.2
+        version: 1.16.2(svelte-fa@4.0.3(svelte@5.20.0))(svelte@5.20.0)
       '@sveltejs/vite-plugin-svelte':
         specifier: ^5.0.3
         version: 5.0.3(svelte@5.20.0)(vite@6.0.11(@types/node@20.17.17)(jiti@2.4.2)(lightningcss@1.29.1)(yaml@2.7.0))
@@ -1301,8 +1301,8 @@ packages:
   '@podman-desktop/tests-playwright@1.16.2':
     resolution: {integrity: sha512-HK1R9ACUxtQ/qBV6SnzryD8V5UmXWSCaERP7MiITnnv19xN+fU7rkCHO2fWSKvXgqAG7wvrPwPjhWuduMUcJhA==}
 
-  '@podman-desktop/ui-svelte@1.16.1':
-    resolution: {integrity: sha512-1bMVBgHHs7ctnleF0T3L5bnTtZyqpOF7E3QvrE+qJaVAreH+FI1Rr3H2GWC2HoD1yoMXSwqqsrVIqNi65CA1Dw==}
+  '@podman-desktop/ui-svelte@1.16.2':
+    resolution: {integrity: sha512-OlU86E12NhqBwHF8aol0iD0j08UAtW5EgvI3tOd6ZflMqShK2HBDmrZKbwd2Px23LB4i+p+CRsOdFLdBWA6drw==}
     peerDependencies:
       svelte: ^4.0.0 || ^5.0.0
       svelte-fa: ^4.0.0
@@ -5383,7 +5383,7 @@ snapshots:
 
   '@podman-desktop/tests-playwright@1.16.2': {}
 
-  '@podman-desktop/ui-svelte@1.16.1(svelte-fa@4.0.3(svelte@5.20.0))(svelte@5.20.0)':
+  '@podman-desktop/ui-svelte@1.16.2(svelte-fa@4.0.3(svelte@5.20.0))(svelte@5.20.0)':
     dependencies:
       '@fortawesome/fontawesome-free': 6.7.2
       '@fortawesome/free-brands-svg-icons': 6.7.2
