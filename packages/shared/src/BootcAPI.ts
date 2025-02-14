@@ -33,6 +33,7 @@ export abstract class BootcApi {
   abstract deleteBuilds(buildIds: string[]): Promise<void>;
   abstract selectOutputFolder(): Promise<string>;
   abstract selectBuildConfigFile(): Promise<string>;
+  abstract selectAnacondaKickstartFile(): Promise<string>;
   abstract listBootcImages(): Promise<ImageInfo[]>;
   abstract listAllImages(): Promise<ImageInfo[]>;
   abstract listHistoryInfo(): Promise<BootcBuildInfo[]>;

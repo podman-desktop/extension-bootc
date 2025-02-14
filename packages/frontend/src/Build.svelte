@@ -44,6 +44,7 @@ let availableArchitectures: string[] = [];
 // Build options
 let buildFolder: string;
 let buildConfigFile: string;
+let buildConfigAnacondaKickstartFilePath: string;
 let buildChown: string;
 let buildType: BuildType[] = [];
 let buildArch: string | undefined;
@@ -267,6 +268,7 @@ async function buildBootcImage(): Promise<void> {
     kernel: {
       append: buildConfigKernelArguments,
     },
+    anacondaIsoInstallerKickstartFilePath: buildConfigAnacondaKickstartFilePath,
     anacondaIsoInstallerModules: convertedBuildConfigAnacondaIsoInstallerModules,
   }) as BuildConfig;
 
@@ -358,6 +360,10 @@ async function getPath(): Promise<void> {
 
 async function getBuildConfigFile(): Promise<void> {
   buildConfigFile = await bootcClient.selectBuildConfigFile();
+}
+
+async function getAnacondaKickstartFile(): Promise<void> {
+  buildConfigAnacondaKickstartFilePath = await bootcClient.selectAnacondaKickstartFile();
 }
 
 function cleanup(): void {
@@ -924,7 +930,24 @@ $: if (availableArchitectures) {
                     class="w-full" />
 
                   <div>
-                    <span class="block mt-6" aria-label="anaconda-iso-installer-module-title"
+                    <span class="block mt-4" aria-label="anaconda-iso-installer-kickstart-file-title"
+                      >Anaconda ISO kickstart file</span>
+                  </div>
+                  <div class="mb-2">
+                    <div class="flex flex-row space-x-3">
+                      <Input
+                        name="kickstart"
+                        id="kickstart"
+                        bind:value={buildConfigAnacondaKickstartFilePath}
+                        placeholder="Kickstart file (*.ks)"
+                        class="w-full"
+                        aria-label="kickstart-select" />
+                      <Button on:click={getAnacondaKickstartFile}>Browse...</Button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span class="block mt-4" aria-label="anaconda-iso-installer-module-title"
                       >Anaconda ISO installer modules</span>
                   </div>
                   <div class="grid grid-cols-2 gap-4 mt-2">
