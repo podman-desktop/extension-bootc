@@ -49,6 +49,7 @@ export default [
     ignores: [
       '*.config.*js',
       '**/*.config.*js',
+      '**/*.tests.setup.*js',
       '**/dist/**/*',
       '**/test-resources',
       '**/__mocks__/',

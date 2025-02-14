@@ -53,6 +53,7 @@
     "tailwindcss": "^4.0.7",
     "vite": "6.0.11",
     "vitest": "^3.0.6",
+    "vitest-canvas-mock": "^0.3.3",
     "@xterm/xterm": "^5.5.0",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/addon-attach": "^0.11.0"
