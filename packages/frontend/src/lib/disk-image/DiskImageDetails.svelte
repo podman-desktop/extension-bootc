@@ -13,6 +13,7 @@ import { goToDiskImages } from '../navigation';
 import DiskImageDetailsVirtualMachine from './DiskImageDetailsVirtualMachine.svelte';
 import type { Unsubscriber } from 'svelte/store';
 import { bootcClient } from '/@/api/client';
+import DiskImageActions from './DiskImageActions.svelte';
 
 interface Props {
   id: string;
@@ -61,6 +62,11 @@ onDestroy(() => {
   onclose={goToDiskImages}
   onbreadcrumbClick={goToDiskImages}>
   <DiskImageIcon slot="icon" size="30px" />
+  <svelte:fragment slot="actions">
+    {#if diskImage}
+      <DiskImageActions object={diskImage} detailed={true} />
+    {/if}
+  </svelte:fragment>
   <svelte:fragment slot="tabs">
     <Tab title="Summary" selected={isTabSelected($router.path, 'summary')} url={getTabUrl($router.path, 'summary')} />
     <Tab title="Build Log" selected={isTabSelected($router.path, 'build')} url={getTabUrl($router.path, 'build')} />

@@ -16,7 +16,7 @@ let isWindows = $state(false);
 
 // Delete the build
 async function deleteBuild(): Promise<void> {
-  await bootcClient.deleteBuilds([object]);
+  await bootcClient.deleteBuilds([object.id]);
 }
 
 // Navigate to the build
@@ -33,10 +33,12 @@ onMount(async () => {
 });
 </script>
 
-<!-- Only show the Terminal button if object.arch actually exists or else we will not be able to pass in the architecture information to the build correctly.
-Only show if on macOS as well as that is the only option we support at the moment -->
-{#if object.arch && !isWindows}
-  <ListItemButtonIcon title="Launch VM" onClick={gotoVM} detailed={detailed} icon={faTerminal} />
+{#if !detailed}
+  <!-- Only show the Terminal button if object.arch actually exists or else we will not be able to pass in the architecture information to the build correctly.
+  Only show if on macOS as well as that is the only option we support at the moment -->
+  {#if object.arch && !isWindows}
+    <ListItemButtonIcon title="Launch VM" onClick={gotoVM} detailed={detailed} icon={faTerminal} />
+  {/if}
+  <ListItemButtonIcon title="Build Logs" onClick={gotoLogs} detailed={detailed} icon={faFileAlt} />
 {/if}
-<ListItemButtonIcon title="Build Logs" onClick={gotoLogs} detailed={detailed} icon={faFileAlt} />
 <ListItemButtonIcon title="Delete Build" onClick={deleteBuild} detailed={detailed} icon={faTrash} />

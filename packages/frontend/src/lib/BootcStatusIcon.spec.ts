@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ test('Expect running status to display correct background color', async () => {
   const icon = screen.getByRole('status');
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveAttribute('title', status);
-  expect(icon).toHaveClass('bg-sky-400');
+  expect(icon).toHaveClass('bg-[var(--pd-status-created)]');
 });
 
 test('Expect success status to display green background', async () => {
@@ -38,7 +38,7 @@ test('Expect success status to display green background', async () => {
   const icon = screen.getByRole('status');
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveAttribute('title', status);
-  expect(icon).toHaveClass('bg-green-600');
+  expect(icon).toHaveClass('bg-[var(--pd-status-running)]');
 });
 
 test('Expect error status to display red background', async () => {
@@ -47,7 +47,7 @@ test('Expect error status to display red background', async () => {
   const icon = screen.getByRole('status');
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveAttribute('title', status);
-  expect(icon).toHaveClass('bg-red-600');
+  expect(icon).toHaveClass('bg-[var(--pd-status-terminated)]');
 });
 
 test('If running, creating or deleting, expect an svg which is the spinner', async () => {
@@ -64,5 +64,5 @@ test('Expect lost status to display amber background', async () => {
   const icon = screen.getByRole('status');
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveAttribute('title', status);
-  expect(icon).toHaveClass('bg-amber-600');
+  expect(icon).toHaveClass('bg-[var(--pd-status-degraded)]');
 });

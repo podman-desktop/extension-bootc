@@ -35,7 +35,7 @@ export let solid = true;
     </g>
     <defs>
       <clipPath id="clip0_48_55">
-        <rect width="15" height="16" fill="white" transform="matrix(-1 0 0 1 15 0)"></rect>
+        <rect width="15" height="16" fill="#fff" transform="matrix(-1 0 0 1 15 0)"></rect>
       </clipPath>
     </defs>
   {:else}
@@ -52,7 +52,7 @@ export let solid = true;
     </g>
     <defs>
       <clipPath id="clip0_48_54">
-        <rect width="14.5263" height="16" fill="white" transform="matrix(-1 0 0 1 15.5263 0)"></rect>
+        <rect width="14.5263" height="16" fill="#fff" transform="matrix(-1 0 0 1 15.5263 0)"></rect>
       </clipPath>
     </defs>
   {/if}
