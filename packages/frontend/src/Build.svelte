@@ -614,9 +614,8 @@ $: if (availableArchitectures) {
             </div>
             {#if bootcAvailableImages.length === 0}
               <p class="text-[var(--pd-state-warning)] pt-1">
-                No bootable container compatible images found. Learn to create one on our <a
-                  class="text-purple-400 hover:bg-white hover:bg-opacity-10 transition-all rounded-[4px] p-0.5 no-underline cursor-pointer"
-                  href="https://github.com/containers/podman-desktop-extension-bootc">README</a
+                No bootable container compatible images found. Learn to create one on our <Link
+                  externalRef="https://github.com/containers/podman-desktop-extension-bootc">README</Link
                 >.
               </p>
             {/if}
