@@ -50,6 +50,7 @@ export default defineConfig({
     deps: {
       inline: [],
     },
+    setupFiles: ['./vite.tests.setup.js'],
   },
   base: '',
   server: {
