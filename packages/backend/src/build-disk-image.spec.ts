@@ -582,3 +582,44 @@ test('expect createBuildConfigJSON to work with anaconda iso modules being enabl
   expect(buildConfigJson.customizations.installer.modules.disable).toContain('test-module3');
   expect(buildConfigJson.customizations.installer.modules.disable).toContain('test-module4');
 });
+
+test('expect createBuildConfigJSON to read a valid kickstart file and output it to the JSON file stringified', async () => {
+  const buildConfig = {
+    anacondaIsoInstallerKickstartFilePath: '/foo/bar/kickstart.ks',
+  } as BuildConfig;
+
+  const mockKickstartFileContents = `
+  # Kickstart file for CentOS 7
+  #platform=x86, AMD64, or Intel EM64T
+  # System authorization information
+  auth --enableshadow --passalgo=sha512
+  # Use CDROM installation media
+  cdrom
+  # Use graphical install
+  graphical
+  # Run the Setup Agent on first boot
+  firstboot --enable
+  # Keyboard layouts
+  keyboard --vckeymap=us --xlayouts='us'
+  # System language
+  lang en_US
+  `;
+
+  // Spy on fs.readFileSync to make sure it is called
+  vi.mock('node:fs');
+  vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+  vi.spyOn(fs, 'readFileSync').mockReturnValue(mockKickstartFileContents);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const buildConfigJson: Record<string, any> = createBuildConfigJSON(buildConfig);
+  expect(buildConfigJson).toBeDefined();
+
+  // Expect readFileSync was called
+  expect(fs.readFileSync).toHaveBeenCalled();
+
+  // Expect the kickstart file to be in the JSON
+  // we "slice" the Stringify contents to also remove the quotes
+  expect(buildConfigJson.customizations.installer.kickstart.contents).toEqual(
+    JSON.stringify(mockKickstartFileContents).slice(1, -1),
+  );
+});

@@ -871,3 +871,29 @@ test('expect anaconda modules ISO section to be shown', async () => {
   const anacondaModules = screen.getByLabelText('anaconda-iso-installer-module-title');
   expect(anacondaModules).toBeDefined();
 });
+
+test('expect anaconda kickstart file section to be shown', async () => {
+  vi.mocked(bootcClient.inspectImage).mockResolvedValue(mockImageInspect);
+  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
+  vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
+  vi.mocked(bootcClient.buildExists).mockResolvedValue(false);
+  vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
+  render(Build);
+
+  // Wait until children length is 2 meaning it's fully rendered / propagated the changes
+  await vi.waitFor(() => {
+    if (screen.getByLabelText('image-select')?.children.length !== 2) {
+      throw new Error();
+    }
+  });
+
+  // Find the "build-config-options" aria-label span and click it
+  const buildConfigOptions = screen.getByLabelText('interactive-build-config-options');
+  expect(buildConfigOptions).toBeDefined();
+  await userEvent.click(buildConfigOptions);
+
+  // Expect anaconda kickstart file to be shown
+  // Wait for Anaconda kickstart file to be shown (span)
+  const anacondaKickstart = screen.getByLabelText('anaconda-iso-installer-kickstart-file-title');
+  expect(anacondaKickstart).toBeDefined();
+});
