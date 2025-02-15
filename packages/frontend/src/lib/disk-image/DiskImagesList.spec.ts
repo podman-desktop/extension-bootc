@@ -105,15 +105,11 @@ test('Test clicking on delete button', async () => {
     }
   });
 
-  // spy on deleteBuild function
-  const spyOnDelete = vi.spyOn(bootcClient, 'deleteBuilds');
-
   // Click on delete button
   const deleteButton = screen.getAllByRole('button', { name: 'Delete Build' })[0];
   deleteButton.click();
 
-  expect(spyOnDelete).toHaveBeenCalled();
-  expect(spyOnDelete).toHaveBeenCalledWith(['name1']);
+  expect(vi.mocked(bootcClient.deleteBuilds)).toHaveBeenCalledWith(['name1']);
 });
 
 test('Test clicking on build button', async () => {
@@ -126,12 +122,9 @@ test('Test clicking on build button', async () => {
     }
   });
 
-  // spy on telemetryLogUsage function
-  const spyOnLogUsage = vi.spyOn(bootcClient, 'telemetryLogUsage');
-
   // Click on build button
   const buildButton = screen.getAllByRole('button', { name: 'Build' })[0];
   buildButton.click();
 
-  expect(spyOnLogUsage).toHaveBeenCalled();
+  expect(vi.mocked(bootcClient.telemetryLogUsage)).toHaveBeenCalled();
 });

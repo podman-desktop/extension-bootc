@@ -541,9 +541,7 @@ test('test building with a buildConfig JSON file that a temporary file for build
     buildConfig: buildConfig,
   } as BootcBuildInfo;
 
-  // Spy on fs.writeFileSync to make sure it is called
   vi.mock('node:fs');
-  vi.spyOn(fs, 'writeFileSync');
 
   const options = createBuilderImageOptions(name, build);
 
