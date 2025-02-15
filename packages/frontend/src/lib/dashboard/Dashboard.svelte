@@ -10,7 +10,6 @@ import { Button, NavPage } from '@podman-desktop/ui-svelte';
 import type { ImageInfo } from '@podman-desktop/api';
 
 let pullInProgress = $state(false);
-let imageExists = $state(false);
 let displayDisclaimer = $state(false);
 let bootcAvailableImages: ImageInfo[] = $state([]);
 
@@ -66,11 +65,7 @@ onMount(async () => {
 });
 
 // Each time bootcAvailableImages updates, check if 'quay.io/bootc-extension/httpd' is in RepoTags
-$effect(() => {
-  if (bootcAvailableImages?.some(image => image.RepoTags?.includes(exampleImage))) {
-    imageExists = true;
-  }
-});
+let imageExists = $derived(bootcAvailableImages?.some(image => image.RepoTags?.includes(exampleImage)));
 </script>
 
 <NavPage searchEnabled={false} title="Dashboard">
