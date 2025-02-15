@@ -420,8 +420,6 @@ test('Do not show an image if it has no repotags and has isManifest as false', a
   vi.mocked(bootcClient.buildExists).mockResolvedValue(false);
   vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
 
-  const linkSpy = vi.spyOn(bootcClient, 'openLink');
-
   render(Build);
 
   // Wait until children length is 1
@@ -445,7 +443,9 @@ test('Do not show an image if it has no repotags and has isManifest as false', a
 
   await userEvent.click(link);
 
-  expect(linkSpy).toBeCalledWith('https://github.com/containers/podman-desktop-extension-bootc');
+  expect(vi.mocked(bootcClient.openLink)).toBeCalledWith(
+    'https://github.com/containers/podman-desktop-extension-bootc',
+  );
 });
 
 test('If inspectImage fails, do not select any architecture / make them available', async () => {
