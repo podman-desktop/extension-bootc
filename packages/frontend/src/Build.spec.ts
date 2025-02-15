@@ -479,9 +479,6 @@ test('If inspectImage fails, do not select any architecture / make them availabl
 });
 
 test('Show the image if isManifest: true and Labels is empty', async () => {
-  // spy on inspectManifest
-  const spyOnInspectManifest = vi.spyOn(bootcClient, 'inspectManifest');
-
   const mockedImages: ImageInfo[] = [
     {
       Id: 'testmanifest1',
@@ -548,7 +545,7 @@ test('Show the image if isManifest: true and Labels is empty', async () => {
   render(Build, { imageName: 'testmanifest1', imageTag: 'latest' });
 
   await vi.waitFor(() => {
-    expect(spyOnInspectManifest).toHaveBeenCalled();
+    expect(vi.mocked(bootcClient.inspectManifest)).toHaveBeenCalled();
   });
 
   // Wait to render
@@ -571,9 +568,6 @@ test('Show the image if isManifest: true and Labels is empty', async () => {
 });
 
 test('have amd64 and arm64 NOT disabled if inspectManifest contains both architectures / child images', async () => {
-  // spy on inspectManifest
-  const spyOnInspectManifest = vi.spyOn(bootcClient, 'inspectManifest');
-
   const mockedImages: ImageInfo[] = [
     {
       Id: 'testmanifest1',
@@ -669,7 +663,7 @@ test('have amd64 and arm64 NOT disabled if inspectManifest contains both archite
   render(Build, { imageName: 'testmanifest1', imageTag: 'latest' });
 
   await vi.waitFor(() => {
-    expect(spyOnInspectManifest).toHaveBeenCalled();
+    expect(vi.mocked(bootcClient.inspectManifest)).toHaveBeenCalled();
   });
 
   // Wait to render

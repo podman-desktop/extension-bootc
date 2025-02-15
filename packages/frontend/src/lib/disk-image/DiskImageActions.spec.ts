@@ -65,15 +65,11 @@ test('Test clicking on delete button', async () => {
   vi.mocked(bootcClient.isWindows).mockResolvedValue(false);
   render(DiskImageActions, { object: mockHistoryInfo });
 
-  // spy on deleteBuild function
-  const spyOnDelete = vi.spyOn(bootcClient, 'deleteBuilds');
-
   // Click on delete button
   const deleteButton = screen.getAllByRole('button', { name: 'Delete Build' })[0];
   deleteButton.click();
 
-  expect(spyOnDelete).toHaveBeenCalled();
-  expect(spyOnDelete).toHaveBeenCalledWith(['name1']);
+  expect(vi.mocked(bootcClient.deleteBuilds)).toHaveBeenCalledWith(['name1']);
 });
 
 test('Test clicking on logs button', async () => {
