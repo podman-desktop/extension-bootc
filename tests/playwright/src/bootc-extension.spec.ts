@@ -107,92 +107,94 @@ test.describe('BootC Extension', () => {
   const architectures = [ArchitectureType.AMD64, ArchitectureType.ARM64];
 
   for (const architecture of architectures) {
-    test.describe.serial(`Bootc images for architecture: ${architecture}`, () => {
-      test(`Build bootc image from containerfile for architecture: ${architecture}`, async ({ navigationBar }) => {
-        test.setTimeout(210000);
+    test.describe
+      .serial(`Bootc images for architecture: ${architecture}`, () => {
+        test(`Build bootc image from containerfile for architecture: ${architecture}`, async ({ navigationBar }) => {
+          test.setTimeout(210000);
 
-        imageBuildFailed = true;
-        let imagesPage = await navigationBar.openImages();
-        await playExpect(imagesPage.heading).toBeVisible();
+          imageBuildFailed = true;
+          let imagesPage = await navigationBar.openImages();
+          await playExpect(imagesPage.heading).toBeVisible();
 
-        const buildImagePage = await imagesPage.openBuildImage();
-        await playExpect(buildImagePage.heading).toBeVisible();
+          const buildImagePage = await imagesPage.openBuildImage();
+          await playExpect(buildImagePage.heading).toBeVisible();
 
-        imagesPage = await buildImagePage.buildImage(
-          `${imageName}:${imageTag}`,
-          containerFilePath,
-          contextDirectory,
-          architecture,
-          180000,
-        );
+          imagesPage = await buildImagePage.buildImage(
+            `${imageName}:${imageTag}`,
+            containerFilePath,
+            contextDirectory,
+            architecture,
+            180000,
+          );
 
-        await playExpect
-          .poll(async () => await imagesPage.waitForImageExists(imageName, 30_000), { timeout: 0 })
-          .toBeTruthy();
-        imageBuildFailed = false;
-      });
-
-      const types = ['QCOW2', 'AMI', 'RAW', 'VMDK', 'ISO', 'VHD'];
-
-      for (const type of types) {
-        test.describe.serial('Building images ', () => {
-          test(`Building bootable image type: ${type}`, async ({ runner, navigationBar }) => {
-            test.skip(isLinux);
-            test.setTimeout(1250000);
-
-            if (imageBuildFailed) {
-              console.log('Image build failed, skipping test');
-              test.skip();
-            }
-
-            if (type === 'ISO') {
-              if (buildISOImage) {
-                timeoutForBuild = 1200000;
-                console.log(`Building ISO image requested, extending timeout to ${timeoutForBuild}`);
-              } else {
-                console.log(`Building ISO image not requested, skipping test`);
-                test.skip();
-              }
-            }
-
-            const imagesPage = await navigationBar.openImages();
-            await playExpect(imagesPage.heading).toBeVisible();
-
-            const imageDetailPage = await imagesPage.openImageDetails(imageName);
-            await playExpect(imageDetailPage.heading).toBeVisible();
-
-            const pathToStore = path.resolve(
-              __dirname,
-              '..',
-              'tests',
-              'playwright',
-              'output',
-              'images',
-              `${type}-${architecture}`,
-            );
-            [page, webview] = await handleWebview(runner);
-            const bootcPage = new BootcPage(page, webview);
-            const result = await bootcPage.buildDiskImage(
-              `${imageName}:${imageTag}`,
-              pathToStore,
-              type,
-              architecture,
-              timeoutForBuild,
-            );
-            console.log(
-              `Building disk image for platform ${os.platform()} and architecture ${architecture} and type ${type} is ${result}`,
-            );
-            if (isWindows && architecture === ArchitectureType.ARM64) {
-              console.log('Expected to fail on Windows for ARM64');
-              playExpect(result).toBeFalsy();
-            } else {
-              console.log('Expected to pass on Linux, Windows and macOS');
-              playExpect(result).toBeTruthy();
-            }
-          });
+          await playExpect
+            .poll(async () => await imagesPage.waitForImageExists(imageName, 30_000), { timeout: 0 })
+            .toBeTruthy();
+          imageBuildFailed = false;
         });
-      }
-    });
+
+        const types = ['QCOW2', 'AMI', 'RAW', 'VMDK', 'ISO', 'VHD'];
+
+        for (const type of types) {
+          test.describe
+            .serial('Building images ', () => {
+              test(`Building bootable image type: ${type}`, async ({ runner, navigationBar }) => {
+                test.skip(isLinux);
+                test.setTimeout(1250000);
+
+                if (imageBuildFailed) {
+                  console.log('Image build failed, skipping test');
+                  test.skip();
+                }
+
+                if (type === 'ISO') {
+                  if (buildISOImage) {
+                    timeoutForBuild = 1200000;
+                    console.log(`Building ISO image requested, extending timeout to ${timeoutForBuild}`);
+                  } else {
+                    console.log(`Building ISO image not requested, skipping test`);
+                    test.skip();
+                  }
+                }
+
+                const imagesPage = await navigationBar.openImages();
+                await playExpect(imagesPage.heading).toBeVisible();
+
+                const imageDetailPage = await imagesPage.openImageDetails(imageName);
+                await playExpect(imageDetailPage.heading).toBeVisible();
+
+                const pathToStore = path.resolve(
+                  __dirname,
+                  '..',
+                  'tests',
+                  'playwright',
+                  'output',
+                  'images',
+                  `${type}-${architecture}`,
+                );
+                [page, webview] = await handleWebview(runner);
+                const bootcPage = new BootcPage(page, webview);
+                const result = await bootcPage.buildDiskImage(
+                  `${imageName}:${imageTag}`,
+                  pathToStore,
+                  type,
+                  architecture,
+                  timeoutForBuild,
+                );
+                console.log(
+                  `Building disk image for platform ${os.platform()} and architecture ${architecture} and type ${type} is ${result}`,
+                );
+                if (isWindows && architecture === ArchitectureType.ARM64) {
+                  console.log('Expected to fail on Windows for ARM64');
+                  playExpect(result).toBeFalsy();
+                } else {
+                  console.log('Expected to pass on Linux, Windows and macOS');
+                  playExpect(result).toBeTruthy();
+                }
+              });
+            });
+        }
+      });
   }
 
   test('Remove bootc extension through Settings', async ({ navigationBar }) => {
