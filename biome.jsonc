@@ -1,0 +1,42 @@
+{
+  "formatter": {
+    "indentStyle": "space",
+    "lineWidth": 120,
+    "attributePosition": "auto"
+  },
+  "files": {
+    "maxSize": 1600000,
+    "ignore": [
+      "**/builtin/*.cdix/**",
+      "**/coverage/**",
+      "**/dist/**",
+      "**/output/**",
+      "**/packages/ui/.svelte-kit/**",
+      "**/exposedIn*.d.ts"
+    ]
+  },
+  "javascript": {
+    "formatter": {
+      "arrowParentheses": "asNeeded",
+      "bracketSameLine": true,
+      "attributePosition": "auto",
+      "quoteStyle": "single"
+    }
+  },
+  "json": {
+    "formatter": {
+      "indentWidth": 2
+    }
+  },
+  "css": {
+    "formatter": {
+      "quoteStyle": "single"
+    }
+  },
+  "linter": {
+    "enabled": true
+  },
+  "organizeImports": {
+    "enabled": false
+  }
+}

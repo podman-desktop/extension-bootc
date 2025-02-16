@@ -13,8 +13,8 @@
   "scripts": {
     "build": "concurrently \"cd packages/frontend && npm run build\" \"cd packages/backend && npm run build\"",
     "watch": "concurrently \"cd packages/frontend && npm run watch\" \"cd packages/backend && npm run watch\"",
-    "format:check": "prettier --check \"**/src/**/*.{ts,svelte}\"",
-    "format:fix": "prettier --write \"**/src/**/*.{ts,svelte}\"",
+    "format:check": "biome format",
+    "format:fix": "biome format --write",
     "lint:check": "eslint . --cache",
     "lint:fix": "eslint . --cache --fix",
     "svelte:check": "svelte-check",
@@ -34,13 +34,12 @@
     "wrap-ansi": "^7.0.0"
   },
   "lint-staged": {
-    "*.{js,ts,tsx,svelte}": [
-      "eslint --cache --fix",
-      "prettier --cache --write"
-    ],
-    "*.{md,css,json}": "prettier --write"
+    "*.{js,ts,tsx,svelte}": ["eslint --cache --fix", "biome format --write"],
+    "*.md": "prettier --cache --write",
+    "*.{css,json}": "biome format --write"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@commitlint/cli": "^19.7.1",
     "@commitlint/config-conventional": "^19.7.1",
     "@eslint/compat": "^1.2.6",
