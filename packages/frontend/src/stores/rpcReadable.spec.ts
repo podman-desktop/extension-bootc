@@ -55,7 +55,7 @@ test('check updater is called once at subscription', async () => {
     return Promise.resolve(['']);
   });
   rpcWritable.subscribe(_ => {});
-  expect(vi.mocked(bootcClient.listHistoryInfo)).toHaveBeenCalledTimes(1);
+  expect(bootcClient.listHistoryInfo).toHaveBeenCalledTimes(1);
 });
 
 test('check updater is called twice if there is one event fired', async () => {
@@ -67,7 +67,7 @@ test('check updater is called twice if there is one event fired', async () => {
   rpcBrowser.invoke('event').catch((e: unknown) => console.error('error sending event', e));
   // wait for the timeout in the debouncer
   await new Promise(resolve => setTimeout(resolve, 600));
-  expect(vi.mocked(bootcClient.listHistoryInfo)).toHaveBeenCalledTimes(2);
+  expect(bootcClient.listHistoryInfo).toHaveBeenCalledTimes(2);
 });
 
 test('check updater is called only twice because of the debouncer if there is more than one event in a row', async () => {
@@ -82,5 +82,5 @@ test('check updater is called only twice because of the debouncer if there is mo
   rpcBrowser.invoke('event2').catch((e: unknown) => console.error('error sending event', e));
   // wait for the timeout in the debouncer
   await new Promise(resolve => setTimeout(resolve, 600));
-  expect(vi.mocked(bootcClient.listHistoryInfo)).toHaveBeenCalledTimes(2);
+  expect(bootcClient.listHistoryInfo).toHaveBeenCalledTimes(2);
 });
