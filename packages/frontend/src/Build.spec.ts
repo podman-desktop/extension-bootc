@@ -103,7 +103,7 @@ vi.mock('./api/client', async () => {
       buildExists: vi.fn(),
       listHistoryInfo: vi.fn(),
       listBootcImages: vi.fn(),
-      listAllImages: vi.fn(),
+      listAllImages: vi.fn().mockResolvedValue([]),
       inspectImage: vi.fn(),
       inspectManifest: vi.fn(),
       isLinux: vi.fn().mockImplementation(() => mockIsLinux),
@@ -730,6 +730,7 @@ test('if a manifest is created that has the label "6.8.9-300.fc40.aarch64" in as
     Digest: 'sha256:fedoraImage',
   };
 
+  vi.mocked(bootcClient.inspectImage).mockResolvedValue(mockImageInspect);
   vi.mocked(bootcClient.inspectManifest).mockResolvedValue(mockManifestInspect);
   vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
   vi.mocked(bootcClient.listBootcImages).mockResolvedValue([mockFedoraImage]);
