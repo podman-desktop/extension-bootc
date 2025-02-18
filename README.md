@@ -22,7 +22,7 @@ Easily go from container to VM / ISO-on-a-USB / RAW image!
 
 ## Technology
 
-The **Bootable Container (bootc)** extension uses [bootc-image-builder](https://github.com/osbuild/bootc-image-builder) in order to build bootable *container* disk images.
+The **Bootable Container (bootc)** extension uses [bootc-image-builder](https://github.com/osbuild/bootc-image-builder) in order to build bootable _container_ disk images.
 
 Once a machine is created from the disk image, it can apply transactional updates "in place" from newly pushed container images (without creating a new disk image). For more information, see [bootc](https://containers.github.io/bootc/).
 
@@ -51,7 +51,6 @@ There are many projects at work at creating "bootc" images. Below is a non-exhau
 - Containerfile: `FROM registry.redhat.io/rhel9/rhel-bootc:9.4`
 - Repo: [`registry.redhat.io/rhel9/rhel-bootc:9.4`](https://catalog.redhat.com/search?gs&q=bootc)
 - Documentation: [Red Hat Customer Portal](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/using_image_mode_for_rhel_to_build_deploy_and_manage_operating_systems/index#doc-wrapper)
-
 
 The images can then be added to your Containerfile:
 
@@ -107,13 +106,13 @@ After building, read our [Virtual Machine Guide](https://github.com/containers/p
 
 Go from a [bootc](https://containers.github.io/bootc/) compatible derived container build to a disk image format:
 
-* `qcow2`: QEMU Disk Images
-* `ami`: Amazon Machine Images
-* `raw`: RAW disk image an MBR or GPT partition table
-* `anaconda-iso`: Unattended installation method (USB sticks / install-on-boot)
-* `vmdk`: Usable in vSphere
-* `vhd`: Virtual Hard Disk
-* `gce`: Google Cloud Engine
+- `qcow2`: QEMU Disk Images
+- `ami`: Amazon Machine Images
+- `raw`: RAW disk image an MBR or GPT partition table
+- `anaconda-iso`: Unattended installation method (USB sticks / install-on-boot)
+- `vmdk`: Usable in vSphere
+- `vhd`: Virtual Hard Disk
+- `gce`: Google Cloud Engine
 
 The list above is what is supported by the underlying `bootc-image-builder` technology. The list can [be found here](https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file#-image-types).
 
@@ -126,16 +125,18 @@ The list above is what is supported by the underlying `bootc-image-builder` tech
 Compatible on Windows, macOS & Linux
 
 **Software:**
-* [Podman Desktop 1.10.0+](https://github.com/containers/podman-desktop)
-* [Podman 5.0.1+](https://github.com/containers/podman)
+
+- [Podman Desktop 1.10.0+](https://github.com/containers/podman-desktop)
+- [Podman 5.0.1+](https://github.com/containers/podman)
 
 ### Podman Machine (macOS / Windows)
 
 Podman Machine is required for macOS and Windows in order to run Podman as well as utilize filesystem privileges to build a disk image.
 
 Podman Machine requirements:
-* **Rootful mode enabled**
-* *At least* 6GB of RAM allocated in order to build the disk image
+
+- **Rootful mode enabled**
+- _At least_ 6GB of RAM allocated in order to build the disk image
 
 Rootful mode can be enabled through the CLI to an already deployed VM:
 
@@ -157,7 +158,6 @@ Podman Desktop is ran as the logged-in user. However, bootc-image-builder requir
 
 You can find more information about what specific commands are being ran from the console logs of Podman Desktop.
 
-
 ## Installation
 
 This extension can be installed through the **Extensions** section of Podman Desktop within the **Catalog** tab:
@@ -168,7 +168,7 @@ This extension can be installed through the **Extensions** section of Podman Des
 
 ![](https://raw.githubusercontent.com/containers/podman-desktop-media/bootc-extension/gifs/catalog_install.gif)
 
-### Nightly version 
+### Nightly version
 
 A version of the extension using the latest commit changes can be installed via the **Install custom...** button with the following link:
 
@@ -180,7 +180,7 @@ ghcr.io/containers/podman-desktop-extension-bootc:nightly
 
 1. **Build your bootc-enabled Containerfile:**
 
-> In the example below, we are going to change the root password for testing purposes when accessing the OS. 
+> In the example below, we are going to change the root password for testing purposes when accessing the OS.
 
 ```Dockerfile
 FROM quay.io/centos-bootc/centos-bootc:stream9
@@ -240,14 +240,14 @@ podman machine ssh
 If your host machine is x86 (AMD64), run:
 
 ```sh
-rpm-ostree override replace https://download.copr.fedorainfracloud.org/results/michaelvogt/qemu-user-with-openat2/fedora-40-x86_64/08033635-qemu/qemu-user-8.2.6-3.mvo1.fc40.x86_64.rpm 
+rpm-ostree override replace https://download.copr.fedorainfracloud.org/results/michaelvogt/qemu-user-with-openat2/fedora-40-x86_64/08033635-qemu/qemu-user-8.2.6-3.mvo1.fc40.x86_64.rpm
 rpm-ostree override replace https://download.copr.fedorainfracloud.org/results/michaelvogt/qemu-user-with-openat2/fedora-40-x86_64/08033635-qemu/qemu-user-static-aarch64-8.2.6-3.mvo1.fc40.x86_64.rpm
 ```
 
 If your host machine is ARM (ARM64), run:
 
 ```sh
-rpm-ostree override replace https://download.copr.fedorainfracloud.org/results/michaelvogt/qemu-user-with-openat2/fedora-40-aarch64/08033635-qemu/qemu-user-8.2.6-3.mvo1.fc40.aarch64.rpm 
+rpm-ostree override replace https://download.copr.fedorainfracloud.org/results/michaelvogt/qemu-user-with-openat2/fedora-40-aarch64/08033635-qemu/qemu-user-8.2.6-3.mvo1.fc40.aarch64.rpm
 rpm-ostree override replace https://download.copr.fedorainfracloud.org/results/michaelvogt/qemu-user-with-openat2/fedora-40-aarch64/08033635-qemu/qemu-user-static-x86-8.2.6-3.mvo1.fc40.aarch64.rpm
 ```
 
