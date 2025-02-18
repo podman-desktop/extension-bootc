@@ -463,7 +463,7 @@ async function updateAvailableArchitectures(selectedImage: string): Promise<void
           // If for SOME reason Architecture is missing (testing purposes, weird output, etc.)
           // we will set availableArchitectures to an empty array to disable the architecture selection.
           availableArchitectures = [];
-          console.error('Architecture not found in image inspect:', imageInspect);
+          console.error('Architecture not found in image inspect:', selectedImage);
         }
       } catch (error) {
         console.error('Error inspecting image:', error);
@@ -486,7 +486,7 @@ async function detectFedoraImageFilesystem(selectedImage: string): Promise<void>
       const foundImages = await findImagesAssociatedToManifest(manifest);
 
       // Just get the labels from the first image, as they should all be the same.
-      imageLabels = foundImages[0].Labels;
+      imageLabels = foundImages[0]?.Labels;
     } catch (error) {
       console.error('Error inspecting manifest:', error);
     }
