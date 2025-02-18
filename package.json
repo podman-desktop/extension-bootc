@@ -13,8 +13,9 @@
   "scripts": {
     "build": "concurrently \"cd packages/frontend && npm run build\" \"cd packages/backend && npm run build\"",
     "watch": "concurrently \"cd packages/frontend && npm run watch\" \"cd packages/backend && npm run watch\"",
-    "format:check": "biome format",
-    "format:fix": "biome format --write",
+    "format:check": "biome format && prettier --cache --check \"**/*.md\"",
+    "format:clean": "rimraf node_modules/.cache/prettier",
+    "format:fix": "biome format --write && prettier --cache --write \"**/*.md\"",
     "lint:check": "eslint . --cache",
     "lint:fix": "eslint . --cache --fix",
     "svelte:check": "svelte-check",
