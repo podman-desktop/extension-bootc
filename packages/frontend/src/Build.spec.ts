@@ -443,9 +443,7 @@ test('Do not show an image if it has no repotags and has isManifest as false', a
 
   await userEvent.click(link);
 
-  expect(vi.mocked(bootcClient.openLink)).toBeCalledWith(
-    'https://github.com/containers/podman-desktop-extension-bootc',
-  );
+  expect(bootcClient.openLink).toBeCalledWith('https://github.com/containers/podman-desktop-extension-bootc');
 });
 
 test('If inspectImage fails, do not select any architecture / make them available', async () => {
@@ -545,7 +543,7 @@ test('Show the image if isManifest: true and Labels is empty', async () => {
   render(Build, { imageName: 'testmanifest1', imageTag: 'latest' });
 
   await vi.waitFor(() => {
-    expect(vi.mocked(bootcClient.inspectManifest)).toHaveBeenCalled();
+    expect(bootcClient.inspectManifest).toHaveBeenCalled();
   });
 
   // Wait to render
@@ -663,7 +661,7 @@ test('have amd64 and arm64 NOT disabled if inspectManifest contains both archite
   render(Build, { imageName: 'testmanifest1', imageTag: 'latest' });
 
   await vi.waitFor(() => {
-    expect(vi.mocked(bootcClient.inspectManifest)).toHaveBeenCalled();
+    expect(bootcClient.inspectManifest).toHaveBeenCalled();
   });
 
   // Wait to render

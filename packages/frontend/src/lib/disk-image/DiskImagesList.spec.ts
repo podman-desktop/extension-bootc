@@ -109,7 +109,7 @@ test('Test clicking on delete button', async () => {
   const deleteButton = screen.getAllByRole('button', { name: 'Delete Build' })[0];
   deleteButton.click();
 
-  expect(vi.mocked(bootcClient.deleteBuilds)).toHaveBeenCalledWith(['name1']);
+  expect(bootcClient.deleteBuilds).toHaveBeenCalledWith(['name1']);
 });
 
 test('Test clicking on build button', async () => {
@@ -126,5 +126,5 @@ test('Test clicking on build button', async () => {
   const buildButton = screen.getAllByRole('button', { name: 'Build' })[0];
   buildButton.click();
 
-  expect(vi.mocked(bootcClient.telemetryLogUsage)).toHaveBeenCalled();
+  expect(bootcClient.telemetryLogUsage).toHaveBeenCalled();
 });

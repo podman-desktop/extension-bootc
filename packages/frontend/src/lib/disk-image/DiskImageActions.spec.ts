@@ -69,7 +69,7 @@ test('Test clicking on delete button', async () => {
   const deleteButton = screen.getAllByRole('button', { name: 'Delete Build' })[0];
   deleteButton.click();
 
-  expect(vi.mocked(bootcClient.deleteBuilds)).toHaveBeenCalledWith(['name1']);
+  expect(bootcClient.deleteBuilds).toHaveBeenCalledWith(['name1']);
 });
 
 test('Test clicking on logs button', async () => {
