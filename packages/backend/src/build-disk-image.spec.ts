@@ -41,6 +41,8 @@ const config: Configuration = {
   update: vi.fn(),
 };
 
+vi.mock('node:fs');
+
 vi.mock('@podman-desktop/api', async () => {
   return {
     env: {
@@ -250,7 +252,6 @@ test('check build exists', async () => {
 
   // mock two existing builds on disk: qcow2 and vmdk
   const existsList: string[] = [resolve(folder, 'qcow2/disk.qcow2'), resolve(folder, 'vmdk/disk.vmdk')];
-  vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockImplementation(f => {
     return existsList.includes(f.toString());
   });
@@ -540,8 +541,6 @@ test('test building with a buildConfig JSON file that a temporary file for build
     folder: '/foo/bar/qemutest4',
     buildConfig: buildConfig,
   } as BootcBuildInfo;
-
-  vi.mock('node:fs');
 
   const options = createBuilderImageOptions(name, build);
 
