@@ -168,6 +168,24 @@ export class BootcApiImpl implements BootcApi {
     return '';
   }
 
+  // Anaconda kickstart file ends in .ks extension
+  async selectAnacondaKickstartFile(): Promise<string> {
+    const path = await podmanDesktopApi.window.showOpenDialog({
+      title: 'Select Anaconda kickstart file',
+      selectors: ['openFile'],
+      filters: [
+        {
+          name: '*',
+          extensions: ['ks'],
+        },
+      ],
+    });
+    if (path && path.length > 0) {
+      return path[0].fsPath;
+    }
+    return '';
+  }
+
   async listAllImages(): Promise<ImageInfo[]> {
     let images: ImageInfo[] = [];
     try {

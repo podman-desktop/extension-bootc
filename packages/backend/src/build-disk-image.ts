@@ -511,6 +511,30 @@ export function createBuildConfigJSON(buildConfig: BuildConfig): Record<string, 
     config.kernel = buildConfig.kernel;
   }
 
+  // https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file#anaconda-iso-installer-options-installer-mapping
+  // We add the kickstart file to customizations.installer.kickstart.contents
+  // we also have to make sure that when reading it, any newlines are replaced with \n
+  // and it's properly "sanitized" for JSON.
+  if (buildConfig.anacondaIsoInstallerKickstartFilePath) {
+    // Before reading it, make sure it actually exists and error out if so.
+    if (!fs.existsSync(buildConfig.anacondaIsoInstallerKickstartFilePath)) {
+      throw new Error('Anaconda ISO Installer Kickstart file does not exist.');
+    }
+
+    // Read the file
+    const kickstartContents = fs.readFileSync(buildConfig.anacondaIsoInstallerKickstartFilePath, 'utf-8');
+
+    // Make sure we correctly escape any special characters (\n, \t, etc.) for the kickstart file
+    // we also "slice" off the first and last character to remove the quotes when doing stringify.
+    const contents = JSON.stringify(kickstartContents).slice(1, -1); // Properly escape without regex
+
+    config.installer = {
+      kickstart: {
+        contents,
+      },
+    };
+  }
+
   /*
   For anaconda modules, it'll be a bit different, within the JSON it's setup as:
   {

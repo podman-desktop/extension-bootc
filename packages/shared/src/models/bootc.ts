@@ -26,6 +26,7 @@ export interface BuildConfig {
   user?: BuildConfigUser[];
   filesystem?: BuildConfigFilesystem[];
   kernel?: BuildConfigKernel;
+  anacondaIsoInstallerKickstartFilePath?: string;
   anacondaIsoInstallerModules?: BuildConfigAnacondaIsoInstallerModules;
   // In the future:
   // * Add installer.kickstart https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file#anaconda-iso-installer-options-installer-mapping
