@@ -16,7 +16,7 @@
  ***********************************************************************/
 
 import { render, screen, waitFor } from '@testing-library/svelte';
-import { vi, test, expect, beforeAll } from 'vitest';
+import { vi, test, expect, beforeAll, beforeEach } from 'vitest';
 import DiskImageDetailsBuild from './DiskImageDetailsBuild.svelte';
 import { bootcClient } from '/@/api/client';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
@@ -50,6 +50,10 @@ beforeAll(() => {
   });
 });
 
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
 const mockLogs = `Build log line 1
 Build log line 2
 Build log line 3`;
@@ -80,4 +84,22 @@ test('Handles empty logs correctly', async () => {
   // Verify no logs message is displayed when logs are empty
   const emptyMessage = await screen.findByText('Unable to read image-build.log file from /empty/logs');
   expect(emptyMessage).toBeDefined();
+});
+
+test('Refreshes logs correctly', async () => {
+  vi.mocked(bootcClient.loadLogsFromFolder).mockResolvedValue(mockLogs);
+  vi.mocked(bootcClient.getConfigurationValue).mockResolvedValue(14);
+
+  render(DiskImageDetailsBuild, { folder: '/empty/logs' });
+
+  // verify we start refreshing logs
+  await vi.waitFor(
+    () => {
+      expect(bootcClient.loadLogsFromFolder).toHaveBeenCalledTimes(2);
+    },
+    {
+      timeout: 3500,
+      interval: 250,
+    },
+  );
 });

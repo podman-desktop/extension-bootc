@@ -18,7 +18,7 @@ let { folder }: Props = $props();
 let logsXtermDiv = $state<HTMLDivElement>();
 let noLogs = $state(true);
 let previousLogs = $state('');
-const refreshInterval = $state(2000);
+const refreshInterval = 2000;
 
 // Terminal resize
 let resizeObserver = $state<ResizeObserver>();
@@ -88,7 +88,7 @@ onMount(async () => {
   // not possible through RPC calls (yet).
   await fetchFolderLogs();
   logInterval = setInterval(() => {
-    fetchFolderLogs;
+    fetchFolderLogs().catch((e: unknown) => console.error('error fetching logs', e));
   }, refreshInterval);
 
   // Resize the terminal each time we change the div size
