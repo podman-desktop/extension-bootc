@@ -48,14 +48,9 @@ on:
         type: string
         required: true
       podman_remote_url:
-        default: 'https://github.com/containers/podman/releases/download/v5.3.1/podman-5.3.1-setup.exe'
+        default: 'https://github.com/containers/podman/releases/download/v5.4.0/podman-5.4.0-setup.exe'
         description: 'podman setup exe'
         type: string
-        required: true
-      podman_version:
-        default: '5.0.3'
-        description: 'Podman folder version in archive'
-        type: 'string'
         required: true
       podman_options:
         default: 'INIT=1,START=1,ROOTFUL=1,NETWORKING=0'
@@ -82,9 +77,6 @@ jobs:
   windows:
     name: windows-${{ matrix.windows-version }}-${{ matrix.windows-featurepack }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      checks: write
     env:
       MAPT_VERSION: v0.7.4
       MAPT_IMAGE: quay.io/redhat-developer/mapt
@@ -117,6 +109,7 @@ jobs:
         DEFAULT_PODMAN_PROVIDER: 'wsl'
         DEFAULT_EXT_REPO_OPTIONS: 'REPO=extension-bootc,FORK=podman-desktop,BRANCH=main'
         DEFAULT_URL: "https://github.com/containers/podman/releases/download/v$DEFAULT_VERSION/podman-$DEFAULT_VERSION-setup.exe"
+        DEFAULT_VERSION: "${{ env.PD_PODMAN_VERSION || '5.4.0' }}"
         DEFAULT_IMAGES_VERSIONS: 'BUILDER="v0.0.3",PODMAN="v0.0.3",RUNNER="v0.0.3"'
       run: |
         echo "FORK=${{ github.event.inputs.fork || env.DEFAULT_FORK }}" >> $GITHUB_ENV
@@ -258,6 +251,7 @@ jobs:
       uses: mikepenz/action-junit-report@v5
       if: always() # always run even if the previous step fails
       with:
+        annotate_only: true
         fail_on_failure: true
         include_passed: true
         detailed_summary: true
