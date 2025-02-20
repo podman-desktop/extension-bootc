@@ -18,7 +18,7 @@ let { folder }: Props = $props();
 let logsXtermDiv = $state<HTMLDivElement>();
 let noLogs = $state(true);
 let previousLogs = $state('');
-const refreshInterval = 2000;
+const refreshInterval = 2_000;
 
 // Terminal resize
 let resizeObserver = $state<ResizeObserver>();

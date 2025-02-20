@@ -98,7 +98,7 @@ test('Refreshes logs correctly', async () => {
       expect(bootcClient.loadLogsFromFolder).toHaveBeenCalledTimes(2);
     },
     {
-      timeout: 3500,
+      timeout: 3_500,
       interval: 250,
     },
   );
