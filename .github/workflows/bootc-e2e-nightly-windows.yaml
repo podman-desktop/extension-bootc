@@ -23,7 +23,7 @@ on:
   workflow_dispatch:
     inputs:
       fork:
-        default: 'containers'
+        default: 'podman-desktop'
         description: 'Podman Desktop repo fork'
         type: string
         required: true
@@ -48,8 +48,8 @@ on:
         type: string
         required: true
       podman_remote_url:
-        default: 'https://github.com/containers/podman/releases/download/v5.0.3/podman-remote-release-windows_amd64.zip'
-        description: 'podman remote zip'
+        default: 'https://github.com/containers/podman/releases/download/v5.3.1/podman-5.3.1-setup.exe'
+        description: 'podman setup exe'
         type: string
         required: true
       podman_version:
@@ -67,6 +67,16 @@ on:
         description: 'Env. Variables passed into target machine, ie: VAR1=xxx,VAR2=true,VAR3=15,VAR4="Pass me along"'
         type: 'string'
         required: true
+      podman_provider:
+        default: 'wsl'
+        description: 'Podman virtualization provider'
+        type: 'string'
+        required: true
+      images_version:
+        default: 'BUILDER="v0.0.3",PODMAN="v0.0.3",RUNNER="v0.0.3"'
+        description: 'Testing images versions, no spaces'
+        type: 'string'
+        required: true
 
 jobs:
   windows:
@@ -76,7 +86,7 @@ jobs:
       contents: read
       checks: write
     env:
-      MAPT_VERSION: v0.6.8
+      MAPT_VERSION: v0.7.3
       MAPT_IMAGE: quay.io/redhat-developer/mapt
     strategy:
       fail-fast: false
@@ -98,27 +108,30 @@ jobs:
         echo "PD_PODMAN_VERSION=${version}" >> $GITHUB_ENV
     - name: Set the default env. variables
       env:
-        DEFAULT_FORK: 'containers'
+        DEFAULT_FORK: 'podman-desktop'
         DEFAULT_BRANCH: 'main'
         DEFAULT_EXT_TESTS: '1'
         DEFAULT_NPM_TARGET: 'test:e2e'
         DEFAULT_ENV_VARS: 'TEST_PODMAN_MACHINE=true'
         DEFAULT_PODMAN_OPTIONS: 'INIT=1,START=1,ROOTFUL=1,NETWORKING=0'
-        DEFAULT_EXT_REPO_OPTIONS: 'REPO=podman-desktop-extension-bootc,FORK=containers,BRANCH=main'
-        DEFAULT_VERSION: "${{ env.PD_PODMAN_VERSION || '5.0.3' }}"
-        DEFAULT_URL: "https://github.com/containers/podman/releases/download/v$DEFAULT_VERSION/podman-remote-release-windows_amd64.zip"
+        DEFAULT_PODMAN_PROVIDER: 'wsl'
+        DEFAULT_EXT_REPO_OPTIONS: 'REPO=extension-bootc,FORK=podman-desktop,BRANCH=main'
+        DEFAULT_URL: "https://github.com/containers/podman/releases/download/v$DEFAULT_VERSION/podman-$DEFAULT_VERSION-setup.exe"
+        DEFAULT_IMAGES_VERSIONS: 'BUILDER="v0.0.3",PODMAN="v0.0.3",RUNNER="v0.0.3"'
       run: |
         echo "FORK=${{ github.event.inputs.fork || env.DEFAULT_FORK }}" >> $GITHUB_ENV
         echo "BRANCH=${{ github.event.inputs.branch || env.DEFAULT_BRANCH }}" >> $GITHUB_ENV
         echo "NPM_TARGET=${{ github.event.inputs.npm_target || env.DEFAULT_NPM_TARGET }}" >> $GITHUB_ENV
         echo "ENV_VARS=${{ github.event.inputs.env_vars || env.DEFAULT_ENV_VARS }}" >> $GITHUB_ENV
-        echo "PODMAN_VERSION=${{ github.event.inputs.podman_version || env.DEFAULT_VERSION }}" >> $GITHUB_ENV
+        echo "PODMAN_PROVIDER=${{ github.event.inputs.podman_provider || env.DEFAULT_PODMAN_PROVIDER }}" >> $GITHUB_ENV
         echo "PODMAN_URL=${{ github.event.inputs.podman_remote_url || env.DEFAULT_URL }}" >> $GITHUB_ENV
         echo "EXT_TESTS=${{ github.event.inputs.ext_tests || env.DEFAULT_EXT_TESTS }}" >> $GITHUB_ENV
         echo "${{ github.event.inputs.podman_options || env.DEFAULT_PODMAN_OPTIONS }}" | awk -F ',' \
          '{for (i=1; i<=NF; i++) {split($i, kv, "="); print "PODMAN_"kv[1]"="kv[2]}}' >> $GITHUB_ENV
         echo "${{ github.event.inputs.ext_repo_options || env.DEFAULT_EXT_REPO_OPTIONS }}" | awk -F ',' \
          '{for (i=1; i<=NF; i++) {split($i, kv, "="); print "EXT_"kv[1]"="kv[2]}}' >> $GITHUB_ENV
+        echo "${{ github.event.inputs.images_version || env.DEFAULT_IMAGES_VERSIONS }}" | awk -F ',' \
+         '{for (i=1; i<=NF; i++) {split($i, kv, "="); print "PDE2E_"kv[1]"="kv[2]}}' >> $GITHUB_ENV
 
     - name: Create instance
       run: |
@@ -136,7 +149,9 @@ jobs:
             --conn-details-output '/workspace' \
             --windows-version '${{ matrix.windows-version }}' \
             --windows-featurepack '${{ matrix.windows-featurepack }}' \
-            --vmsize 'Standard_D8s_v4' \
+            --nested-virt \
+            --cpus 8 \
+            --memory 16 \
             --tags project=podman-desktop \
             --spot
         # Check logs 
@@ -171,16 +186,17 @@ jobs:
           -e TARGET_HOST_USERNAME=$(cat username) \
           -e TARGET_HOST_KEY_PATH=/data/id_rsa \
           -e TARGET_FOLDER=pd-e2e \
+          -e TARGET_CLEANUP=false \
           -e TARGET_RESULTS=results \
           -e OUTPUT_FOLDER=/data \
           -e DEBUG=true \
           -v $PWD:/data:z \
-          quay.io/odockal/pde2e-podman:v0.0.1-windows  \
+          quay.io/odockal/pde2e-podman:${{ env.PDE2E_PODMAN }}-windows  \
             pd-e2e/podman.ps1 \
               -downloadUrl ${{ env.PODMAN_URL }} \
-              -version ${{ env.PODMAN_VERSION }} \
               -targetFolder pd-e2e \
               -resultsFolder results \
+              -podmanProvider ${{ env.PODMAN_PROVIDER }} \
               -initialize 0 \
               -rootful 0 \
               -start 0 \
@@ -196,10 +212,11 @@ jobs:
           -e TARGET_HOST_KEY_PATH=/data/id_rsa \
           -e TARGET_FOLDER=pd-e2e \
           -e TARGET_RESULTS=results \
+          -e TARGET_CLEANUP=false \
           -e OUTPUT_FOLDER=/data \
           -e DEBUG=true \
           -v $PWD:/data:z \
-          quay.io/odockal/pde2e-runner:v0.0.1-windows  \
+          quay.io/odockal/pde2e-runner:${{ env.PDE2E_RUNNER }}-windows \
               pd-e2e/runner.ps1 \
                 -targetFolder pd-e2e \
                 -resultsFolder results \
@@ -215,7 +232,8 @@ jobs:
                 -rootful ${{ env.PODMAN_ROOTFUL }} \
                 -start ${{ env.PODMAN_START }} \
                 -userNetworking ${{ env.PODMAN_NETWORKING }} \
-                -envVars ${{ env.ENV_VARS }} \
+                -podmanProvider ${{ env.PODMAN_PROVIDER }} \
+                -envVars ${{ env.ENV_VARS }}
         # check logs
         podman logs -f pde2e-runner-run
 
