@@ -70,8 +70,8 @@ test('Expect basic dashboard', async () => {
   vi.mocked(bootcClient.listBootcImages).mockResolvedValue([]);
   render(Dashboard);
 
-  const noDeployments = screen.getByRole('heading', { name: 'Welcome to Bootable Containers' });
-  expect(noDeployments).toBeInTheDocument();
+  const welcome = screen.getByText('Welcome to Bootable Containers');
+  expect(welcome).toBeInTheDocument();
 });
 
 test('Expect build image button if example image does not exist', async () => {
@@ -116,4 +116,16 @@ test('Clicking on Pull image button should call bootcClient.pullImage', async ()
   const pullImage = screen.getByRole('button', { name: 'Pull image' });
   pullImage.click();
   expect(bootcClient.pullImage).toHaveBeenCalled();
+});
+
+test('Expect resource sections', async () => {
+  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue([]);
+  vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
+  render(Dashboard);
+
+  const images = screen.getByText('Bootc Images');
+  expect(images).toBeInTheDocument();
+
+  const diskImages = screen.getByText('Disk Images');
+  expect(diskImages).toBeInTheDocument();
 });
