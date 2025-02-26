@@ -108,26 +108,7 @@ let imageExists = $derived(bootcAvailableImages?.some(image => image.RepoTags?.i
     </div>
   {/snippet}
 
-  <div class="text-xl pt-2">Metrics</div>
-  <div class="grid grid-cols-4 gap-4">
-    <DashboardResourceCard type="Bootc Images" Icon={DiskImageIcon} count={bootcImageCount} link="/" />
-    <DashboardResourceCard type="Disk Images" Icon={DiskImageIcon} count={diskImageCount} link="/disk-images/" />
-  </div>
-
-  <div class="flex flex-1 flex-col pt-2">
-    <Expandable>
-      <!-- eslint-disable-next-line sonarjs/no-unused-vars -->
-      {#snippet title()}<div class="text-xl">Explore articles and blog posts</div>{/snippet}
-      <div class="grid grid-cols-3 gap-4">
-        <DashboardGuideCard title='Image Builder User Guide' image={osbuildImage} link='https://osbuild.org/docs/user-guide/introduction/'/>
-        <DashboardGuideCard title='Introducing image mode for RHEL and bootable containers' image={rhdImage} link='https://developers.redhat.com/articles/2024/05/07/image-mode-rhel-bootable-containers'/>
-        <DashboardGuideCard title='Getting Started with Bootable Containers' image={fedoraImage} link='https://docs.fedoraproject.org/en-US/bootc/getting-started/'/>
-      </div>
-    </Expandable>
-  </div>
-
-
-  <div class="flex flex-col h-full items-center text-center space-y-3">
+  <div class="flex flex-col items-center text-center space-y-3 p-4 bg-[var(--pd-content-card-carousel-card-bg)] rounded-md">
     <p class="pb-1 max-w-xl text-[var(--pd-card-header-text)]">
       Create your first disk image by {imageExists ? 'building' : 'pulling'} the <Link
         externalRef={`https://${exampleImage}`}>example container image</Link
@@ -151,5 +132,23 @@ let imageExists = $derived(bootcAvailableImages?.some(image => image.RepoTags?.i
         The file size of the image is over 1.5GB and may take a while to download.
       </p>
     {/if}
+  </div>
+
+  <div class="text-xl pt-2">Metrics</div>
+  <div class="grid grid-cols-4 gap-4">
+    <DashboardResourceCard type="Bootc Images" Icon={DiskImageIcon} count={bootcImageCount} link="/" />
+    <DashboardResourceCard type="Disk Images" Icon={DiskImageIcon} count={diskImageCount} link="/disk-images/" />
+  </div>
+
+  <div class="flex flex-1 flex-col pt-2">
+    <Expandable>
+      <!-- eslint-disable-next-line sonarjs/no-unused-vars -->
+      {#snippet title()}<div class="text-xl">Explore articles and blog posts</div>{/snippet}
+      <div class="grid grid-cols-3 gap-4">
+        <DashboardGuideCard title='Image Builder User Guide' image={osbuildImage} link='https://osbuild.org/docs/user-guide/introduction/'/>
+        <DashboardGuideCard title='Introducing image mode for RHEL and bootable containers' image={rhdImage} link='https://developers.redhat.com/articles/2024/05/07/image-mode-rhel-bootable-containers'/>
+        <DashboardGuideCard title='Getting Started with Bootable Containers' image={fedoraImage} link='https://docs.fedoraproject.org/en-US/bootc/getting-started/'/>
+      </div>
+    </Expandable>
   </div>
 </DashboardPage>
