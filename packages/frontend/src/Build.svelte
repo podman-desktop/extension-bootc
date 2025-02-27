@@ -1,8 +1,6 @@
 <script lang="ts">
 import './app.css';
 import {
-  faCaretDown,
-  faCaretRight,
   faCube,
   faQuestionCircle,
   faTriangleExclamation,
@@ -21,7 +19,7 @@ import { onMount } from 'svelte';
 import type { ImageInfo, ManifestInspectInfo } from '@podman-desktop/api';
 import { router } from 'tinro';
 import DiskImageIcon from './lib/DiskImageIcon.svelte';
-import { Button, Input, EmptyScreen, FormPage, Checkbox, ErrorMessage } from '@podman-desktop/ui-svelte';
+import { Button, Input, EmptyScreen, FormPage, Checkbox, ErrorMessage, Expandable } from '@podman-desktop/ui-svelte';
 import Link from './lib/Link.svelte';
 import { historyInfo } from '/@/stores/historyInfo';
 import { goToDiskImages } from './lib/navigation';
@@ -80,23 +78,6 @@ let buildConfigAnacondaIsoInstallerModules: BuildConfigAnacondaIsoInstallerModul
   enable: [''],
   disable: [''],
 };
-
-// Show/hide advanced options
-let showAdvanced = false; // State to show/hide advanced options
-function toggleAdvanced(): void {
-  showAdvanced = !showAdvanced;
-}
-
-// Show/hide build config options
-let showBuildConfig = false;
-function toggleBuildConfig(): void {
-  showBuildConfig = !showBuildConfig;
-}
-
-let showBuildConfigFile = false;
-function toggleBuildConfigFile(): void {
-  showBuildConfigFile = !showBuildConfigFile;
-}
 
 function findImage(repoTag: string): ImageInfo | undefined {
   return bootcAvailableImages.find(
@@ -818,17 +799,8 @@ $: if (availableArchitectures) {
               </p>
             </div>
             <div class="mb-2">
-              <!-- Use a span for this until we have a "dropdown toggle" UI element implemented. -->
-              <!-- svelte-ignore a11y-click-events-have-key-events -->
-              <!-- svelte-ignore a11y-no-static-element-interactions -->
-              <span
-                class="font-semibold mb-2 block cursor-pointer"
-                aria-label="interactive-build-config-options"
-                on:click={toggleBuildConfig}
-                ><Fa icon={showBuildConfig ? faCaretDown : faCaretRight} class="inline-block mr-1" />Interactive build
-                config
-              </span>
-              {#if showBuildConfig}
+              <Expandable expanded={false}>
+                {#snippet title()}<div class="font-semibold">Interactive build config</div>{/snippet}
                 <div class="ml-4">
                   <p class="text-sm text-[var(--pd-content-text)] mb-2">
                     Supplying the following fields will create a build config file that contains the build options for
@@ -994,20 +966,11 @@ $: if (availableArchitectures) {
                     </div>
                   </div>
                 </div>
-              {/if}
+              </Expandable>
             </div>
             <div class="mb-2">
-              <!-- Use a span for this until we have a "dropdown toggle" UI element implemented. -->
-              <!-- svelte-ignore a11y-click-events-have-key-events -->
-              <!-- svelte-ignore a11y-no-static-element-interactions -->
-              <span
-                class="font-semibold mb-2 block cursor-pointer"
-                aria-label="build-config-options"
-                on:click={toggleBuildConfigFile}
-                ><Fa icon={showBuildConfigFile ? faCaretDown : faCaretRight} class="inline-block mr-1" />Build config
-                file
-              </span>
-              {#if showBuildConfigFile}
+              <Expandable expanded={false}>
+                {#snippet title()}<div class="font-semibold">Build config file</div>{/snippet}
                 <div class="ml-4">
                   <p class="text-sm text-[var(--pd-content-text)] mb-2">
                     Supplying a file will override <b>ANY</b> changes done in the build config interactive mode. More
@@ -1032,19 +995,11 @@ $: if (availableArchitectures) {
                     </div>
                   </div>
                 </div>
-              {/if}
+              </Expandable>
             </div>
             <div class="mb-2">
-              <!-- Use a span for this until we have a "dropdown toggle" UI element implemented. -->
-              <!-- svelte-ignore a11y-click-events-have-key-events -->
-              <!-- svelte-ignore a11y-no-static-element-interactions -->
-              <span
-                class="font-semibold mb-2 block cursor-pointer"
-                aria-label="advanced-options"
-                on:click={toggleAdvanced}
-                ><Fa icon={showAdvanced ? faCaretDown : faCaretRight} class="inline-block mr-1" />Advanced options
-              </span>
-              {#if showAdvanced}
+              <Expandable expanded={false}>
+                {#snippet title()}<div class="font-semibold">Advanced options</div>{/snippet}
                 <div class="ml-4">
                   <!-- chown, this option is only available for Linux users -->
                   {#if isLinux}
@@ -1102,7 +1057,7 @@ $: if (availableArchitectures) {
                       >vmimport service role</Link> configured to upload to the bucket.
                   </p>
                 </div>
-              {/if}
+              </Expandable>
             </div>
           </div>
         </div>
