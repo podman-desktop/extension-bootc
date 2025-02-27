@@ -16,7 +16,7 @@ async function openLink(): Promise<void> {
 </script>
 
 <div class="flex flex-col flex-grow gap-4 p-4 bg-[var(--pd-content-card-carousel-card-bg)] hover:bg-[var(--pd-content-card-carousel-card-hover-bg)] rounded-md items-center">
-  <img src={image} class="max-w-[100%] h-24 object-contain rounded-md" alt={`${title} image`} />
+  <img src={image} class="max-w-[100%] h-16 object-contain rounded-md" alt={`${title} image`} />
   <div class="text-[var(--pd-content-card-carousel-card-header-text)] text-center font-semibold">{title}</div>
   <Button on:click={openLink}>Read more</Button>
 </div>
