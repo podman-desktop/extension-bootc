@@ -145,9 +145,9 @@ let imageExists = $derived(bootcAvailableImages?.some(image => image.RepoTags?.i
       <!-- eslint-disable-next-line sonarjs/no-unused-vars -->
       {#snippet title()}<div class="text-xl">Explore articles and blog posts</div>{/snippet}
       <div class="grid grid-cols-3 gap-4">
-        <DashboardGuideCard title='Image Builder User Guide' image={osbuildImage} link='https://osbuild.org/docs/user-guide/introduction/'/>
+        <DashboardGuideCard title='Image Builder user guide' image={osbuildImage} link='https://osbuild.org/docs/user-guide/introduction/'/>
         <DashboardGuideCard title='Introducing image mode for RHEL and bootable containers' image={rhdImage} link='https://developers.redhat.com/articles/2024/05/07/image-mode-rhel-bootable-containers'/>
-        <DashboardGuideCard title='Getting Started with Bootable Containers' image={fedoraImage} link='https://docs.fedoraproject.org/en-US/bootc/getting-started/'/>
+        <DashboardGuideCard title='Getting started with bootable containers' image={fedoraImage} link='https://docs.fedoraproject.org/en-US/bootc/getting-started/'/>
       </div>
     </Expandable>
   </div>
