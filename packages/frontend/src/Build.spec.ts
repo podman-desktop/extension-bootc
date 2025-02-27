@@ -132,6 +132,17 @@ vi.mock('tinro', () => {
   };
 });
 
+vi.mock('svelte/transition', () => ({
+  slide: (): { delay: number; duration: number } => ({
+    delay: 0,
+    duration: 0,
+  }),
+  fade: (): { delay: number; duration: number } => ({
+    delay: 0,
+    duration: 0,
+  }),
+}));
+
 test('Render shows correct images and history', async () => {
   vi.mocked(bootcClient.inspectImage).mockResolvedValue(mockImageInspect);
   vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
@@ -742,7 +753,7 @@ test('if a manifest is created that has the label "6.8.9-300.fc40.aarch64" in as
 test('collapse and uncollapse of advanced options', async () => {
   render(Build);
 
-  const advancedOptions = screen.getByLabelText('advanced-options');
+  const advancedOptions = screen.getByText('Advanced options');
   expect(advancedOptions).toBeDefined();
 
   // expect the input labels to be hidden on load
@@ -866,7 +877,7 @@ test('expect anaconda modules ISO section to be shown', async () => {
   });
 
   // Find the "build-config-options" aria-label span and click it
-  const buildConfigOptions = screen.getByLabelText('interactive-build-config-options');
+  const buildConfigOptions = screen.getByText('Interactive build config');
   expect(buildConfigOptions).toBeDefined();
   await userEvent.click(buildConfigOptions);
 
@@ -892,7 +903,7 @@ test('expect anaconda kickstart file section to be shown', async () => {
   });
 
   // Find the "build-config-options" aria-label span and click it
-  const buildConfigOptions = screen.getByLabelText('interactive-build-config-options');
+  const buildConfigOptions = screen.getByText('Interactive build config');
   expect(buildConfigOptions).toBeDefined();
   await userEvent.click(buildConfigOptions);
 
