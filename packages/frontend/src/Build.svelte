@@ -595,7 +595,7 @@ $: if (availableArchitectures) {
                   <option value="" disabled selected>Select an image</option>
                 {/if}
                 {#if bootcAvailableImages.length > 0}
-                  {#each bootcAvailableImages as image}
+                  {#each bootcAvailableImages as image (image.Id)}
                     <!-- Repo tags is an array, only show if it is > 0 and show the first one -->
                     {#if image.RepoTags && image.RepoTags.length > 0}
                       <option value={image.RepoTags[0]}>{image.RepoTags[0]}</option>
@@ -843,7 +843,7 @@ $: if (availableArchitectures) {
                     <span class="block mt-4">Users</span>
                   </div>
 
-                  {#each buildConfigUsers as user, index}
+                  {#each buildConfigUsers as user, index (index)}
                     <div class="flex flex-row justify-center items-center w-full py-1">
                       <Input
                         bind:value={user.name}
@@ -890,7 +890,7 @@ $: if (availableArchitectures) {
                     <span class="block mt-6">Filesystems</span>
                   </div>
 
-                  {#each buildConfigFilesystems as filesystem, index}
+                  {#each buildConfigFilesystems as filesystem, index (index)}
                     <div class="flex flex-row justify-center items-center w-full py-1">
                       <Input
                         bind:value={filesystem.mountpoint}
@@ -952,7 +952,7 @@ $: if (availableArchitectures) {
                   <div class="grid grid-cols-2 gap-4 mt-2">
                     <div>
                       <span class="block">Enable</span>
-                      {#each buildConfigAnacondaIsoInstallerModules.enable as _, index}
+                      {#each buildConfigAnacondaIsoInstallerModules.enable as _, index (index)}
                         <div class="flex flex-row justify-center items-center w-full py-1">
                           <Input
                             placeholder="Module name"
@@ -973,7 +973,7 @@ $: if (availableArchitectures) {
                     </div>
                     <div>
                       <span class="block">Disable</span>
-                      {#each buildConfigAnacondaIsoInstallerModules.disable as _, index}
+                      {#each buildConfigAnacondaIsoInstallerModules.disable as _, index (index)}
                         <div class="flex flex-row justify-center items-center w-full py-1">
                           <Input
                             placeholder="Module name"

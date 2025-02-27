@@ -47,7 +47,7 @@ onMount(async () => {
   <div slot="content" class="flex flex-col min-w-full min-h-full">
     <div class="min-w-full min-h-full flex-1">
       <div class="px-5 space-y-5">
-        {#each groups.entries() as [category, examples]}
+        {#each groups.entries() as [category, examples](category.id)}
           <ExamplesCard category={category} examples={examples} />
         {/each}
       </div>
