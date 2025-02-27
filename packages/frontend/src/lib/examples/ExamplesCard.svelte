@@ -71,7 +71,7 @@ $effect(() => {
 <Card title={category.name}>
   <div class="w-full">
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-      {#each examples as example}
+      {#each examples as example (example.id)}
         <ExampleCard example={example} />
       {/each}
     </div>
