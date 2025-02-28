@@ -15,7 +15,7 @@ import Expandable from '../upstream/Expandable.svelte';
 import DashboardGuideCard from '../upstream/DashboardGuideCard.svelte';
 import { historyInfo } from '../../stores/historyInfo';
 import osbuildImage from './osbuild.png';
-import rhdImage from './rhd.png';
+import redhatImage from './redhat.png';
 import fedoraImage from './fedora.png';
 
 let pullInProgress = $state(false);
@@ -146,7 +146,7 @@ let imageExists = $derived(bootcAvailableImages?.some(image => image.RepoTags?.i
       {#snippet title()}<div class="text-xl">Explore articles and blog posts</div>{/snippet}
       <div class="grid grid-cols-3 gap-4">
         <DashboardGuideCard title='Image Builder user guide' image={osbuildImage} link='https://osbuild.org/docs/user-guide/introduction/'/>
-        <DashboardGuideCard title='Introducing image mode for RHEL and bootable containers' image={rhdImage} link='https://developers.redhat.com/articles/2024/05/07/image-mode-rhel-bootable-containers'/>
+        <DashboardGuideCard title='Introducing image mode for RHEL and bootable containers' image={redhatImage} link='https://developers.redhat.com/articles/2024/05/07/image-mode-rhel-bootable-containers'/>
         <DashboardGuideCard title='Getting started with bootable containers' image={fedoraImage} link='https://docs.fedoraproject.org/en-US/bootc/getting-started/'/>
       </div>
     </Expandable>
