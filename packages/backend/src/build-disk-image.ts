@@ -112,9 +112,9 @@ export async function buildDiskImage(build: BootcBuildInfo, history: History, ov
   const telemetryData: Record<string, unknown> = {};
   telemetryData.build = build;
 
-  // "Returning" withProgress allows PD to handle the task in the background with building.
+  // Kick off task using withProgress to build in the background
   let errorMessage: string;
-  return extensionApi.window
+  extensionApi.window
     .withProgress(
       { location: extensionApi.ProgressLocation.TASK_WIDGET, title: `Building disk image ${build.image}` },
       async progress => {
@@ -342,7 +342,8 @@ export async function buildDiskImage(build: BootcBuildInfo, history: History, ov
           'OK',
         );
       }
-    });
+    })
+    .catch((e: unknown) => console.error('error building disk image', e));
 }
 
 async function logContainer(

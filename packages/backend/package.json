@@ -2,7 +2,7 @@
   "name": "bootc",
   "displayName": "Bootable Container",
   "description": "Support for bootable OS containers (bootc) and generating disk images",
-  "version": "1.7.0-next",
+  "version": "1.8.0-next",
   "icon": "icon.png",
   "publisher": "redhat",
   "license": "Apache-2.0",
@@ -92,10 +92,10 @@
     "watch": "vite --mode development build -w"
   },
   "devDependencies": {
-    "@podman-desktop/api": "1.15.0",
+    "@podman-desktop/api": "1.17.1",
     "@types/node": "^20",
-    "@typescript-eslint/eslint-plugin": "^8.25.0",
-    "@typescript-eslint/parser": "^8.25.0",
+    "@typescript-eslint/eslint-plugin": "^8.26.0",
+    "@typescript-eslint/parser": "^8.26.0",
     "@vitest/coverage-v8": "^3.0.7",
     "@xterm/xterm": "^5.5.0",
     "@xterm/addon-fit": "^0.10.0",
@@ -108,7 +108,7 @@
     "eslint-plugin-no-null": "^1.0.2",
     "eslint-plugin-redundant-undefined": "^1.0.0",
     "eslint-plugin-sonarjs": "^3.0.2",
-    "prettier": "^3.5.2",
+    "prettier": "^3.5.3",
     "typescript": "5.7.3",
     "vite": "6.2.0",
     "vitest": "^3.0.7"

@@ -25,13 +25,17 @@ import {
   getBuilder,
   getUnusedName,
   createBuildConfigJSON,
+  buildDiskImage,
 } from './build-disk-image';
 import { bootcImageBuilderCentos, bootcImageBuilderRHEL } from './constants';
 import type { ContainerInfo, Configuration } from '@podman-desktop/api';
+import * as extensionApi from '@podman-desktop/api';
 import { containerEngine } from '@podman-desktop/api';
 import type { BootcBuildInfo, BuildConfig } from '/@shared/src/models/bootc';
 import * as fs from 'node:fs';
+import type { History } from './history';
 import path, { resolve } from 'node:path';
+import { getContainerEngine } from './container-utils';
 
 const configurationGetConfigurationMock = vi.fn();
 
@@ -54,11 +58,22 @@ vi.mock('@podman-desktop/api', async () => {
     configuration: {
       getConfiguration: (): Configuration => config,
     },
+    window: {
+      withProgress: vi.fn(),
+      showErrorMessage: vi.fn(),
+    },
+    ProgressLocation: {
+      TASK_WIDGET: 'TASK_WIDGET',
+    },
   };
 });
 
+vi.mock('./container-utils');
+
+vi.mock('./machine-utils');
+
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
 });
 
 test('check image builder options', async () => {
@@ -619,4 +634,31 @@ test('expect createBuildConfigJSON to read a valid kickstart file and output it 
   expect(buildConfigJson.customizations.installer.kickstart.contents).toEqual(
     JSON.stringify(mockKickstartFileContents).slice(1, -1),
   );
+});
+
+test('expect build to kick off in background', async () => {
+  const build = {
+    id: 'new-image',
+    image: 'test-image',
+    tag: 'latest',
+    type: ['raw'],
+    arch: 'amd64',
+    engineId: 'podman',
+    folder: '/foo/bar/test',
+  } as BootcBuildInfo;
+
+  const history = {
+    addOrUpdateBuildInfo: vi.fn(),
+  } as unknown as History;
+
+  vi.mocked(extensionApi.window.withProgress).mockResolvedValue(new Promise(res => setTimeout(res, 2_000)));
+  vi.mocked(getContainerEngine).mockResolvedValue({
+    connection: { type: 'podman', status: vi.fn().mockReturnValue('started') },
+  } as unknown as extensionApi.ContainerProviderConnection);
+
+  await buildDiskImage(build, history, true);
+
+  // expect withProgress to still be running
+  expect(extensionApi.window.withProgress).toHaveBeenCalled();
+  expect(extensionApi.window.withProgress).not.toHaveResolved();
 });
