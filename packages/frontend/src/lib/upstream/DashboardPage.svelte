@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { Snippet } from 'svelte';
-import Expandable from './Expandable.svelte';
+import { Expandable } from '@podman-desktop/ui-svelte';
 
 let {
   pageTitle = undefined,
