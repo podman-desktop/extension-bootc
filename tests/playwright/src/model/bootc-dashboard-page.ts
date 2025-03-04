@@ -26,6 +26,6 @@ export class BootcDashboardPage {
   constructor(page: Page, webview: Page) {
     this.page = page;
     this.webview = webview;
-    this.heading = webview.getByRole('region', { name: 'Dashboard', exact: true });
+    this.heading = webview.getByText('Welcome to bootable containers');
   }
 }
