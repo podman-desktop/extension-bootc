@@ -53,7 +53,7 @@ jobs:
 
       - uses: actions/checkout@v4
         if: github.event_name == 'push'
-        with: 
+        with:
           path: podman-desktop-extension-bootc
 
       # Checkout podman desktop
@@ -103,7 +103,7 @@ jobs:
       - name: Build Podman Desktop for E2E tests
         working-directory: ./podman-desktop
         run: pnpm test:e2e:build
-      
+
       - name: Ensure getting current HEAD version of the test framework
         working-directory: ./podman-desktop-extension-bootc/tests/playwright
         run: |
