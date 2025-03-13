@@ -123,7 +123,7 @@ test.describe('BootC Extension', () => {
             `${imageName}:${imageTag}`,
             containerFilePath,
             contextDirectory,
-            architecture,
+            [architecture],
             180000,
           );
 
