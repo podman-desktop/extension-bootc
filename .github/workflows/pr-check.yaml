@@ -102,6 +102,11 @@ jobs:
             sudo apt-get -y install podman; }
           podman version
 
+      # Enables multi-architecture support for building multi-arch manifests
+      - name: Install QEMU for Multi-Arch
+        run: | 
+          sudo apt install -y qemu-user-static
+
       - name: Revert unprivileged user namespace restrictions in Ubuntu 24.04
         run: |
           # allow unprivileged user namespace
