@@ -69,7 +69,7 @@
     "svelte-eslint-parser": "^1.0.1",
     "typescript": "5.8.2",
     "typescript-eslint": "^8.26.1",
-    "vite": "6.2.1",
+    "vite": "6.2.2",
     "vitest": "^3.0.8",
     "globals": "^16.0.0"
   },
