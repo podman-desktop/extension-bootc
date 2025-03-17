@@ -15,7 +15,7 @@
     "@types/node": "^22",
     "electron": "^35.0.2",
     "typescript": "^5.8.2",
-    "vitest": "^3.0.8",
+    "vitest": "^3.0.9",
     "xvfb-maybe": "^0.2.1"
   }
 }
