@@ -26,7 +26,7 @@ let diskImageCount = $derived($historyInfo.length);
 
 const exampleImage = 'quay.io/bootc-extension/httpd:latest';
 const bootcImageBuilderSite = 'https://github.com/osbuild/bootc-image-builder';
-const bootcSite = 'https://containers.github.io/bootc/';
+const bootcSite = 'https://bootc-dev.github.io/bootc/';
 const fedoraBaseImages = 'https://docs.fedoraproject.org/en-US/bootc/base-images/';
 const extensionSite = 'https://github.com/containers/podman-desktop-extension-bootc';
 const rhdImageMode = './RHD.png';

@@ -24,7 +24,7 @@ Easily go from container to VM / ISO-on-a-USB / RAW image!
 
 The **Bootable Container (bootc)** extension uses [bootc-image-builder](https://github.com/osbuild/bootc-image-builder) in order to build bootable _container_ disk images.
 
-Once a machine is created from the disk image, it can apply transactional updates "in place" from newly pushed container images (without creating a new disk image). For more information, see [bootc](https://containers.github.io/bootc/).
+Once a machine is created from the disk image, it can apply transactional updates "in place" from newly pushed container images (without creating a new disk image). For more information, see [bootc](https://bootc-dev.github.io/bootc/).
 
 ## Bootable Container Images
 
@@ -104,7 +104,7 @@ After building, read our [Virtual Machine Guide](https://github.com/containers/p
 
 ## Use Case
 
-Go from a [bootc](https://containers.github.io/bootc/) compatible derived container build to a disk image format:
+Go from a [bootc](https://bootc-dev.github.io/bootc/) compatible derived container build to a disk image format:
 
 - `qcow2`: QEMU Disk Images
 - `ami`: Amazon Machine Images
