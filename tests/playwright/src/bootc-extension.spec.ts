@@ -130,6 +130,9 @@ test.describe('BootC Extension', () => {
           await playExpect
             .poll(async () => await imagesPage.waitForImageExists(imageName, 30_000), { timeout: 0 })
             .toBeTruthy();
+          await playExpect
+            .poll(async () => await imagesPage.checkImageBadge(imageName, 'bootc'), { timeout: 30_000 })
+            .toBeTruthy();
           imageBuildFailed = false;
         });
 
