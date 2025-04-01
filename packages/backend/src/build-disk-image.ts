@@ -412,7 +412,7 @@ export function createBuilderImageOptions(
   build: BootcBuildInfo,
   builder?: string,
 ): ContainerCreateOptions {
-  const cmd = [`${build.image}:${build.tag}`, '--output', '/output/', '--local'];
+  const cmd = [`${build.image}:${build.tag}`, '--output', '/output/', '--local', '--progress', 'verbose'];
 
   build.type.forEach(t => cmd.push('--type', t));
 
