@@ -3,7 +3,7 @@ interface Props {
   size?: string;
   solid?: boolean;
 }
-let { size = '1em', solid = false }: Props = $props();
+let { size = '13px', solid = true }: Props = $props();
 </script>
 
 <svg
