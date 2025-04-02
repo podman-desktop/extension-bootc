@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,16 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test, vi } from 'vitest';
 import { bootcClient } from '/@/api/client';
-import Dashboard from './Dashboard.svelte';
+import FirstImage from './FirstImage.svelte';
 import type { ImageInfo } from '@podman-desktop/api';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
+
+const exampleTestImage = `registry.gitlab.com/fedora/bootc/examples/httpd:latest`;
 
 const mockBootcImages: ImageInfo[] = [
   {
     Id: 'registry.gitlab.com/fedora/bootc/examples/httpd',
-    RepoTags: ['latest'],
+    RepoTags: [exampleTestImage],
     Labels: {
       bootc: 'true',
     },
@@ -49,6 +51,7 @@ vi.mock('/@/api/client', async () => {
     bootcClient: {
       listHistoryInfo: vi.fn(),
       listBootcImages: vi.fn(),
+      pullImage: vi.fn().mockResolvedValue(Promise.resolve),
       isMac: vi.fn(),
       isWindows: vi.fn(),
     },
@@ -62,23 +65,46 @@ vi.mock('/@/api/client', async () => {
   };
 });
 
-test('Expect basic dashboard', async () => {
-  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue([]);
-  vi.mocked(bootcClient.listBootcImages).mockResolvedValue([]);
-  render(Dashboard);
-
-  const welcome = screen.getByText('Welcome to Bootable Containers');
-  expect(welcome).toBeInTheDocument();
-});
-
-test('Expect resource sections', async () => {
+test('Expect build image button if example image does not exist', async () => {
   vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue([]);
   vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
-  render(Dashboard);
+  render(FirstImage);
 
-  const images = screen.getByText('Bootc Images');
-  expect(images).toBeInTheDocument();
+  // Wait until the "Pull image" button disapears
+  await vi.waitFor(() => {
+    if (screen.queryAllByRole('button', { name: 'Pull image' }).length === 1) {
+      throw new Error();
+    }
+  });
 
-  const diskImages = screen.getByText('Disk Images');
-  expect(diskImages).toBeInTheDocument();
+  // Build image exists since there is the example image in our mocked mockBootcImages
+  const buildImage = screen.getByRole('button', { name: 'Build image' });
+  expect(buildImage).toBeInTheDocument();
+});
+
+test('Expect pull image button if example image does not exist', async () => {
+  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue([]);
+  vi.mocked(bootcClient.listBootcImages).mockResolvedValue([]);
+  render(FirstImage);
+
+  // Wait until the "Build image" button disappears
+  await vi.waitFor(() => {
+    if (screen.queryAllByRole('button', { name: 'Build image' }).length === 1) {
+      throw new Error();
+    }
+  });
+
+  // Pull image exists since there is no image in our mocked mockBootcImages
+  const pullImage = screen.getByRole('button', { name: 'Pull image' });
+  expect(pullImage).toBeInTheDocument();
+});
+
+test('Clicking on Pull image button should call bootcClient.pullImage', async () => {
+  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue([]);
+  vi.mocked(bootcClient.listBootcImages).mockResolvedValue([]);
+  render(FirstImage);
+
+  const pullImage = screen.getByRole('button', { name: 'Pull image' });
+  pullImage.click();
+  expect(bootcClient.pullImage).toHaveBeenCalled();
 });
