@@ -55,7 +55,7 @@ const extensionSite = 'https://github.com/containers/podman-desktop-extension-bo
 
   <div class="text-xl pt-2">Metrics</div>
   <div class="grid grid-cols-4 gap-4">
-    <DashboardResourceCard type="Bootc Images" Icon={BootcImageIcon} count={bootcImageCount} link="/" />
+    <DashboardResourceCard type="Bootc Images" Icon={BootcImageIcon} count={bootcImageCount} link="/images/" />
     <DashboardResourceCard type="Disk Images" Icon={DiskImageIcon} count={diskImageCount} link="/disk-images/" />
   </div>
 
