@@ -50,10 +50,10 @@ async function pullExampleImage(): Promise<void> {
     }
   }, 5_000);
 
-  await bootcClient.pullImage(exampleImage);
-
-  pullInProgress = false;
-  displayDisclaimer = false;
+  await bootcClient.pullImage(exampleImage).finally(() => {
+    pullInProgress = false;
+    displayDisclaimer = false;
+  });
 }
 
 // Each time images updates, check if 'quay.io/bootc-extension/httpd' is in RepoTags
