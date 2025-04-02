@@ -51,7 +51,7 @@ vi.mock('../../api/client', async () => {
     bootcClient: {
       listHistoryInfo: vi.fn(),
       listBootcImages: vi.fn(),
-      pullImage: vi.fn(),
+      pullImage: vi.fn().mockResolvedValue(Promise.resolve),
       isMac: vi.fn(),
       isWindows: vi.fn(),
     },
