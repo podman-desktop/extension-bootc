@@ -2,16 +2,15 @@
 import BootcSelkie from '../BootcSelkie.svelte';
 import Link from '../Link.svelte';
 import { faArrowCircleDown, faCube } from '@fortawesome/free-solid-svg-icons';
-import { onMount, tick } from 'svelte';
-import { bootcClient, rpcBrowser } from '../../api/client';
-import { Messages } from '/@shared/src/messages/Messages';
 import { router } from 'tinro';
+import { tick } from 'svelte';
+import { bootcClient } from '../../api/client';
 import { Button, Expandable } from '@podman-desktop/ui-svelte';
-import type { ImageInfo } from '@podman-desktop/api';
 import DashboardPage from '../upstream/DashboardPage.svelte';
 import DashboardResourceCard from '../upstream/DashboardResourceCard.svelte';
 import DiskImageIcon from '../DiskImageIcon.svelte';
 import DashboardGuideCard from '../upstream/DashboardGuideCard.svelte';
+import { imageInfo } from '../../stores/imageInfo';
 import { historyInfo } from '../../stores/historyInfo';
 import osbuildImage from './osbuild.png';
 import redhatImage from './redhat.png';
@@ -20,9 +19,8 @@ import BootcImageIcon from '../BootcImageIcon.svelte';
 
 let pullInProgress = $state(false);
 let displayDisclaimer = $state(false);
-let bootcAvailableImages: ImageInfo[] = $state([]);
 
-let bootcImageCount = $derived(bootcAvailableImages.length);
+let bootcImageCount = $derived($imageInfo.length);
 let diskImageCount = $derived($historyInfo.length);
 
 const exampleImage = 'quay.io/bootc-extension/httpd:latest';
@@ -30,7 +28,6 @@ const bootcImageBuilderSite = 'https://github.com/osbuild/bootc-image-builder';
 const bootcSite = 'https://bootc-dev.github.io/bootc/';
 const fedoraBaseImages = 'https://docs.fedoraproject.org/en-US/bootc/base-images/';
 const extensionSite = 'https://github.com/containers/podman-desktop-extension-bootc';
-const rhdImageMode = './RHD.png';
 
 async function gotoBuild(): Promise<void> {
   // Split the image name to get the image name and tag
@@ -43,7 +40,6 @@ async function gotoBuild(): Promise<void> {
 async function pullExampleImage(): Promise<void> {
   pullInProgress = true;
   displayDisclaimer = false;
-  await bootcClient.pullImage(exampleImage);
 
   // After 5 seconds, check if pull is still in progress and display disclaimer if true
   setTimeout(() => {
@@ -52,35 +48,17 @@ async function pullExampleImage(): Promise<void> {
       // Ensure UI updates to reflect the new state
       tick().catch((e: unknown) => console.error('error updating disclaimer', e));
     }
-  }, 5000);
+  }, 5_000);
+
+  await bootcClient.pullImage(exampleImage);
+
+  pullInProgress = false;
+  displayDisclaimer = false;
 }
 
-onMount(async () => {
-  bootcAvailableImages = await bootcClient.listBootcImages();
-
-  return rpcBrowser.subscribe(Messages.MSG_IMAGE_PULL_UPDATE, msg => {
-    if (msg.image === exampleImage) {
-      pullInProgress = !msg.success;
-      if (!pullInProgress) {
-        displayDisclaimer = false; // Ensure disclaimer is removed when not in progress
-      }
-    }
-    // Update the list of available images after a successful pull
-    if (msg.success) {
-      bootcClient
-        .listBootcImages()
-        .then(images => {
-          bootcAvailableImages = images;
-        })
-        .catch((e: unknown) => console.error('error while updating images', e));
-    }
-  });
-});
-
-// Each time bootcAvailableImages updates, check if 'quay.io/bootc-extension/httpd' is in RepoTags
-let imageExists = $derived(bootcAvailableImages?.some(image => image.RepoTags?.includes(exampleImage)));
+// Each time images updates, check if 'quay.io/bootc-extension/httpd' is in RepoTags
+let imageExists = $derived($imageInfo?.some(image => image.RepoTags?.includes(exampleImage)));
 </script>
-
 
 <DashboardPage>
   <!-- eslint-disable-next-line sonarjs/no-unused-vars -->
