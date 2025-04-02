@@ -13,6 +13,7 @@ import Navigation from './Navigation.svelte';
 import DiskImagesList from './lib/disk-image/DiskImagesList.svelte';
 import Dashboard from './lib/dashboard/Dashboard.svelte';
 import ExampleDetails from './lib/examples/ExampleDetails.svelte';
+import ImagesList from './lib/images/ImagesList.svelte';
 
 router.mode.hash();
 
@@ -44,6 +45,9 @@ onMount(() => {
 
       <Route path="/example/:id" breadcrumb="Example Details" let:meta>
         <ExampleDetails id={meta.params.id} />
+      </Route>
+      <Route path="/images/" breadcrumb="Images">
+        <ImagesList />
       </Route>
       <Route path="/disk-images/" breadcrumb="Disk Images">
         <DiskImagesList />
