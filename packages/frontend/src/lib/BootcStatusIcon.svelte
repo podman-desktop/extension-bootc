@@ -15,13 +15,14 @@ $: solid =
   status === 'error' ||
   status === 'lost' ||
   status === 'creating' ||
+  status === 'used' ||
   status === 'deleting';
 </script>
 
 <div class="grid place-content-center" style="position:relative">
   <div
     class="grid place-content-center rounded-sm aspect-square text-xs"
-    class:bg-[var(--pd-status-running)]={status === 'success'}
+    class:bg-[var(--pd-status-running)]={status === 'success' || status === 'used'}
     class:bg-[var(--pd-status-created)]={status === 'running'}
     class:bg-[var(--pd-status-terminated)]={status === 'error'}
     class:bg-[var(--pd-status-degraded)]={status === 'lost'}
