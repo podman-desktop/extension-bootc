@@ -286,18 +286,15 @@ export class BootcApiImpl implements BootcApi {
 
   // Pull an image from the registry
   async pullImage(imageName: string, arch?: string): Promise<void> {
-    let success: boolean = false;
-    let error: string = '';
     try {
       await containerUtils.pullImage(await getContainerEngine(), imageName, arch);
-      success = true;
     } catch (err) {
       await podmanDesktopApi.window.showErrorMessage(`Error pulling image: ${err}`);
       console.error('Error pulling image: ', err);
-      error = String(err);
+      throw new Error(`Error pulling image: ${err}`);
     } finally {
-      // Notify the frontend if the pull was successful, and if there was an error.
-      await this.notify(Messages.MSG_IMAGE_PULL_UPDATE, { image: imageName, success, error });
+      // Notify the frontend the images list may have changed
+      await this.notify(Messages.MSG_IMAGE_UPDATE, {});
     }
   }
 

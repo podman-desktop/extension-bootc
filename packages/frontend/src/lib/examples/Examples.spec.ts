@@ -89,6 +89,7 @@ const imagesList = [
 test('Test examples render correctly', async () => {
   // Mock the getExamples method
   vi.mocked(bootcClient.getExamples).mockResolvedValue(examplesList);
+  vi.mocked(bootcClient.listBootcImages).mockResolvedValue([]);
 
   // Render the examples component
   render(Examples);

@@ -15,7 +15,23 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import { BootcApi } from '../BootcAPI';
-import { getChannel } from './utils';
 
-export const noTimeoutChannels: string[] = [getChannel(BootcApi, 'launchVM'), getChannel(BootcApi, 'pullImage')];
+import { derived, writable, type Readable } from 'svelte/store';
+import { Messages } from '/@shared/src/messages/Messages';
+import { bootcClient } from '/@/api/client';
+import { RPCReadable } from '/@/stores/rpcReadable';
+import { findMatchInLeaves } from '../lib/upstream/search-util';
+import type { ImageInfo } from '@podman-desktop/api';
+
+export const imageInfo: Readable<ImageInfo[]> = RPCReadable<ImageInfo[]>(
+  [],
+  [Messages.MSG_IMAGE_UPDATE],
+  bootcClient.listBootcImages,
+);
+
+// For searching
+export const searchPattern = writable('');
+
+export const filtered = derived([searchPattern, imageInfo], ([$searchPattern, $imageInfo]) =>
+  $imageInfo.filter(imageInfo => findMatchInLeaves(imageInfo, $searchPattern.toLowerCase())),
+);

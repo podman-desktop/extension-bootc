@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
  ***********************************************************************/
 
 export enum Messages {
+  MSG_IMAGE_UPDATE = 'image-update',
   MSG_HISTORY_UPDATE = 'history-update',
-  MSG_IMAGE_PULL_UPDATE = 'image-pull-update', // Responsible for any pull updates
   MSG_NAVIGATE_BUILD = 'navigate-build',
   MSG_VM_LAUNCH_ERROR = 'vm-launch-error',
 }
