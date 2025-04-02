@@ -2,7 +2,6 @@
 import BootcSelkie from '../BootcSelkie.svelte';
 import Link from '../Link.svelte';
 import { faArrowCircleDown, faCube } from '@fortawesome/free-solid-svg-icons';
-import { router } from 'tinro';
 import { tick } from 'svelte';
 import { bootcClient } from '../../api/client';
 import { Button, Expandable } from '@podman-desktop/ui-svelte';
@@ -16,6 +15,7 @@ import osbuildImage from './osbuild.png';
 import redhatImage from './redhat.png';
 import fedoraImage from './fedora.png';
 import BootcImageIcon from '../BootcImageIcon.svelte';
+import { gotoImageBuild } from '../navigation';
 
 let pullInProgress = $state(false);
 let displayDisclaimer = $state(false);
@@ -30,11 +30,10 @@ const fedoraBaseImages = 'https://docs.fedoraproject.org/en-US/bootc/base-images
 const extensionSite = 'https://github.com/containers/podman-desktop-extension-bootc';
 
 async function gotoBuild(): Promise<void> {
-  // Split the image name to get the image name and tag
-  // and go to /disk-image/build/:image/:tag
+  // Split the image name to get the image name and tag and go to build page
   // this will pre-select the image and tag in the build screen
   const [image, tag] = exampleImage.split(':');
-  router.goto(`/disk-images/build/${encodeURIComponent(image)}/${encodeURIComponent(tag)}`);
+  await gotoImageBuild(image, tag);
 }
 
 async function pullExampleImage(): Promise<void> {

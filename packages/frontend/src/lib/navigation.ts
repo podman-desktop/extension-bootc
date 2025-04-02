@@ -26,3 +26,8 @@ export async function gotoBuild(): Promise<void> {
   await bootcClient.telemetryLogUsage('nav-build');
   router.goto('/disk-images/build');
 }
+
+export async function gotoImageBuild(name: string, tag: string): Promise<void> {
+  await bootcClient.telemetryLogUsage('nav-build');
+  router.goto(`/disk-images/build/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`);
+}

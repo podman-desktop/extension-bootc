@@ -7,6 +7,7 @@ import { router } from 'tinro';
 import DiskImageIcon from '../DiskImageIcon.svelte';
 import { filesize } from 'filesize';
 import { onMount } from 'svelte';
+import { gotoImageBuild } from '../navigation';
 
 interface Props {
   example: Example;
@@ -34,7 +35,7 @@ async function pullImage(arch?: string): Promise<void> {
 async function gotoBuild(): Promise<void> {
   if (example.image && example.tag) {
     await bootcClient.telemetryLogUsage('example-build-image', { image: example.image });
-    router.goto(`/disk-images/build/${encodeURIComponent(example.image)}/${encodeURIComponent(example.tag)}`);
+    await gotoImageBuild(example.image, example.tag);
   }
 }
 
