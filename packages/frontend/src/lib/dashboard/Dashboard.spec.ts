@@ -25,11 +25,11 @@ import Dashboard from './Dashboard.svelte';
 import type { ImageInfo } from '@podman-desktop/api';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
-const exampleTestImage = `quay.io/bootc-extension/httpd:latest`;
+const exampleTestImage = `registry.gitlab.com/fedora/bootc/examples/httpd:latest`;
 
 const mockBootcImages: ImageInfo[] = [
   {
-    Id: 'quay.io/bootc-extension/httpd',
+    Id: 'registry.gitlab.com/fedora/bootc/examples/httpd',
     RepoTags: [exampleTestImage],
     Labels: {
       bootc: 'true',

@@ -23,7 +23,7 @@ let displayDisclaimer = $state(false);
 let bootcImageCount = $derived($imageInfo.length);
 let diskImageCount = $derived($historyInfo.length);
 
-const exampleImage = 'quay.io/bootc-extension/httpd:latest';
+const exampleImage = 'registry.gitlab.com/fedora/bootc/examples/httpd:latest';
 const bootcImageBuilderSite = 'https://github.com/osbuild/bootc-image-builder';
 const bootcSite = 'https://bootc-dev.github.io/bootc/';
 const fedoraBaseImages = 'https://docs.fedoraproject.org/en-US/bootc/base-images/';
@@ -56,7 +56,7 @@ async function pullExampleImage(): Promise<void> {
   });
 }
 
-// Each time images updates, check if 'quay.io/bootc-extension/httpd' is in RepoTags
+// Each time images updates, check if 'registry.gitlab.com/fedora/bootc/examples/httpd' is in RepoTags
 let imageExists = $derived($imageInfo?.some(image => image.RepoTags?.includes(exampleImage)));
 </script>
 
