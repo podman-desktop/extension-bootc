@@ -32,6 +32,7 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { BootcPage } from './model/bootc-page';
 import { fileURLToPath } from 'node:url';
+import { BootcNavigationBar } from './model/bootc-navigationbar';
 
 let page: Page;
 let webview: Page;
@@ -195,6 +196,64 @@ test.describe('BootC Extension', () => {
                   console.log('Expected to pass on Linux, Windows and macOS');
                   playExpect(result).toBeTruthy();
                 }
+              });
+            });
+        }
+      });
+  }
+
+  const examples = [
+    {
+      appName: 'Apache httpd',
+      imageName: 'registry.gitlab.com/fedora/bootc/examples/httpd:latest',
+    },
+  ];
+
+  for (const example of examples) {
+    test.describe
+      .serial(`Bootc examples for bootable image`, () => {
+        test(`Pull ${example.appName} bootable image`, async ({ runner }) => {
+          test.setTimeout(180_000);
+
+          [page, webview] = await handleWebview(runner);
+          const bootcNavigationBar = new BootcNavigationBar(page, webview);
+          const bootcExamplesPage = await bootcNavigationBar.openBootcExamples();
+          await playExpect(bootcExamplesPage.heading).toBeVisible();
+          await bootcExamplesPage.pullImage(example.appName);
+        });
+
+        const types = ['QCOW2', 'AMI'];
+
+        for (const type of types) {
+          test.describe
+            .serial('Building images ', () => {
+              test(`Building ${example.appName} bootable image type: ${type}`, async ({ runner }) => {
+                test.skip(isLinux);
+                test.setTimeout(1_250_000);
+
+                [page, webview] = await handleWebview(runner);
+                const bootcNavigationBar = new BootcNavigationBar(page, webview);
+                const bootcExamplesPage = await bootcNavigationBar.openBootcExamples();
+                await playExpect(bootcExamplesPage.heading).toBeVisible();
+                await playExpect(bootcExamplesPage.buildImageButtonLocator(example.appName)).toBeEnabled();
+
+                const pathToStore = path.resolve(
+                  __dirname,
+                  '..',
+                  'tests',
+                  'playwright',
+                  'output',
+                  'images',
+                  `${example.appName}-${type}`,
+                );
+
+                const result = await bootcExamplesPage.buildImage(
+                  example.appName,
+                  example.imageName,
+                  pathToStore,
+                  type,
+                );
+                playExpect(result).toBeTruthy();
               });
             });
         }
