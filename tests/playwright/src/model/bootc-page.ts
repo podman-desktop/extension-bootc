@@ -135,6 +135,9 @@ export class BootcPage {
         await playExpect(this.arm64Button).toBeEnabled();
         await this.arm64Button.click();
         break;
+      case ArchitectureType.Default:
+        // No action needed for default architecture
+        break;
       default:
         throw new Error(`Unknown architecture: ${architecture}`);
     }
