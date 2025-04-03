@@ -25,13 +25,13 @@ export class BootcExamples {
   readonly page: Page;
   readonly webview: Page;
   readonly heading: Locator;
-  readonly fedoraBoootableCotainerImages: Locator;
+  readonly fedoraBootableContainerImages: Locator;
 
   constructor(page: Page, webview: Page) {
     this.page = page;
     this.webview = webview;
     this.heading = webview.getByRole('region', { name: 'Examples', exact: true });
-    this.fedoraBoootableCotainerImages = webview.getByLabel('Fedora Bootable Container Images', { exact: true });
+    this.fedoraBootableContainerImages = webview.getByLabel('Fedora Bootable Container Images', { exact: true });
   }
 
   public async pullImage(name: string, timeout = 120_000): Promise<void> {
@@ -72,7 +72,7 @@ export class BootcExamples {
   }
 
   private bootableImageLocator(name: string): Locator {
-    return this.fedoraBoootableCotainerImages.getByLabel(name, { exact: true });
+    return this.fedoraBootableContainerImages.getByLabel(name, { exact: true });
   }
 
   private bootableImageButtonLocator(name: string, label: string): Locator {
