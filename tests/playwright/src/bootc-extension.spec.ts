@@ -211,7 +211,7 @@ test.describe('BootC Extension', () => {
 
   for (const example of examples) {
     test.describe
-      .serial(`Bootc examples for ${example} bootable image`, () => {
+      .serial(`Bootc examples for bootable image`, () => {
         test(`Pull ${example.appName} bootable image`, async ({ runner }) => {
           test.setTimeout(180_000);
 
