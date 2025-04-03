@@ -227,7 +227,7 @@ test.describe('BootC Extension', () => {
         for (const type of types) {
           test.describe
             .serial('Building images ', () => {
-              test(`Building ${example} bootable image type: ${type}`, async ({ runner }) => {
+              test(`Building ${example.appName} bootable image type: ${type}`, async ({ runner }) => {
                 test.skip(isLinux);
                 test.setTimeout(1_250_000);
 
