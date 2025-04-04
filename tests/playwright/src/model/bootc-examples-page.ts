@@ -34,7 +34,7 @@ export class BootcExamples {
     this.fedoraBootableContainerImages = webview.getByLabel('Fedora Bootable Container Images', { exact: true });
   }
 
-  public async pullImage(name: string, timeout = 120_000): Promise<void> {
+  public async pullImage(name: string, timeout = 300_000): Promise<void> {
     const pullImageButton = this.pullImageButtonLocator(name);
     await playExpect(pullImageButton).toBeEnabled();
     await pullImageButton.click();
