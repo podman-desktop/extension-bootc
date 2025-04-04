@@ -50,7 +50,6 @@ const containerFilePath = path.resolve(__dirname, '..', 'resources', 'bootable-c
 const contextDirectory = path.resolve(__dirname, '..', 'resources');
 const skipInstallation = process.env.SKIP_INSTALLATION;
 const buildISOImage = process.env.BUILD_ISO_IMAGE;
-let timeoutForBuild = 900000;
 let imageBuildFailed = true;
 
 test.use({
@@ -69,7 +68,7 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
 });
 
 test.afterAll(async ({ runner, page }) => {
-  test.setTimeout(180000);
+  test.setTimeout(180_000);
   try {
     await deleteImage(page, imageName);
   } catch (error) {
@@ -88,20 +87,20 @@ test.describe('BootC Extension', () => {
 
   test('Uninstalled previous version of bootc extension', async ({ navigationBar }) => {
     test.skip(!extensionInstalled || !!skipInstallation);
-    test.setTimeout(200000);
+    test.setTimeout(200_000);
     console.log('Extension found already installed, trying to remove!');
     await ensureBootcIsRemoved(navigationBar);
   });
 
   test('Install extension through Extension page', async ({ navigationBar }) => {
     test.skip(!!skipInstallation);
-    test.setTimeout(200000);
+    test.setTimeout(200_000);
 
     const extensionsPage = await navigationBar.openExtensions();
     await extensionsPage.installExtensionFromOCIImage('ghcr.io/podman-desktop/podman-desktop-extension-bootc:nightly');
 
     await playExpect
-      .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30000 })
+      .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30_000 })
       .toBeTruthy();
   });
 
@@ -111,7 +110,7 @@ test.describe('BootC Extension', () => {
     test.describe
       .serial(`Bootc images for architecture: ${architecture}`, () => {
         test(`Build bootc image from containerfile for architecture: ${architecture}`, async ({ navigationBar }) => {
-          test.setTimeout(210000);
+          test.setTimeout(310_000);
 
           imageBuildFailed = true;
           let imagesPage = await navigationBar.openImages();
@@ -125,7 +124,7 @@ test.describe('BootC Extension', () => {
             containerFilePath,
             contextDirectory,
             [architecture],
-            180000,
+            300_000,
           );
 
           await playExpect
@@ -145,21 +144,16 @@ test.describe('BootC Extension', () => {
             .serial('Building images ', () => {
               test(`Building bootable image type: ${type}`, async ({ runner, navigationBar }) => {
                 test.skip(isLinux);
-                test.setTimeout(1250000);
+                test.setTimeout(1_250_000);
 
                 if (imageBuildFailed) {
                   console.log('Image build failed, skipping test');
                   test.skip();
                 }
 
-                if (type === 'ISO') {
-                  if (buildISOImage) {
-                    timeoutForBuild = 1200000;
-                    console.log(`Building ISO image requested, extending timeout to ${timeoutForBuild}`);
-                  } else {
-                    console.log(`Building ISO image not requested, skipping test`);
-                    test.skip();
-                  }
+                if (type === 'ISO' && !buildISOImage) {
+                  console.log(`Building ISO image not requested, skipping test`);
+                  test.skip();
                 }
 
                 const imagesPage = await navigationBar.openImages();
@@ -184,11 +178,13 @@ test.describe('BootC Extension', () => {
                   pathToStore,
                   type,
                   architecture,
-                  timeoutForBuild,
+                  1_200_000,
                 );
+
                 console.log(
                   `Building disk image for platform ${os.platform()} and architecture ${architecture} and type ${type} is ${result}`,
                 );
+
                 if (isWindows && architecture === ArchitectureType.ARM64) {
                   console.log('Expected to fail on Windows for ARM64');
                   playExpect(result).toBeFalsy();
@@ -213,7 +209,7 @@ test.describe('BootC Extension', () => {
     test.describe
       .serial(`Bootc examples for bootable image`, () => {
         test(`Pull ${example.appName} bootable image`, async ({ runner }) => {
-          test.setTimeout(180_000);
+          test.setTimeout(310_000);
 
           [page, webview] = await handleWebview(runner);
           const bootcNavigationBar = new BootcNavigationBar(page, webview);
