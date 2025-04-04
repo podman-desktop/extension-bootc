@@ -152,7 +152,16 @@ async function fillChownOption(): Promise<void> {
 }
 
 async function validate(): Promise<void> {
-  let prereqs = await bootcClient.checkPrereqs();
+  let prereqs;
+  // Wrapped around a try / catch so we do not have any unhandled promise rejections
+  try {
+    prereqs = await bootcClient.checkPrereqs();
+  } catch (err) {
+    errorFormValidation = String(err);
+    existingBuild = false;
+    return;
+  }
+
   if (prereqs) {
     errorFormValidation = prereqs;
     existingBuild = false;
@@ -415,6 +424,13 @@ onMount(async () => {
 
   // filter to images that have a repo tag here, to avoid doing it everywhere
   bootcAvailableImages = images.filter(image => image.RepoTags && image.RepoTags.length > 0);
+
+  // On mount do prerequisite check to see if podman machine is running correctly and then return the error message.
+  try {
+    await bootcClient.checkPrereqs();
+  } catch (error) {
+    buildErrorMessage = String(error);
+  }
 
   // Fills the build options with the last options
   await fillBuildOptions($historyInfo);

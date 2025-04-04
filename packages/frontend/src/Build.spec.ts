@@ -912,3 +912,34 @@ test('expect anaconda kickstart file section to be shown', async () => {
   const anacondaKickstart = screen.getByLabelText('anaconda-iso-installer-kickstart-file-title');
   expect(anacondaKickstart).toBeDefined();
 });
+
+test('on mount, expect checkPrereqs to be called', async () => {
+  vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
+  render(Build);
+
+  // Wait until children length is 2 meaning it's fully rendered / propagated the changes
+  await vi.waitFor(() => {
+    if (screen.getByLabelText('image-select')?.children.length !== 2) {
+      throw new Error();
+    }
+  });
+
+  expect(bootcClient.checkPrereqs).toHaveBeenCalled();
+});
+
+test('purposely fail prereqs, expect an error to show going to build', async () => {
+  const prereq = 'We failed the prereq connection check';
+  vi.mocked(bootcClient.checkPrereqs).mockRejectedValue(prereq);
+  render(Build);
+
+  // Wait for the error message to appear
+  await vi.waitFor(() => {
+    // Wait for heading name 'Error with image build' to appear
+    const errorHeading = screen.getByText('Error with image build');
+    expect(errorHeading).toBeDefined();
+
+    // Expect prereq error message to be shown
+    const errorMessage = screen.getByText(prereq);
+    expect(errorMessage).toBeDefined();
+  });
+});
