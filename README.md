@@ -30,7 +30,7 @@ Once a machine is created from the disk image, it can apply transactional update
 
 There are many projects at work at creating "bootc" images. Below is a non-exhaustive list of compatible images which are known to work with [`bootc-image-builder`](https://github.com/osbuild/bootc-image-builder).
 
-**CentOS:**
+**CentOS Stream 9:**
 
 - Containerfile: `FROM quay.io/centos-bootc/centos-bootc:stream9`
 - Repo: [`quay.io/centos-bootc/centos-bootc:stream9`](https://quay.io/centos-bootc/centos-bootc)
@@ -38,19 +38,25 @@ There are many projects at work at creating "bootc" images. Below is a non-exhau
 - Documentation: [fedoraproject.org](https://docs.fedoraproject.org/en-US/bootc/)
 - Notes: N/A
 
-**Fedora:**
+**Fedora 42:**
 
-- Containerfile: `FROM quay.io/fedora/fedora-bootc:40`
-- Repo: [`quay.io/fedora/fedora-bootc:40`](https://quay.io/fedora/fedora-bootc)
+- Containerfile: `FROM quay.io/fedora/fedora-bootc:42`
+- Repo: [`quay.io/fedora/fedora-bootc:42`](https://quay.io/fedora/fedora-bootc)
 - Example Images: [gitlab.com/fedora/bootc/examples](https://gitlab.com/fedora/bootc/examples)
 - Documentation: [fedoraproject.org](https://docs.fedoraproject.org/en-US/bootc/)
 - Notes: Must select "XFS", "EXT4" or "BTRFS" for the root filesystem when building in the GUI. [Read more here.](https://docs.fedoraproject.org/en-US/bootc/default-rootfs-type/)
 
-**RHEL:**
+**RHEL (Red Hat Enterprise Linux) 9:**
 
-- Containerfile: `FROM registry.redhat.io/rhel9/rhel-bootc:9.4`
-- Repo: [`registry.redhat.io/rhel9/rhel-bootc:9.4`](https://catalog.redhat.com/search?gs&q=bootc)
+- Containerfile: `FROM registry.redhat.io/rhel9/rhel-bootc:9.5`
+- Repo: [`registry.redhat.io/rhel9/rhel-bootc:9.5`](https://catalog.redhat.com/search?gs&q=bootc)
 - Documentation: [Red Hat Customer Portal](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/using_image_mode_for_rhel_to_build_deploy_and_manage_operating_systems/index#doc-wrapper)
+
+**RHEL (Red Hat Enterprise Linux) 10 BETA:**
+
+- Containerfile: `FROM registry.redhat.io/rhel10-beta/rhel-bootc:latest`
+- Repo: [`registry.redhat.io/rhel10-beta/rhel-bootc:latest`](https://catalog.redhat.com/search?gs&q=bootc)
+- Documentation: [Red Hat Customer Portal](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/10-beta/html/using_image_mode_for_rhel_to_build_deploy_and_manage_operating_systems/index#doc-wrapper)
 
 The images can then be added to your Containerfile:
 
