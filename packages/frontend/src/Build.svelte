@@ -156,7 +156,7 @@ async function validate(): Promise<void> {
   // Wrapped around a try / catch so we do not have any unhandled promise rejections
   try {
     prereqs = await bootcClient.checkPrereqs();
-  } catch (err) {
+  } catch (err: unknown) {
     errorFormValidation = String(err);
     existingBuild = false;
     return;
@@ -428,8 +428,9 @@ onMount(async () => {
   // On mount do prerequisite check to see if podman machine is running correctly and then return the error message.
   try {
     await bootcClient.checkPrereqs();
-  } catch (error) {
-    buildErrorMessage = String(error);
+  } catch (err: unknown) {
+    buildErrorMessage = String(err);
+    return;
   }
 
   // Fills the build options with the last options
