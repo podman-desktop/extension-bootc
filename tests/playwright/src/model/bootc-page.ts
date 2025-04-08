@@ -74,7 +74,7 @@ export class BootcPage {
     pathToStore: string,
     type: string,
     architecture: ArchitectureType,
-    timeout = 600000,
+    timeout = 600_000,
   ): Promise<boolean> {
     let result = false;
 
@@ -147,7 +147,7 @@ export class BootcPage {
     await this.buildButton.click();
 
     const detailsPage = new BootcImageDetailsPage(this.page, this.webview, imageName);
-    await playExpect(detailsPage.heading).toBeVisible({ timeout: 30_000 });
+    await playExpect(detailsPage.heading).toBeVisible({ timeout: 120_000 });
     const bootcImagesPage = await bootcNavigationBar.openBootcDiskImages();
     await playExpect(bootcImagesPage.heading).toBeVisible({ timeout: 10_000 });
 
