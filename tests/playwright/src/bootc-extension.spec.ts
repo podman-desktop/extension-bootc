@@ -200,8 +200,8 @@ test.describe('BootC Extension', () => {
 
   const examples = [
     {
-      appName: 'Apache httpd',
-      imageName: 'registry.gitlab.com/fedora/bootc/examples/httpd:latest',
+      appName: 'Podman systemd',
+      imageName: 'registry.gitlab.com/fedora/bootc/examples/app-podman-systemd:latest',
     },
   ];
 
