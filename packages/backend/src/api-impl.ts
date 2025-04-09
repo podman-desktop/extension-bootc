@@ -17,7 +17,7 @@
  ***********************************************************************/
 
 import * as podmanDesktopApi from '@podman-desktop/api';
-import type { ImageInfo } from '@podman-desktop/api';
+import type { ImageInfo, ContainerInfo } from '@podman-desktop/api';
 import type { BootcApi } from '/@shared/src/BootcAPI';
 import type { BootcBuildInfo, BuildType } from '/@shared/src/models/bootc';
 import { buildDiskImage, buildExists } from './build-disk-image';
@@ -229,6 +229,16 @@ export class BootcApiImpl implements BootcApi {
       console.error('Error listing images: ', err);
     }
     return images;
+  }
+
+  async listContainers(): Promise<ContainerInfo[]> {
+    try {
+      return await podmanDesktopApi.containerEngine.listContainers();
+    } catch (err) {
+      await podmanDesktopApi.window.showErrorMessage(`Error listing containers: ${err}`);
+      console.error('Error listing containers: ', err);
+      return [];
+    }
   }
 
   async inspectImage(image: ImageInfo): Promise<podmanDesktopApi.ImageInspectInfo> {

@@ -17,7 +17,7 @@
  l***********************************************************************/
 
 import type { BootcBuildInfo, BuildType } from './models/bootc';
-import type { ImageInfo, ImageInspectInfo, ManifestInspectInfo } from '@podman-desktop/api';
+import type { ImageInfo, ImageInspectInfo, ManifestInspectInfo, ContainerInfo } from '@podman-desktop/api';
 import type { ExamplesList } from './models/examples';
 
 export abstract class BootcApi {
@@ -35,6 +35,7 @@ export abstract class BootcApi {
   abstract selectBuildConfigFile(): Promise<string>;
   abstract selectAnacondaKickstartFile(): Promise<string>;
   abstract listBootcImages(): Promise<ImageInfo[]>;
+  abstract listContainers(): Promise<ContainerInfo[]>;
   abstract listAllImages(): Promise<ImageInfo[]>;
   abstract listHistoryInfo(): Promise<BootcBuildInfo[]>;
   abstract openFolder(folder: string): Promise<boolean>;

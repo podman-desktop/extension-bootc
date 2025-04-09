@@ -8,7 +8,7 @@ import {
   TableRow,
   TableSimpleColumn,
 } from '@podman-desktop/ui-svelte';
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import { ImageUtils } from './image-utils';
 import { filtered, searchPattern } from '/@/stores/imageInfo';
 import type { ImageInfoUI } from './ImageInfoUI';
@@ -19,6 +19,9 @@ import moment from 'moment';
 import BootcImageIcon from '../BootcImageIcon.svelte';
 import ImageEmptyScreen from './ImageEmptyScreen.svelte';
 import { filesize } from 'filesize';
+import { bootcClient } from '/@/api/client';
+import type { ContainerInfo } from '@podman-desktop/api';
+import type { Unsubscriber } from 'svelte/store';
 
 interface Props {
   searchTerm?: string;
@@ -33,10 +36,20 @@ let images = $state<ImageInfoUI[]>([]);
 
 const imageUtils = new ImageUtils();
 
-onMount(() => {
-  return filtered.subscribe(value => {
-    images = value.map(image => imageUtils.getImagesInfoUI(image, [])).flat();
+let imageInfoUnsubscribe = $state<Unsubscriber>();
+let containers = $state<ContainerInfo[]>([]);
+
+onMount(async () => {
+  containers = await bootcClient.listContainers();
+  imageInfoUnsubscribe = filtered.subscribe(value => {
+    images = value.map(image => imageUtils.getImagesInfoUI(image, containers)).flat();
   });
+});
+
+onDestroy(() => {
+  if (imageInfoUnsubscribe) {
+    imageInfoUnsubscribe();
+  }
 });
 
 let selectedItemsNumber = $state<number>(0);
