@@ -66,3 +66,12 @@ test('Expect lost status to display amber background', async () => {
   expect(icon).toHaveAttribute('title', status);
   expect(icon).toHaveClass('bg-[var(--pd-status-degraded)]');
 });
+
+test('Expect used status to display green background', async () => {
+  const status = 'used';
+  render(BootcStatusIcon, { status });
+  const icon = screen.getByRole('status');
+  expect(icon).toBeInTheDocument();
+  expect(icon).toHaveAttribute('title', status);
+  expect(icon).toHaveClass('bg-[var(--pd-status-running)]');
+});
