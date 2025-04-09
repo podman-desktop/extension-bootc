@@ -20,7 +20,7 @@ import { expect, test, vi } from 'vitest';
 import examplesCatalog from '../assets/examples.json';
 import type { ExamplesList } from '/@shared/src/models/examples';
 import { BootcApiImpl } from './api-impl';
-import type * as podmanDesktopApi from '@podman-desktop/api';
+import * as podmanDesktopApi from '@podman-desktop/api';
 
 vi.mock('@podman-desktop/api', async () => {
   return {
@@ -29,6 +29,7 @@ vi.mock('@podman-desktop/api', async () => {
     },
     containerEngine: {
       listImages: vi.fn(),
+      listContainers: vi.fn(),
     },
     env: {
       openExternal: vi.fn(),
@@ -53,4 +54,16 @@ test('getExamples should return examplesCatalog', async () => {
   expect(result.categories.length).not.toBe(0);
 
   expect(result).toEqual(examplesCatalog as ExamplesList);
+});
+
+test('listContainers should return list from extension api', async () => {
+  const containers = [{}, {}] as podmanDesktopApi.ContainerInfo[];
+
+  vi.mocked(podmanDesktopApi.containerEngine.listContainers).mockResolvedValue(containers);
+
+  const apiImpl = new BootcApiImpl({} as podmanDesktopApi.ExtensionContext, {} as podmanDesktopApi.Webview);
+  const result = await apiImpl.listContainers();
+
+  expect(podmanDesktopApi.containerEngine.listContainers).toHaveBeenCalled();
+  expect(result.length).toBe(2);
 });
