@@ -31,6 +31,7 @@ vi.mock('/@/api/client', async () => {
     bootcClient: {
       listBootcImages: vi.fn(),
       listContainers: vi.fn(),
+      deleteImage: vi.fn(),
     },
     rpcBrowser: {
       subscribe: (): Subscriber => {
