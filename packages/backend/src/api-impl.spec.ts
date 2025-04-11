@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2024-2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ vi.mock('@podman-desktop/api', async () => {
     containerEngine: {
       listImages: vi.fn(),
       listContainers: vi.fn(),
+      deleteImage: vi.fn(),
     },
     env: {
       openExternal: vi.fn(),
@@ -66,4 +67,18 @@ test('listContainers should return list from extension api', async () => {
 
   expect(podmanDesktopApi.containerEngine.listContainers).toHaveBeenCalled();
   expect(result.length).toBe(2);
+});
+
+test('deleteImage should call the extension api and fire event', async () => {
+  const postMessageMock = vi.fn().mockResolvedValue(undefined);
+
+  const apiImpl = new BootcApiImpl(
+    {} as podmanDesktopApi.ExtensionContext,
+    { postMessage: postMessageMock } as unknown as podmanDesktopApi.Webview,
+  );
+
+  await apiImpl.deleteImage('a', 'b');
+
+  expect(podmanDesktopApi.containerEngine.deleteImage).toHaveBeenCalledWith('a', 'b');
+  expect(postMessageMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'image-update' }));
 });

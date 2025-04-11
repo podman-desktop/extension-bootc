@@ -197,6 +197,18 @@ export class BootcApiImpl implements BootcApi {
     return images;
   }
 
+  async deleteImage(engineId: string, id: string): Promise<void> {
+    try {
+      await podmanDesktopApi.containerEngine.deleteImage(engineId, id);
+    } catch (err) {
+      await podmanDesktopApi.window.showErrorMessage(`Error deleting image: ${err}`);
+      console.error('Error deleting image: ', err);
+    } finally {
+      // Notify the frontend the images list may have changed
+      await this.notify(Messages.MSG_IMAGE_UPDATE, {});
+    }
+  }
+
   async listBootcImages(): Promise<ImageInfo[]> {
     let images: ImageInfo[] = [];
     try {
