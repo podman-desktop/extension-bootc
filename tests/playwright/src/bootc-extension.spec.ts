@@ -51,6 +51,7 @@ const contextDirectory = path.resolve(__dirname, '..', 'resources');
 const skipInstallation = process.env.SKIP_INSTALLATION;
 const buildISOImage = process.env.BUILD_ISO_IMAGE;
 let imageBuildFailed = true;
+let types: string[] = [];
 
 test.use({
   runnerOptions: new RunnerOptions({
@@ -137,7 +138,7 @@ test.describe('BootC Extension', () => {
           imageBuildFailed = false;
         });
 
-        const types = ['QCOW2', 'AMI', 'RAW', 'VMDK', 'ISO', 'VHD'];
+        types = ['QCOW2', 'AMI', 'RAW', 'VMDK', 'ISO', 'VHD'];
 
         for (const type of types) {
           test.describe
@@ -218,7 +219,7 @@ test.describe('BootC Extension', () => {
           await bootcExamplesPage.pullImage(example.appName);
         });
 
-        const types = ['QCOW2', 'AMI'];
+        types = ['QCOW2', 'AMI'];
 
         for (const type of types) {
           test.describe
@@ -255,6 +256,47 @@ test.describe('BootC Extension', () => {
         }
       });
   }
+
+  test.describe
+    .serial('Bootc Dashboard', () => {
+      test('Pull demo image from dashboard', async ({ runner }) => {
+        test.setTimeout(310_000);
+
+        [page, webview] = await handleWebview(runner);
+        const bootcNavigationBar = new BootcNavigationBar(page, webview);
+        const bootcDashboardPage = await bootcNavigationBar.openBootcDashboard();
+        await playExpect(bootcDashboardPage.heading).toBeVisible();
+        await bootcDashboardPage.pullDemoImage();
+      });
+
+      types = ['QCOW2', 'AMI'];
+
+      for (const type of types) {
+        test(`Build demo image from dashboard for type ${type}`, async ({ runner }) => {
+          test.skip(isLinux);
+          test.setTimeout(1_250_000);
+
+          [page, webview] = await handleWebview(runner);
+          const bootcNavigationBar = new BootcNavigationBar(page, webview);
+          const bootcDashboardPage = await bootcNavigationBar.openBootcDashboard();
+          await playExpect(bootcDashboardPage.heading).toBeVisible();
+          await playExpect(bootcDashboardPage.buildDemoImageButton).toBeEnabled();
+
+          const pathToStore = path.resolve(
+            __dirname,
+            '..',
+            'tests',
+            'playwright',
+            'output',
+            'images',
+            `demoImage-${type}`,
+          );
+
+          const result = await bootcDashboardPage.buildDemoImage(pathToStore, type);
+          playExpect(result).toBeTruthy();
+        });
+      }
+    });
 
   test('Remove bootc extension through Settings', async ({ navigationBar }) => {
     await ensureBootcIsRemoved(navigationBar);
