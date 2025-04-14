@@ -17,15 +17,46 @@
  ***********************************************************************/
 
 import type { Locator, Page } from '@playwright/test';
+import { expect as playExpect } from '@playwright/test';
+import { BootcPage } from './bootc-page';
+import { ArchitectureType } from '@podman-desktop/tests-playwright';
 
 export class BootcDashboardPage {
   readonly page: Page;
   readonly webview: Page;
   readonly heading: Locator;
+  readonly pullDemoImageButton: Locator;
+  readonly buildDemoImageButton: Locator;
 
   constructor(page: Page, webview: Page) {
     this.page = page;
     this.webview = webview;
     this.heading = webview.getByText('Welcome to bootable containers');
+    this.pullDemoImageButton = webview.getByLabel('Pull image', { exact: true });
+    this.buildDemoImageButton = webview.getByLabel('Build image', { exact: true });
+  }
+
+  public async pullDemoImage(timeout = 300_000): Promise<void> {
+    await playExpect(this.pullDemoImageButton).toBeEnabled();
+    await this.pullDemoImageButton.click();
+    await playExpect(this.pullDemoImageButton).toBeDisabled({ timeout: 10_000 });
+    await playExpect(this.buildDemoImageButton).toBeEnabled({ timeout: timeout });
+  }
+
+  public async buildDemoImage(pathToStore: string, type: string, timeout = 600_000): Promise<boolean> {
+    await playExpect(this.buildDemoImageButton).toBeEnabled();
+    const imageName = await this.getDemoImageName();
+    playExpect(imageName).toBeTruthy();
+    await this.buildDemoImageButton.click();
+    await playExpect(this.heading).not.toBeVisible({ timeout: 10_000 });
+
+    const bootcBuildImagePage = new BootcPage(this.page, this.webview);
+    await playExpect(bootcBuildImagePage.heading).toBeVisible({ timeout: 10_000 });
+    return await bootcBuildImagePage.buildDiskImage(imageName, pathToStore, type, ArchitectureType.Default, timeout);
+  }
+
+  public async getDemoImageName(): Promise<string> {
+    const text = await this.buildDemoImageButton.innerText();
+    return text.split(' ')[1];
   }
 }

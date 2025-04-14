@@ -256,6 +256,49 @@ test.describe('BootC Extension', () => {
       });
   }
 
+  test.describe
+    .serial('Bootc Dashboard', () => {
+      test('Pull demo image from dashboard', async ({ runner }) => {
+        test.setTimeout(310_000);
+
+        [page, webview] = await handleWebview(runner);
+        const bootcNavigationBar = new BootcNavigationBar(page, webview);
+        const bootcDashboardPage = await bootcNavigationBar.openBootcDashboard();
+        await playExpect(bootcDashboardPage.heading).toBeVisible();
+        await bootcDashboardPage.pullDemoImage();
+      });
+
+      const types = ['QCOW2', 'AMI'];
+
+      for (const type of types) {
+        test(`Build demo image from dashboard for type ${type}`, async ({ runner }) => {
+          test.skip(isLinux);
+          test.setTimeout(1_250_000);
+
+          [page, webview] = await handleWebview(runner);
+          const bootcNavigationBar = new BootcNavigationBar(page, webview);
+          const bootcDashboardPage = await bootcNavigationBar.openBootcDashboard();
+          await playExpect(bootcDashboardPage.heading).toBeVisible();
+          await playExpect(bootcDashboardPage.buildDemoImageButton).toBeEnabled();
+
+          const imageName = await bootcDashboardPage.getDemoImageName();
+          const pathToStore = path.resolve(
+            __dirname,
+            '..',
+            'tests',
+            'playwright',
+            'output',
+            'images',
+            `${imageName}-${type}`,
+          );
+
+          const result = await bootcDashboardPage.buildDemoImage(pathToStore, type);
+          await page.pause();
+          playExpect(result).toBeTruthy();
+        });
+      }
+    });
+
   test('Remove bootc extension through Settings', async ({ navigationBar }) => {
     await ensureBootcIsRemoved(navigationBar);
   });
