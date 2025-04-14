@@ -1,5 +1,6 @@
 <script lang="ts">
 import {
+  Button,
   FilteredEmptyScreen,
   NavPage,
   Table,
@@ -22,6 +23,7 @@ import { filesize } from 'filesize';
 import { bootcClient } from '/@/api/client';
 import type { ContainerInfo } from '@podman-desktop/api';
 import type { Unsubscriber } from 'svelte/store';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 interface Props {
   searchTerm?: string;
@@ -51,6 +53,27 @@ onDestroy(() => {
     imageInfoUnsubscribe();
   }
 });
+
+// delete the items selected in the list
+let bulkDeleteInProgress = $state(false);
+async function deleteSelectedImages(): Promise<void> {
+  const selectedImages = images.filter(image => image.selected);
+  if (selectedImages.length === 0) {
+    return;
+  }
+
+  // mark images for deletion
+  bulkDeleteInProgress = true;
+  selectedImages.forEach(image => (image.status = 'deleting'));
+
+  // and delete them
+  await selectedImages.reduce((prev: Promise<void>, image) => {
+    return prev
+      .then(() => bootcClient.deleteImage(image.engineId, image.id))
+      .catch((e: unknown) => console.error('error while deleting image', e));
+  }, Promise.resolve());
+  bulkDeleteInProgress = false;
+}
 
 let selectedItemsNumber = $state<number>(0);
 let table: Table;
@@ -97,6 +120,18 @@ const row = new TableRow<ImageInfoUI>({
 </script>
 
 <NavPage bind:searchTerm={searchTerm} title="images">
+
+  <svelte:fragment slot="bottom-additional-actions">
+    {#if selectedItemsNumber > 0}
+     <Button
+        on:click={deleteSelectedImages}
+        title="Delete {selectedItemsNumber} selected items"
+        bind:inProgress={bulkDeleteInProgress}
+        icon={faTrash} />
+      <span>On {selectedItemsNumber} selected items.</span>
+    {/if}
+  </svelte:fragment>
+
   <div class="flex min-w-full h-full" slot="content">
     <Table
       kind="image"
