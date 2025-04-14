@@ -18,4 +18,10 @@
 import { BootcApi } from '../BootcAPI';
 import { getChannel } from './utils';
 
-export const noTimeoutChannels: string[] = [getChannel(BootcApi, 'launchVM'), getChannel(BootcApi, 'pullImage')];
+export const noTimeoutChannels: string[] = [
+  getChannel(BootcApi, 'launchVM'),
+  getChannel(BootcApi, 'pullImage'),
+  getChannel(BootcApi, 'selectOutputFolder'),
+  getChannel(BootcApi, 'selectBuildConfigFile'),
+  getChannel(BootcApi, 'selectAnacondaKickstartFile'),
+];
