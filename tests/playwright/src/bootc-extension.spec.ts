@@ -51,6 +51,7 @@ const contextDirectory = path.resolve(__dirname, '..', 'resources');
 const skipInstallation = process.env.SKIP_INSTALLATION;
 const buildISOImage = process.env.BUILD_ISO_IMAGE;
 let imageBuildFailed = true;
+let types: string[] = [];
 
 test.use({
   runnerOptions: new RunnerOptions({
@@ -137,7 +138,7 @@ test.describe('BootC Extension', () => {
           imageBuildFailed = false;
         });
 
-        const types = ['QCOW2', 'AMI', 'RAW', 'VMDK', 'ISO', 'VHD'];
+        types = ['QCOW2', 'AMI', 'RAW', 'VMDK', 'ISO', 'VHD'];
 
         for (const type of types) {
           test.describe
@@ -218,7 +219,7 @@ test.describe('BootC Extension', () => {
           await bootcExamplesPage.pullImage(example.appName);
         });
 
-        const types = ['QCOW2', 'AMI'];
+        types = ['QCOW2', 'AMI'];
 
         for (const type of types) {
           test.describe
@@ -268,7 +269,7 @@ test.describe('BootC Extension', () => {
         await bootcDashboardPage.pullDemoImage();
       });
 
-      const types = ['QCOW2', 'AMI'];
+      types = ['QCOW2', 'AMI'];
 
       for (const type of types) {
         test(`Build demo image from dashboard for type ${type}`, async ({ runner }) => {
@@ -281,7 +282,6 @@ test.describe('BootC Extension', () => {
           await playExpect(bootcDashboardPage.heading).toBeVisible();
           await playExpect(bootcDashboardPage.buildDemoImageButton).toBeEnabled();
 
-          const imageName = await bootcDashboardPage.getDemoImageName();
           const pathToStore = path.resolve(
             __dirname,
             '..',
@@ -289,11 +289,10 @@ test.describe('BootC Extension', () => {
             'playwright',
             'output',
             'images',
-            `${imageName}-${type}`,
+            `demoImage-${type}`,
           );
 
           const result = await bootcDashboardPage.buildDemoImage(pathToStore, type);
-          await page.pause();
           playExpect(result).toBeTruthy();
         });
       }

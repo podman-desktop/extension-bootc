@@ -94,7 +94,10 @@ export class BootcPage {
     await playExpect(this.heading).toBeVisible({ timeout: 10_000 });
     await this.imageSelect.selectOption({ label: imageName });
 
-    await this.outputFolderPath.fill(pathToStore);
+    await playExpect(this.outputFolderPath).toBeVisible({ timeout: 10_000 });
+    await this.outputFolderPath.scrollIntoViewIfNeeded();
+    await this.outputFolderPath.clear();
+    await this.outputFolderPath.pressSequentially(pathToStore, { delay: 20 });
     await this.uncheckedAllCheckboxes();
 
     switch (type.toLocaleLowerCase()) {
@@ -142,6 +145,7 @@ export class BootcPage {
         throw new Error(`Unknown architecture: ${architecture}`);
     }
 
+    await this.buildButton.scrollIntoViewIfNeeded();
     await playExpect(this.buildButton).toBeEnabled();
     await this.buildButton.focus();
     await this.buildButton.click();
