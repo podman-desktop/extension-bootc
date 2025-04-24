@@ -624,7 +624,7 @@ $: if (availableArchitectures) {
               </p>
             {/if}
           </div>
-          <div>
+          <div class="mb-2">
             <label for="path" class="block mb-2 font-semibold">Output folder</label>
             <div class="flex flex-row space-x-3">
               <Input
@@ -637,7 +637,6 @@ $: if (availableArchitectures) {
               <Button on:click={(): Promise<void> => getPath()}>Browse...</Button>
             </div>
           </div>
-          <div class="pt-3 space-y-3 h-fit">
             <div class="mb-2">
               <span class="text-md font-semibold mb-2 block">Disk image type</span>
               <div class="grid grid-cols-2 gap-8">
@@ -1075,7 +1074,6 @@ $: if (availableArchitectures) {
                   </p>
                 </div>
               </Expandable>
-            </div>
           </div>
         </div>
         {#if existingBuild}
