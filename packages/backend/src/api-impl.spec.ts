@@ -21,11 +21,14 @@ import examplesCatalog from '../assets/examples.json';
 import type { ExamplesList } from '/@shared/src/models/examples';
 import { BootcApiImpl } from './api-impl';
 import * as podmanDesktopApi from '@podman-desktop/api';
+import type { CreateVmOptions } from '@crc-org/macadam.js';
+import { MacadamVirtualMachine } from './macadam';
 
 vi.mock('@podman-desktop/api', async () => {
   return {
     window: {
       showErrorMessage: vi.fn(),
+      showOpenDialog: vi.fn(),
     },
     containerEngine: {
       listImages: vi.fn(),
@@ -36,6 +39,17 @@ vi.mock('@podman-desktop/api', async () => {
       openExternal: vi.fn(),
       createTelemetryLogger: vi.fn(),
     },
+  };
+});
+
+vi.mock('@crc-org/macadam.js', () => {
+  const mockInstance = {
+    init: vi.fn(),
+    createVm: vi.fn(),
+    listVms: vi.fn(),
+  };
+  return {
+    Macadam: vi.fn(() => mockInstance),
   };
 });
 
@@ -81,4 +95,42 @@ test('deleteImage should call the extension api and fire event', async () => {
 
   expect(podmanDesktopApi.containerEngine.deleteImage).toHaveBeenCalledWith('a', 'b');
   expect(postMessageMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'image-update' }));
+});
+
+test('macadamCreateVM should call the extension api', async () => {
+  // Mock init and createVM as we are only interested if the function is ACTUALLY called.
+  vi.spyOn(MacadamVirtualMachine.prototype, 'init').mockResolvedValue(undefined);
+  vi.spyOn(MacadamVirtualMachine.prototype, 'createVm').mockResolvedValue(undefined);
+
+  const postMessageMock = vi.fn().mockResolvedValue(undefined);
+
+  const apiImpl = new BootcApiImpl(
+    {} as podmanDesktopApi.ExtensionContext,
+    { postMessage: postMessageMock } as unknown as podmanDesktopApi.Webview,
+  );
+
+  const options = {
+    imagePath: '~/foobar',
+    sshIdentityPath: '~/foobar/id_rsa',
+    username: 'foobar',
+  } as CreateVmOptions;
+
+  await apiImpl.macadamCreateVM(options);
+
+  // Check that the init and createVm methods were called
+  expect(MacadamVirtualMachine.prototype.init).toHaveBeenCalled();
+  expect(MacadamVirtualMachine.prototype.createVm).toHaveBeenCalledWith(options);
+});
+
+test('selectVMImageFile should call the extension api', async () => {
+  const postMessageMock = vi.fn().mockResolvedValue(undefined);
+
+  const apiImpl = new BootcApiImpl(
+    {} as podmanDesktopApi.ExtensionContext,
+    { postMessage: postMessageMock } as unknown as podmanDesktopApi.Webview,
+  );
+
+  await apiImpl.selectVMImageFile();
+
+  expect(podmanDesktopApi.window.showOpenDialog).toHaveBeenCalled();
 });

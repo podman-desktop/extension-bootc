@@ -23,11 +23,12 @@ let { id }: Props = $props();
 let diskImage = $state<BootcBuildInfo>();
 let detailsPage = $state<DetailsPage>();
 let historyInfoUnsubscribe = $state<Unsubscriber>();
-let isWindows = $state(false);
+let isMac = $state(false);
+let isLinux = $state(false);
 
 onMount(async () => {
-  // See if we are on mac or linux or not for the VM tab
-  isWindows = await bootcClient.isWindows();
+  isMac = await bootcClient.isMac();
+  isLinux = await bootcClient.isLinux();
 
   // Subscribe to the history to update the details page
   const actualId = atob(id);
@@ -70,7 +71,8 @@ onDestroy(() => {
   <svelte:fragment slot="tabs">
     <Tab title="Summary" selected={isTabSelected($router.path, 'summary')} url={getTabUrl($router.path, 'summary')} />
     <Tab title="Build Log" selected={isTabSelected($router.path, 'build')} url={getTabUrl($router.path, 'build')} />
-    {#if !isWindows}
+    <!-- Our "experimental" support is only supported on Linux now, as we have the Macadam button for macOS. -->
+    {#if isLinux}
       <Tab
         title="Virtual Machine (Experimental)"
         selected={isTabSelected($router.path, 'vm')}
