@@ -850,7 +850,7 @@ $: if (availableArchitectures) {
                       <Input
                         bind:value={user.key}
                         id="buildConfigKey.${index}"
-                        placeholder="SSH key"
+                        placeholder="SSH public key (ex. ssh-rsa AAABBBCCC...)"
                         aria-label="buildConfigKey.${index}"
                         class="mr-2" />
 
