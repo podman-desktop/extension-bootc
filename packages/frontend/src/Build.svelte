@@ -624,7 +624,7 @@ $: if (availableArchitectures) {
               </p>
             {/if}
           </div>
-          <div class="mb-2">
+          <div class="mb-3">
             <label for="path" class="block mb-2 font-semibold">Output folder</label>
             <div class="flex flex-row space-x-3">
               <Input
@@ -637,7 +637,7 @@ $: if (availableArchitectures) {
               <Button on:click={(): Promise<void> => getPath()}>Browse...</Button>
             </div>
           </div>
-            <div class="mb-2">
+            <div class="mb-3">
               <span class="text-md font-semibold mb-2 block">Disk image type</span>
               <div class="grid grid-cols-2 gap-8">
                 <div class="flex flex-col ml-1 space-y-2">
@@ -688,7 +688,7 @@ $: if (availableArchitectures) {
                 </div>
               </div>
             </div>
-            <div>
+            <div class="mb-3">
               <span class="font-semibold mb-2 block">Filesystem</span>
               <div class="flex items-center mb-3 space-x-3">
                 <label for="defaultFs" class="ml-1 flex items-center cursor-pointer" aria-label="default-radio">
@@ -758,7 +758,7 @@ $: if (availableArchitectures) {
                 {/if}
               </p>
             </div>
-            <div class="mb-2">
+            <div class="mb-3">
               <span class="font-semibold mb-2 block">Platform</span>
               <ul class="grid grid-cols-2 gap-x-2 max-w-md">
                 <li>
