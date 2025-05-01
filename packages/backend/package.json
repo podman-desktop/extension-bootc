@@ -21,6 +21,17 @@
           "maximum": 120,
           "description": "Build timeout (in minutes)"
         },
+        "bootc.macadam.ssh.username": {
+          "type": "string",
+          "default": "root",
+          "description": "Default username for the Virtual Machine testing via Macadam (Default is root)"
+        },
+        "bootc.macadam.ssh.private.key": {
+          "type": "string",
+          "format": "file",
+          "default": "~/.ssh/id_rsa",
+          "description": "Default SSH private key for the Virtual Machine testing via Macadam (Default is ~/.ssh/id_rsa)"
+        },
         "bootc.builder": {
           "type": "string",
           "default": "CentOS",
@@ -97,9 +108,9 @@
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@typescript-eslint/parser": "^8.31.1",
     "@vitest/coverage-v8": "^3.1.2",
-    "@xterm/xterm": "^5.5.0",
-    "@xterm/addon-fit": "^0.10.0",
     "@xterm/addon-attach": "^0.11.0",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
     "eslint": "^9.22.0",
     "eslint-import-resolver-custom-alias": "^1.3.2",
     "eslint-import-resolver-typescript": "^4.3.4",
@@ -114,6 +125,7 @@
     "vitest": "^3.1.2"
   },
   "dependencies": {
+    "@crc-org/macadam.js": "0.0.1-202504301306-5ade487",
     "semver": "^7.7.1"
   }
 }
