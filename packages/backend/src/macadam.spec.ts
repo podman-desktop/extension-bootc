@@ -19,6 +19,37 @@ import type { Mock } from 'vitest';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { MacadamHandler } from './macadam';
 import * as macadam from '@crc-org/macadam.js';
+import * as extensionApi from '@podman-desktop/api';
+
+const mocks = vi.hoisted(() => ({
+  logUsageMock: vi.fn(),
+}));
+
+vi.mock('@podman-desktop/api', async () => {
+  return {
+    env: {
+      createTelemetryLogger: (): extensionApi.TelemetryLogger =>
+        ({
+          logUsage: mocks.logUsageMock,
+        }) as unknown as extensionApi.TelemetryLogger,
+    },
+    window: {
+      withProgress: vi.fn().mockImplementation,
+      showErrorMessage: vi.fn(),
+    },
+    ProgressLocation: {
+      TASK_WIDGET: 'TASK_WIDGET',
+    },
+    telemetryLogger: {
+      logUsage: vi.fn(),
+    },
+  };
+});
+
+const progress = {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  report: (): void => {},
+};
 
 vi.mock('@crc-org/macadam.js', () => {
   const mockInstance = {
@@ -40,6 +71,10 @@ test('Test creating VM with MacadamHandler', async () => {
   const macadamInstance = (macadam.Macadam as Mock).mock.results[0].value;
   macadamInstance.createVm.mockResolvedValue({ stdout: '', stderr: '' });
 
+  vi.spyOn(extensionApi.window, 'withProgress').mockImplementation((_options, task) => {
+    return task(progress, {} as unknown as extensionApi.CancellationToken);
+  });
+
   await macadamVm.createVm({
     name: 'foobar',
     imagePath: '~/test-image.qcow2',
@@ -51,6 +86,10 @@ test('Test creating VM with MacadamHandler', async () => {
   const callOptions = macadamInstance.createVm.mock.calls[0][0];
   expect(callOptions.imagePath).not.toContain('~/');
   expect(callOptions.sshIdentityPath).not.toContain('~/');
+  expect(mocks.logUsageMock).toHaveBeenCalledWith('createVM', {
+    success: true,
+    type: 'qcow2',
+  });
 });
 
 test('Test listing VMs with MacadamHandler', async () => {
