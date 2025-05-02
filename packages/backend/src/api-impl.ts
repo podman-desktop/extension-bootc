@@ -75,21 +75,13 @@ export class BootcApiImpl implements BootcApi {
   // Launches a macadam VM by initializing the class and initializing the VM
   async createVM(options: CreateVmOptions): Promise<void> {
     const macadam = new MacadamHandler();
-    try {
-      await macadam.createVm(options);
-    } catch (e) {
-      throw new Error(`Error creating Macadam VM: ${e}`);
-    }
+    await macadam.createVm(options);
   }
 
   // Returns a list of all the VM's currently in use
   async listVMs(): Promise<VmDetails[]> {
     const macadam = new MacadamHandler();
-    try {
-      return await macadam.listVms();
-    } catch (e) {
-      throw new Error(`Error listing Macadam VMs: ${e}`);
-    }
+    return await macadam.listVms();
   }
 
   async launchVM(buildId: string): Promise<void> {

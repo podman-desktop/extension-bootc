@@ -53,6 +53,15 @@ vi.mock('@crc-org/macadam.js', () => {
   };
 });
 
+function createAPI(): BootcApiImpl {
+  const postMessageMock = vi.fn().mockResolvedValue(undefined);
+
+  return new BootcApiImpl(
+    {} as podmanDesktopApi.ExtensionContext,
+    { postMessage: postMessageMock } as unknown as podmanDesktopApi.Webview,
+  );
+}
+
 test('getExamples should return examplesCatalog', async () => {
   const extensionContextMock = {
     storagePath: '/fake-path',
@@ -76,7 +85,7 @@ test('listContainers should return list from extension api', async () => {
 
   vi.mocked(podmanDesktopApi.containerEngine.listContainers).mockResolvedValue(containers);
 
-  const apiImpl = new BootcApiImpl({} as podmanDesktopApi.ExtensionContext, {} as podmanDesktopApi.Webview);
+  const apiImpl = createAPI();
   const result = await apiImpl.listContainers();
 
   expect(podmanDesktopApi.containerEngine.listContainers).toHaveBeenCalled();
@@ -101,12 +110,7 @@ test('createVM should call the extension api', async () => {
   // Mock createVM as we are only interested if the function is ACTUALLY called.
   vi.spyOn(MacadamHandler.prototype, 'createVm').mockResolvedValue(undefined);
 
-  const postMessageMock = vi.fn().mockResolvedValue(undefined);
-
-  const apiImpl = new BootcApiImpl(
-    {} as podmanDesktopApi.ExtensionContext,
-    { postMessage: postMessageMock } as unknown as podmanDesktopApi.Webview,
-  );
+  const apiImpl = createAPI();
 
   const options = {
     imagePath: '~/foobar',
@@ -120,15 +124,22 @@ test('createVM should call the extension api', async () => {
   expect(MacadamHandler.prototype.createVm).toHaveBeenCalledWith(options);
 });
 
-test('listVMs should call the extension api', async () => {
-  // Mock listVMs
-  vi.spyOn(MacadamHandler.prototype, 'listVms').mockResolvedValue([{ name: 'foobar' } as unknown as VmDetails]);
-  const postMessageMock = vi.fn().mockResolvedValue(undefined);
+test('check createVM passes underlying error message', async () => {
+  vi.spyOn(MacadamHandler.prototype, 'createVm').mockRejectedValue('failed');
 
-  const apiImpl = new BootcApiImpl(
-    {} as podmanDesktopApi.ExtensionContext,
-    { postMessage: postMessageMock } as unknown as podmanDesktopApi.Webview,
-  );
+  const apiImpl = createAPI();
+
+  try {
+    await apiImpl.createVM({} as CreateVmOptions);
+  } catch (e) {
+    expect(e).toEqual('failed');
+  }
+});
+
+test('listVMs should call the extension api', async () => {
+  vi.spyOn(MacadamHandler.prototype, 'listVms').mockResolvedValue([{ name: 'foobar' } as unknown as VmDetails]);
+
+  const apiImpl = createAPI();
 
   await apiImpl.listVMs();
 
@@ -136,13 +147,20 @@ test('listVMs should call the extension api', async () => {
   expect(MacadamHandler.prototype.listVms).toHaveBeenCalled();
 });
 
-test('selectVMImageFile should call the extension api', async () => {
-  const postMessageMock = vi.fn().mockResolvedValue(undefined);
+test('check listVMs passes underlying error message', async () => {
+  vi.spyOn(MacadamHandler.prototype, 'listVms').mockRejectedValue('list failed');
 
-  const apiImpl = new BootcApiImpl(
-    {} as podmanDesktopApi.ExtensionContext,
-    { postMessage: postMessageMock } as unknown as podmanDesktopApi.Webview,
-  );
+  const apiImpl = createAPI();
+
+  try {
+    await apiImpl.listVMs();
+  } catch (e) {
+    expect(e).toEqual('list failed');
+  }
+});
+
+test('selectVMImageFile should call the extension api', async () => {
+  const apiImpl = createAPI();
 
   await apiImpl.selectVMImageFile();
 
