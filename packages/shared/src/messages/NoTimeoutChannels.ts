@@ -27,4 +27,5 @@ export const noTimeoutChannels: string[] = [
   getChannel(BootcApi, 'selectSSHPrivateKeyFile'),
   getChannel(BootcApi, 'selectVMImageFile'),
   getChannel(BootcApi, 'createVM'),
+  getChannel(BootcApi, 'listVMs'),
 ];

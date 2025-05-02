@@ -27,6 +27,8 @@ vi.mock('/@/api/client', async () => {
     bootcClient: {
       deleteBuilds: vi.fn(),
       isWindows: vi.fn(),
+      isMac: vi.fn(),
+      isLinux: vi.fn(),
     },
     rpcBrowser: {
       subscribe: (): Subscriber => {

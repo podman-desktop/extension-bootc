@@ -23,7 +23,6 @@ import { bootcClient } from '/@/api/client';
 
 import DiskImageDetails from './DiskImageDetails.svelte';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
-import { tick } from 'svelte';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
 const image: BootcBuildInfo = {
@@ -41,6 +40,8 @@ vi.mock('/@/api/client', async () => {
     bootcClient: {
       listHistoryInfo: vi.fn(),
       isWindows: vi.fn(),
+      isMac: vi.fn(),
+      isLinux: vi.fn(),
     },
     rpcBrowser: {
       subscribe: (): Subscriber => {
@@ -58,12 +59,12 @@ beforeEach(() => {
 
 test('Confirm renders disk image details', async () => {
   vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue([image]);
-  vi.mocked(bootcClient.isWindows).mockResolvedValue(false);
+  vi.mocked(bootcClient.isMac).mockResolvedValue(true);
 
   render(DiskImageDetails, { id: btoa(image.id) });
 
   // allow UI time to update
-  await tick();
-
-  expect(screen.getByText(image.image + ':' + image.tag)).toBeInTheDocument();
+  await vi.waitFor(() => {
+    expect(screen.getByText(image.image + ':' + image.tag)).toBeInTheDocument();
+  });
 });

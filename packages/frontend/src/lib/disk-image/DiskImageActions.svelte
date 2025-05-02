@@ -12,7 +12,8 @@ interface Props {
 }
 
 let { object, detailed = false }: Props = $props();
-let isWindows = $state(false);
+let isLinux = $state(false);
+let isMac = $state(false);
 
 // Delete the build
 async function deleteBuild(): Promise<void> {
@@ -28,17 +29,26 @@ async function gotoVM(): Promise<void> {
   router.goto(`/disk-image/${btoa(object.id)}/vm`);
 }
 
+async function initMacadamVM(): Promise<void> {
+  // We must pass in the full path to the disk image, so we combine object.folder as well as 'image/disk.raw'.
+  const imagePath = object.folder + '/image/disk.raw';
+  router.goto(`/disk-images/createVM/${btoa(object.image)}/${btoa(imagePath)}`);
+}
+
 onMount(async () => {
-  isWindows = await bootcClient.isWindows();
+  isLinux = await bootcClient.isLinux();
+  isMac = await bootcClient.isMac();
 });
 </script>
 
 {#if !detailed}
-  <!-- Only show the Terminal button if object.arch actually exists or else we will not be able to pass in the architecture information to the build correctly.
-  Only show if on macOS as well as that is the only option we support at the moment -->
-  {#if object.arch && !isWindows}
+  <!-- Only show if Linux, as Macadam Linux isn't supported yet: -->
+  {#if object.arch && isLinux}
     <ListItemButtonIcon title="Launch VM" onClick={gotoVM} detailed={detailed} icon={faTerminal} />
+  {:else if object.arch && isMac}
+    <ListItemButtonIcon title="Create VM" onClick={initMacadamVM} detailed={detailed} icon={faTerminal} />
   {/if}
   <ListItemButtonIcon title="Build Logs" onClick={gotoLogs} detailed={detailed} icon={faFileAlt} />
 {/if}
+
 <ListItemButtonIcon title="Delete Build" onClick={deleteBuild} detailed={detailed} icon={faTrash} />

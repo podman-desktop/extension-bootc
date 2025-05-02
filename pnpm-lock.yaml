@@ -186,6 +186,9 @@ importers:
 
   packages/frontend:
     dependencies:
+      '@crc-org/macadam.js':
+        specifier: 0.0.1-202504301306-5ade487
+        version: 0.0.1-202504301306-5ade487
       svelte-check:
         specifier: ^4.1.6
         version: 4.1.6(picomatch@4.0.2)(svelte@5.23.2)(typescript@5.8.3)
@@ -3942,8 +3945,7 @@ snapshots:
 
   '@babel/helper-validator-identifier@7.25.9': {}
 
-  '@babel/helper-validator-identifier@7.27.1':
-    optional: true
+  '@babel/helper-validator-identifier@7.27.1': {}
 
   '@babel/helper-validator-option@7.27.1':
     optional: true
@@ -5707,7 +5709,7 @@ snapshots:
 
   eslint-plugin-unicorn@59.0.0(eslint@9.22.0(jiti@2.4.2)):
     dependencies:
-      '@babel/helper-validator-identifier': 7.25.9
+      '@babel/helper-validator-identifier': 7.27.1
       '@eslint-community/eslint-utils': 4.6.1(eslint@9.22.0(jiti@2.4.2))
       '@eslint/plugin-kit': 0.2.8
       ci-info: 4.2.0
