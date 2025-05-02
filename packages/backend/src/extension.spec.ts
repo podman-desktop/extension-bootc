@@ -86,6 +86,17 @@ vi.mock('../package.json', () => ({
   },
 }));
 
+vi.mock('@crc-org/macadam.js', () => {
+  const mockInstance = {
+    init: vi.fn(),
+    createVm: vi.fn(),
+    listVms: vi.fn(),
+  };
+  return {
+    Macadam: vi.fn(() => mockInstance),
+  };
+});
+
 beforeEach(() => {
   vi.clearAllMocks();
   console.log = mocks.consoleLogMock;

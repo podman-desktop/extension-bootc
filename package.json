@@ -70,8 +70,7 @@
     "typescript": "5.8.3",
     "typescript-eslint": "^8.31.1",
     "vite": "6.3.4",
-    "vitest": "^3.1.2",
-    "globals": "^16.0.0"
+    "vitest": "^3.1.2"
   },
   "dependencies": {
     "@xterm/addon-attach": "^0.11.0",
