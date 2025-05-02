@@ -5,6 +5,7 @@ import { faFileAlt, faTrash, faTerminal } from '@fortawesome/free-solid-svg-icon
 import { router } from 'tinro';
 import { bootcClient } from '/@/api/client';
 import { onMount } from 'svelte';
+import { gotoCreateVM } from '../navigation';
 
 interface Props {
   object: BootcBuildInfo;
@@ -32,7 +33,7 @@ async function gotoVM(): Promise<void> {
 async function initMacadamVM(): Promise<void> {
   // We must pass in the full path to the disk image, so we combine object.folder as well as 'image/disk.raw'.
   const imagePath = object.folder + '/image/disk.raw';
-  router.goto(`/disk-images/createVM/${btoa(object.image)}/${btoa(imagePath)}`);
+  await gotoCreateVM(object.image, imagePath);
 }
 
 onMount(async () => {
