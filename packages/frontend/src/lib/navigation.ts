@@ -31,3 +31,13 @@ export async function gotoImageBuild(name: string, tag: string): Promise<void> {
   await bootcClient.telemetryLogUsage('nav-build');
   router.goto(`/disk-images/build/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`);
 }
+
+export async function gotoCreateVMForm(): Promise<void> {
+  await bootcClient.telemetryLogUsage('nav-create-vm');
+  router.goto('/disk-images/createVM');
+}
+
+export async function gotoCreateVM(image: string, path: string): Promise<void> {
+  await bootcClient.telemetryLogUsage('nav-create-vm');
+  router.goto(`/disk-images/createVM/${btoa(image)}/${btoa(path)}`);
+}
