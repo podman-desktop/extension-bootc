@@ -72,6 +72,17 @@ vi.mock('./container-utils');
 
 vi.mock('./machine-utils');
 
+vi.mock('@crc-org/macadam.js', () => {
+  const mockInstance = {
+    init: vi.fn(),
+    createVm: vi.fn(),
+    listVms: vi.fn(),
+  };
+  return {
+    Macadam: vi.fn(() => mockInstance),
+  };
+});
+
 beforeEach(() => {
   vi.resetAllMocks();
 });

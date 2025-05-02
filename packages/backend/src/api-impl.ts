@@ -17,6 +17,7 @@
  ***********************************************************************/
 
 import * as podmanDesktopApi from '@podman-desktop/api';
+import type { CreateVmOptions, VmDetails } from '@crc-org/macadam.js';
 import type { ImageInfo, ContainerInfo } from '@podman-desktop/api';
 import type { BootcApi } from '/@shared/src/BootcAPI';
 import type { BootcBuildInfo, BuildType } from '/@shared/src/models/bootc';
@@ -32,6 +33,7 @@ import { getContainerEngine } from './container-utils';
 import { createVMManager, stopCurrentVM } from './vm-manager';
 import examplesCatalog from '../assets/examples.json';
 import type { ExamplesList } from '/@shared/src/models/examples';
+import { MacadamHandler } from './macadam';
 
 export class BootcApiImpl implements BootcApi {
   static readonly CHANNEL: string = 'BootcApi';
@@ -68,6 +70,26 @@ export class BootcApiImpl implements BootcApi {
 
   async buildImage(build: BootcBuildInfo, overwrite?: boolean): Promise<void> {
     return buildDiskImage(build, this.history, overwrite);
+  }
+
+  // Launches a macadam VM by initializing the class and initializing the VM
+  async createVM(options: CreateVmOptions): Promise<void> {
+    const macadam = new MacadamHandler();
+    try {
+      await macadam.createVm(options);
+    } catch (e) {
+      throw new Error(`Error creating Macadam VM: ${e}`);
+    }
+  }
+
+  // Returns a list of all the VM's currently in use
+  async listVMs(): Promise<VmDetails[]> {
+    const macadam = new MacadamHandler();
+    try {
+      return await macadam.listVms();
+    } catch (e) {
+      throw new Error(`Error listing Macadam VMs: ${e}`);
+    }
   }
 
   async launchVM(buildId: string): Promise<void> {
@@ -143,6 +165,36 @@ export class BootcApiImpl implements BootcApi {
     const path = await podmanDesktopApi.window.showOpenDialog({
       title: 'Select output folder',
       selectors: ['openDirectory'],
+    });
+    if (path && path.length > 0) {
+      return path[0].fsPath;
+    }
+    return '';
+  }
+
+  // Select a .raw or .qcow2 VM file
+  async selectVMImageFile(): Promise<string> {
+    const path = await podmanDesktopApi.window.showOpenDialog({
+      title: 'Select VM file',
+      selectors: ['openFile'],
+      filters: [
+        {
+          name: '*',
+          extensions: ['raw', 'qcow2'],
+        },
+      ],
+    });
+    if (path && path.length > 0) {
+      return path[0].fsPath;
+    }
+    return '';
+  }
+
+  // Select a private key (doesn't matter what extension)
+  async selectSSHPrivateKeyFile(): Promise<string> {
+    const path = await podmanDesktopApi.window.showOpenDialog({
+      title: 'Select private key file',
+      selectors: ['openFile'],
     });
     if (path && path.length > 0) {
       return path[0].fsPath;

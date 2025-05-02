@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2025 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,4 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-
-// Image related
-export const bootcImageBuilder = 'bootc-image-builder';
-export const bootcImageBuilderCentos =
-  'quay.io/centos-bootc/bootc-image-builder:sha256-e53a3916cfc416f00a54a93757d7a48beb1af7fce3a3a329d07a0eea2e2b0737';
-export const bootcImageBuilderRHEL = 'registry.redhat.io/rhel9/bootc-image-builder:9.5';
-export const macadamName = 'rhel';
+export {};

@@ -83,9 +83,6 @@ importers:
       eslint-plugin-unicorn:
         specifier: ^59.0.0
         version: 59.0.0(eslint@9.22.0(jiti@2.4.2))
-      globals:
-        specifier: ^16.0.0
-        version: 16.0.0
       husky:
         specifier: ^9.1.7
         version: 9.1.7

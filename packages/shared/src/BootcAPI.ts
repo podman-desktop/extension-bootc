@@ -19,12 +19,15 @@
 import type { BootcBuildInfo, BuildType } from './models/bootc';
 import type { ImageInfo, ImageInspectInfo, ManifestInspectInfo, ContainerInfo } from '@podman-desktop/api';
 import type { ExamplesList } from './models/examples';
+import type { CreateVmOptions, VmDetails } from '@crc-org/macadam.js';
 
 export abstract class BootcApi {
   static readonly CHANNEL: string = 'BootcApi';
   abstract checkPrereqs(): Promise<string | undefined>;
   abstract checkVMLaunchPrereqs(buildId: string): Promise<string | undefined>;
   abstract launchVM(buildId: string): Promise<void>;
+  abstract createVM(options: CreateVmOptions): Promise<void>;
+  abstract listVMs(): Promise<VmDetails[]>;
   abstract buildExists(folder: string, types: BuildType[]): Promise<boolean>;
   abstract buildImage(build: BootcBuildInfo, overwrite?: boolean): Promise<void>;
   abstract pullImage(image: string, arch?: string): Promise<void>;
@@ -33,6 +36,8 @@ export abstract class BootcApi {
   abstract deleteBuilds(buildIds: string[]): Promise<void>;
   abstract selectOutputFolder(): Promise<string>;
   abstract selectBuildConfigFile(): Promise<string>;
+  abstract selectVMImageFile(): Promise<string>;
+  abstract selectSSHPrivateKeyFile(): Promise<string>;
   abstract selectAnacondaKickstartFile(): Promise<string>;
   abstract listBootcImages(): Promise<ImageInfo[]>;
   abstract listContainers(): Promise<ContainerInfo[]>;
