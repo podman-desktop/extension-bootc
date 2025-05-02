@@ -17,6 +17,8 @@
  ***********************************************************************/
 import * as macadam from '@crc-org/macadam.js';
 import { macadamName } from './constants';
+import { telemetryLogger } from './extension';
+import * as extensionApi from '@podman-desktop/api';
 
 interface StderrError extends Error {
   stderr?: string;
@@ -32,29 +34,45 @@ export class MacadamHandler {
   }
 
   async createVm(options: macadam.CreateVmOptions): Promise<void> {
-    try {
-      // Before going forward, make sure that the path names for both imagePath and sshIdentityPath are the full
-      // paths (not using ~/). This is important since the macadam library does not handle this case.
-      if (options.sshIdentityPath) {
-        options.sshIdentityPath = options.sshIdentityPath.replace(/^~\//, `${process.env.HOME}/`);
-      }
-      options.imagePath = options.imagePath.replace(/^~\//, `${process.env.HOME}/`);
+    // Store information for telemetry, starting with the type
+    const telemetryData: Record<string, unknown> = {};
+    telemetryData.type = options.imagePath.substring(options.imagePath.lastIndexOf('.') + 1);
 
-      await this.macadam.init();
-      await this.macadam.createVm(options);
-    } catch (e) {
-      // Use this below since createVm returns stderr in the error object as well. This comes in handy when
-      // the VM creation fails due to a missing image or other issues.
-      let errorMessage: string;
-      if (e instanceof Error) {
-        const stderrError = e as StderrError;
-        errorMessage = `${stderrError.message} ${stderrError.stderr ?? ''}`;
-      } else {
-        errorMessage = String(e);
-      }
-      console.error('Failed to create VM:', errorMessage);
-      throw new Error(`VM creation failed: ${errorMessage}`);
-    }
+    await extensionApi.window
+      .withProgress(
+        { location: extensionApi.ProgressLocation.TASK_WIDGET, title: `Creating Virtual Machine ${options.name}` },
+        async progress => {
+          // Before going forward, make sure that the path names for both imagePath and sshIdentityPath are the full
+          // paths (not using ~/). This is important since the macadam library does not handle this case.
+          if (options.sshIdentityPath) {
+            options.sshIdentityPath = options.sshIdentityPath.replace(/^~\//, `${process.env.HOME}/`);
+          }
+          options.imagePath = options.imagePath.replace(/^~\//, `${process.env.HOME}/`);
+
+          await this.macadam.init();
+          progress.report({ increment: 10 });
+          await this.macadam.createVm(options);
+          telemetryData.success = true;
+          progress.report({ increment: 100 });
+        },
+      )
+      .catch((e: unknown) => {
+        // Use this below since createVm returns stderr in the error object as well. This comes in handy when
+        // the VM creation fails due to a missing image or other issues.
+        let errorMessage: string;
+        if (e instanceof Error) {
+          const stderrError = e as StderrError;
+          errorMessage = `${stderrError.message} ${stderrError.stderr ?? ''}`;
+        } else {
+          errorMessage = String(e);
+        }
+        telemetryData.error = errorMessage;
+        console.error('Failed to create VM:', errorMessage);
+        throw new Error(`VM creation failed: ${errorMessage}`);
+      })
+      .finally(() => {
+        telemetryLogger.logUsage('createVM', telemetryData);
+      });
   }
 
   // List all virtual machines.
