@@ -10,8 +10,8 @@ import { bootcClient } from './api/client';
 import type { VmDetails } from '@crc-org/macadam.js';
 
 interface Props {
-  imageName: string;
-  imagePath: string;
+  imageName?: string;
+  imagePath?: string;
 }
 let { imageName, imagePath }: Props = $props();
 
@@ -96,6 +96,10 @@ async function listNamesOfVms(): Promise<string[]> {
 }
 
 async function createVM(): Promise<void> {
+  if (!imagePath) {
+    // can never happen, just for typecheck
+    return;
+  }
   createInProgress = true;
   createErrorMessage = '';
   try {

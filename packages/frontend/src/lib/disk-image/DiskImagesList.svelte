@@ -19,7 +19,7 @@ import {
   FilteredEmptyScreen,
 } from '@podman-desktop/ui-svelte';
 import DiskImageEmptyScreen from './DiskImageEmptyScreen.svelte';
-import { gotoBuild } from '../navigation';
+import { gotoBuild, gotoCreateVMForm } from '../navigation';
 
 interface Props {
   searchTerm?: string;
@@ -116,6 +116,7 @@ const row = new TableRow<BootcBuildInfo>({
 <NavPage bind:searchTerm={searchTerm} title="Disk Images" searchEnabled={true}>
   <svelte:fragment slot="additional-actions">
     <Button on:click={gotoBuild} icon={DiskImageIcon} title="Build">Build</Button>
+    <Button on:click={gotoCreateVMForm} icon={DiskImageIcon} title="Create VM">Create VM</Button>
   </svelte:fragment>
 
   <svelte:fragment slot="bottom-additional-actions">

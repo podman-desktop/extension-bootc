@@ -63,6 +63,9 @@ onMount(() => {
       <Route path="/disk-images/build/:name/:tag" breadcrumb="Build" let:meta>
         <Build imageName={decodeURIComponent(meta.params.name)} imageTag={decodeURIComponent(meta.params.tag)} />
       </Route>
+      <Route path="/disk-images/createVM" breadcrumb="Create Virtual Machine">
+        <CreateVM />
+      </Route>
       <Route path="/disk-images/createVM/:imageName/:imagePath" breadcrumb="Create Virtual Machine" let:meta>
         <CreateVM imageName={atob(meta.params.imageName)} imagePath={atob(meta.params.imagePath)} />
       </Route>
