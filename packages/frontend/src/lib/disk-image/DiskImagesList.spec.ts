@@ -55,6 +55,7 @@ vi.mock('/@/api/client', async () => {
       telemetryLogUsage: vi.fn(),
       isMac: vi.fn(),
       isWindows: vi.fn(),
+      isLinux: vi.fn(),
     },
     rpcBrowser: {
       subscribe: (): Subscriber => {
