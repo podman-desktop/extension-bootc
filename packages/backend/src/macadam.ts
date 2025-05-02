@@ -68,7 +68,7 @@ export class MacadamHandler {
         }
         telemetryData.error = errorMessage;
         console.error('Failed to create VM:', errorMessage);
-        throw new Error(`VM creation failed: ${errorMessage}`);
+        throw new Error(`Error creating VM: ${errorMessage}`);
       })
       .finally(() => {
         telemetryLogger.logUsage('createVM', telemetryData);
@@ -83,7 +83,7 @@ export class MacadamHandler {
       return vms;
     } catch (err) {
       console.error('Failed to list VMs:', err);
-      throw new Error(`VM listing failed: ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(`Error listing VMs: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 }
