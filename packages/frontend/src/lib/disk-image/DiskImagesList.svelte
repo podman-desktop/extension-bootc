@@ -115,8 +115,8 @@ const row = new TableRow<BootcBuildInfo>({
 
 <NavPage bind:searchTerm={searchTerm} title="Disk Images" searchEnabled={true}>
   <svelte:fragment slot="additional-actions">
-    <Button on:click={gotoBuild} icon={DiskImageIcon} title="Build">Build</Button>
     <Button on:click={gotoCreateVMForm} icon={DiskImageIcon} title="Create VM">Create VM</Button>
+    <Button on:click={gotoBuild} icon={DiskImageIcon} title="Build">Build</Button>
   </svelte:fragment>
 
   <svelte:fragment slot="bottom-additional-actions">
