@@ -47,6 +47,7 @@ export abstract class BootcApi {
   abstract openFolder(folder: string): Promise<boolean>;
   abstract generateUniqueBuildID(name: string): Promise<string>;
   abstract openLink(link: string): Promise<void>;
+  abstract openResources(): Promise<void>;
   abstract isLinux(): Promise<boolean>;
   abstract isMac(): Promise<boolean>;
   abstract isWindows(): Promise<boolean>;
