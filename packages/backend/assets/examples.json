@@ -39,6 +39,45 @@
       "basedir": "app-podman-systemd",
       "size": 1530000000,
       "readme": "# Podman Container running via SystemD\n\nThis is a very simple image that runs a webserver (caddy) as a \"referenced\" container image via [podman-systemd](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html) that is also configured for automatic updates.\n\n## Building this example\n\n1. Build the image with either `podman build` or [Podman Desktop](https://podman-desktop.io/).\n2. (Optional for login and SSH access) Create a [\"config.toml\" or \"config.json\" build config](https://docs.fedoraproject.org/en-US/bootc/authentication/#_bootc_image_builder) that contains login and SSH information.\n3. Build the image with either [bootc-image-builder](https://github.com/osbuild/bootc-image-builder) or the [Podman Desktop BootC extension](https://github.com/containers/podman-desktop-extension-bootc) and (optionally) the \"config.toml\" you created.\n\n## Using this example\n\n1. Launch the virtual machine.\n2. Visit the VM IP address `http://<ip-address>` on your browser."
+    },
+    {
+      "id": "fedora-qemu-agent",
+      "description": "Container with qemu-guest-agent installed.",
+      "name": "QEMU guest agent",
+      "repository": "https://gitlab.com/fedora/bootc/examples",
+      "image": "registry.gitlab.com/fedora/bootc/examples/qemu-guest-agent",
+      "tag": "latest",
+      "categories": ["fedora"],
+      "architectures": ["amd64", "arm64"],
+      "basedir": "qemu-guest-agent",
+      "size": 1330000000,
+      "readme": "# QEMU Guest Agent\n\nThis example provides a Fedora bootable container image with the `qemu-guest-agent` installed to allow communication between the host and guest VM.\n\n## Building this example\n\n1. Build the image with either `podman build` or [Podman Desktop](https://podman-desktop.io/).\n2. (Optional for login and SSH access) Create a [\"config.toml\" or \"config.json\" build config](https://docs.fedoraproject.org/en-US/bootc/authentication/#_bootc_image_builder) that contains login and SSH information.\n3. Build the image with either [bootc-image-builder](https://github.com/osbuild/bootc-image-builder) or the [Podman Desktop BootC extension](https://github.com/containers/podman-desktop-extension-bootc).\n\n## Using this example\n\n1. Launch the virtual machine.\n2. Ensure the `qemu-guest-agent` service is running with `systemctl status qemu-guest-agent` (start it if needed using `systemctl enable --now qemu-guest-agent`).\n3. From the host, use tools like `virsh` or `qemu-ga` to query or control the guest.\n4. Example host command: `virsh qemu-agent-command <domain> '{\"execute\":\"guest-ping\"}'`\n\n## Notes\n\n- The guest agent provides useful features like live shutdown, filesystem freeze/thaw, and IP reporting.\n- Ensure the VM is configured with a `virtio-serial` channel in your virtualization system for the agent to communicate."
+    },
+    {
+      "id": "fedora-wifi",
+      "description": "Container with wifi modules installed.",
+      "name": "WiFi",
+      "repository": "https://gitlab.com/fedora/bootc/examples",
+      "image": "registry.gitlab.com/fedora/bootc/examples/wifi",
+      "tag": "latest",
+      "categories": ["fedora"],
+      "architectures": ["amd64", "arm64"],
+      "basedir": "wifi",
+      "size": 1330000000,
+      "readme": "# WiFi\n\nThis example provides a Fedora bootable container image with WiFi modules installed, enabling wireless connectivity inside the VM.\n\n## Building this example\n\n1. Build the image with either `podman build` or [Podman Desktop](https://podman-desktop.io/).\n2. (Optional for login and SSH access) Create a [\"config.toml\" or \"config.json\" build config](https://docs.fedoraproject.org/en-US/bootc/authentication/#_bootc_image_builder) that contains login and SSH information.\n3. Build the image with either [bootc-image-builder](https://github.com/osbuild/bootc-image-builder) or the [Podman Desktop BootC extension](https://github.com/containers/podman-desktop-extension-bootc).\n\n## Using this example\n\n1. Launch the virtual machine.\n2. Connect to the VM and configure WiFi using `nmcli` or `iwctl` depending on the installed tools.\n3. Verify wireless connectivity."
+    },
+    {
+      "id": "fedora-kernel-module",
+      "description": "Adds Kernel Module Management to the image.",
+      "name": "Kernel module management",
+      "repository": "https://gitlab.com/fedora/bootc/examples",
+      "image": "registry.gitlab.com/fedora/bootc/examples/kernel-module",
+      "tag": "latest",
+      "categories": ["fedora"],
+      "architectures": ["amd64", "arm64"],
+      "basedir": "kernel-module",
+      "size": 1360000000,
+      "readme": "# Kernel Module Management\n\nThis example provides a Fedora bootable container image with tools for kernel module management.\n\n## Building this example\n\n1. Build the image with either `podman build` or [Podman Desktop](https://podman-desktop.io/).\n2. (Optional for login and SSH access) Create a [\"config.toml\" or \"config.json\" build config](https://docs.fedoraproject.org/en-US/bootc/authentication/#_bootc_image_builder) that contains login and SSH information.\n3. Build the image with either [bootc-image-builder](https://github.com/osbuild/bootc-image-builder) or the [Podman Desktop BootC extension](https://github.com/containers/podman-desktop-extension-bootc).\n\n## Using this example\n\n1. Launch the virtual machine.\n2. Load or unload kernel modules using `modprobe` or `insmod`.\n3. List modules with `lsmod` and check logs with `dmesg` to verify status."
     }
   ],
   "categories": [
