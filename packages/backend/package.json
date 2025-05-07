@@ -105,6 +105,7 @@
   "devDependencies": {
     "@podman-desktop/api": "1.18.0",
     "@types/node": "^22",
+    "@types/ssh2": "^1.15.5",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@typescript-eslint/parser": "^8.31.1",
     "@vitest/coverage-v8": "^3.1.2",
@@ -126,6 +127,8 @@
   },
   "dependencies": {
     "@crc-org/macadam.js": "0.0.1-202504301306-5ade487",
-    "semver": "^7.7.1"
+    "semver": "^7.7.1",
+    "compare-versions": "^6.1.1",
+    "ssh2": "^1.16.0"
   }
 }
