@@ -5,7 +5,7 @@ registries:
   github-packages-npm:
     type: npm-registry
     url: https://npm.pkg.github.com
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.NPM_READ_TOKEN }}
 
 updates:
   - package-ecosystem: "github-actions"
