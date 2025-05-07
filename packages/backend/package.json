@@ -107,6 +107,7 @@
     "@types/node": "^22",
     "@typescript-eslint/eslint-plugin": "^8.32.0",
     "@typescript-eslint/parser": "^8.32.0",
+    "@types/ssh2": "^1.15.5",
     "@vitest/coverage-v8": "^3.1.2",
     "@xterm/addon-attach": "^0.11.0",
     "@xterm/addon-fit": "^0.10.0",
@@ -126,6 +127,8 @@
   },
   "dependencies": {
     "@crc-org/macadam.js": "0.0.1-202505091153-d597ec3",
-    "semver": "^7.7.2"
+    "semver": "^7.7.2",
+    "compare-versions": "^6.1.1",
+    "ssh2": "^1.16.0"
   }
 }
