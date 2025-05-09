@@ -77,6 +77,12 @@ vi.mock('@podman-desktop/api', async () => {
         dispose: vi.fn(),
       }),
     },
+    provider: {
+      createProvider: (): podmanDesktopApi.Provider =>
+        ({
+          setVmProviderConnectionFactory: vi.fn(),
+        }) as unknown as podmanDesktopApi.Provider,
+    },
   };
 });
 
