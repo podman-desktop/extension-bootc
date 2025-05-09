@@ -17,7 +17,7 @@
     "watch": "vite --mode development build -w"
   },
   "dependencies": {
-    "@crc-org/macadam.js": "0.0.1-202505091153-d597ec3",
+    "@crc-org/macadam.js": "0.0.1-202505091029-52992f0",
     "svelte-check": "^4.1.6",
     "svelte-preprocess": "^6.0.3",
     "tinro": "^0.6.12"
