@@ -125,7 +125,7 @@
     "vitest": "^3.1.2"
   },
   "dependencies": {
-    "@crc-org/macadam.js": "0.0.1-202504301306-5ade487",
+    "@crc-org/macadam.js": "0.0.1-202505091153-d597ec3",
     "semver": "^7.7.1"
   }
 }

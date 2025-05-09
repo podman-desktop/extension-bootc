@@ -1,11 +1,6 @@
 # Set update schedule for GitHub Actions
 
 version: 2
-registries:
-  github-packages-npm:
-    type: npm-registry
-    url: https://npm.pkg.github.com
-    token: ${{ secrets.NPM_READ_TOKEN }}
 
 updates:
   - package-ecosystem: 'github-actions'
@@ -19,8 +14,6 @@ updates:
     schedule:
       interval: daily
     open-pull-requests-limit: 10
-    registries:
-      - github-packages-npm
     groups:
       fortawesome:
         applies-to: version-updates
