@@ -314,8 +314,8 @@ importers:
         specifier: ^22
         version: 22.13.10
       electron:
-        specifier: ^36.0.0
-        version: 36.0.0
+        specifier: ^36.2.0
+        version: 36.2.0
       typescript:
         specifier: ^5.8.3
         version: 5.8.3
@@ -1212,9 +1212,6 @@ packages:
   '@types/node@22.15.17':
     resolution: {integrity: sha512-wIX2aSZL5FE+MR0JlvF87BNVrtFWf6AE6rxSE9X7OwnVvoyCQjpzSRJ+M87se/4QCkCiebQAqrJ0y6fwIyi7nw==}
 
-  '@types/node@22.15.3':
-    resolution: {integrity: sha512-lX7HFZeHf4QG/J7tBZqrCAXwz9J5RD56Y6MpP0eJkka8p+K0RY/yBTW7CYFJ4VGCclxqOLKmiGP5juQc6MKgcw==}
-
   '@types/responselike@1.0.3':
     resolution: {integrity: sha512-H/+L+UkTV33uf49PH5pCAUBVPNj2nDBXTN+qS1dOwyyg24l3CcicicCA7ca+HMvJBZcFgl5r8e+RR6elsb4Lyw==}
 
@@ -1890,8 +1887,8 @@ packages:
   electron-to-chromium@1.5.151:
     resolution: {integrity: sha512-Rl6uugut2l9sLojjS4H4SAr3A4IgACMLgpuEMPYCVcKydzfyPrn5absNRju38IhQOf/NwjJY8OGWjlteqYeBCA==}
 
-  electron@36.0.0:
-    resolution: {integrity: sha512-MhBL5tgzqLsiw++YXxzXRvF5s90gelcEZP4Upz/aaRmmoscmCw/EtimxMSH6EPnKt+8KwBY9RVAdlcffFPYkyw==}
+  electron@36.2.0:
+    resolution: {integrity: sha512-5yldoRjBKxPQfI0QMX+qq750o3Nl8N1SZnJqOPMq0gZ6rIJ+7y4ZLp808GrFwjfTm05TYgq3GSD8FGuKQZqwEw==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
@@ -4670,7 +4667,7 @@ snapshots:
     dependencies:
       '@types/http-cache-semantics': 4.0.4
       '@types/keyv': 3.1.4
-      '@types/node': 22.13.10
+      '@types/node': 22.15.17
       '@types/responselike': 1.0.3
 
   '@types/conventional-commits-parser@5.0.1':
@@ -4691,7 +4688,7 @@ snapshots:
 
   '@types/keyv@3.1.4':
     dependencies:
-      '@types/node': 22.13.10
+      '@types/node': 22.15.17
 
   '@types/marked@5.0.2': {}
 
@@ -4703,13 +4700,9 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@types/node@22.15.3':
-    dependencies:
-      undici-types: 6.21.0
-
   '@types/responselike@1.0.3':
     dependencies:
-      '@types/node': 22.13.10
+      '@types/node': 22.15.17
 
   '@types/semver@7.5.8': {}
 
@@ -4721,7 +4714,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 22.15.3
+      '@types/node': 22.15.17
     optional: true
 
   '@typescript-eslint/eslint-plugin@8.31.1(@typescript-eslint/parser@8.31.1(eslint@9.22.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.22.0(jiti@2.4.2))(typescript@5.8.3)':
@@ -5460,10 +5453,10 @@ snapshots:
   electron-to-chromium@1.5.151:
     optional: true
 
-  electron@36.0.0:
+  electron@36.2.0:
     dependencies:
       '@electron/get': 2.0.3
-      '@types/node': 22.15.3
+      '@types/node': 22.15.17
       extract-zip: 2.0.1
     transitivePeerDependencies:
       - supports-color
