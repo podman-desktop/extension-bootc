@@ -14,7 +14,7 @@ interface Props {
 
 let { object, detailed = false }: Props = $props();
 let isLinux = $state(false);
-let isMac = $state(false);
+let isWindows = $state(false);
 
 // Delete the build
 async function deleteBuild(): Promise<void> {
@@ -38,15 +38,13 @@ async function initMacadamVM(): Promise<void> {
 
 onMount(async () => {
   isLinux = await bootcClient.isLinux();
-  isMac = await bootcClient.isMac();
+  isWindows = await bootcClient.isWindows();
 });
 </script>
 
 {#if !detailed}
   <!-- Only show if Linux, as Macadam Linux isn't supported yet: -->
-  {#if object.arch && isLinux}
-    <ListItemButtonIcon title="Launch VM" onClick={gotoVM} detailed={detailed} icon={faTerminal} />
-  {:else if object.arch && isMac}
+  {#if object.arch && !isWindows}
     <ListItemButtonIcon title="Create VM" onClick={initMacadamVM} detailed={detailed} icon={faTerminal} />
   {/if}
   <ListItemButtonIcon title="Build Logs" onClick={gotoLogs} detailed={detailed} icon={faFileAlt} />

@@ -117,8 +117,8 @@ importers:
   packages/backend:
     dependencies:
       '@crc-org/macadam.js':
-        specifier: 0.0.1-202505091153-d597ec3
-        version: 0.0.1-202505091153-d597ec3
+        specifier: 0.0.1-202505051441-55e65c8
+        version: 0.0.1-202505051441-55e65c8
       semver:
         specifier: ^7.7.1
         version: 7.7.1
@@ -187,8 +187,8 @@ importers:
   packages/frontend:
     dependencies:
       '@crc-org/macadam.js':
-        specifier: 0.0.1-202505091153-d597ec3
-        version: 0.0.1-202505091153-d597ec3
+        specifier: 0.0.1-202505051441-55e65c8
+        version: 0.0.1-202505051441-55e65c8
       svelte-check:
         specifier: ^4.1.6
         version: 4.1.6(picomatch@4.0.2)(svelte@5.23.2)(typescript@5.8.3)
@@ -552,8 +552,8 @@ packages:
     resolution: {integrity: sha512-/yCrWGCoA1SVKOks25EGadP9Pnj0oAIHGpl2wH2M2Y46dPM2ueb8wyCVOD7O3WCTkaJ0IkKvzhl1JY7+uCT2Dw==}
     engines: {node: '>=v18'}
 
-  '@crc-org/macadam.js@0.0.1-202505091153-d597ec3':
-    resolution: {integrity: sha512-W1u4SR1kmacwAXEo2nlahQgN9NEDUjmoaWCmJ44RNsxHVubDrQ/Cl6Ws+W4fJtIM5UsRlNFY4CwrRzeXS0WkVA==}
+  '@crc-org/macadam.js@0.0.1-202505051441-55e65c8':
+    resolution: {integrity: sha512-1tZb7YSXF5Qi/m+l85puAsCN36qWqFE4VgdoMsyFv/RCwVaAdJ/fTjKVFkc0XLBiaLPJr2jvPzQQ9+T5Ca7DJg==, tarball: https://npm.pkg.github.com/download/@crc-org/macadam.js/0.0.1-202505051441-55e65c8/a12df04ed877f14b55ff064f0bfee88aa53f882a}
 
   '@csstools/color-helpers@5.0.2':
     resolution: {integrity: sha512-JqWH1vsgdGcw2RR6VliXXdA0/59LttzlU8UlRT/iUUsEeWfYq8I+K0yhihEUTTHLRm1EXvpsCx3083EU15ecsA==}
@@ -4166,7 +4166,7 @@ snapshots:
       '@types/conventional-commits-parser': 5.0.1
       chalk: 5.4.1
 
-  '@crc-org/macadam.js@0.0.1-202505091153-d597ec3':
+  '@crc-org/macadam.js@0.0.1-202505051441-55e65c8':
     dependencies:
       '@podman-desktop/api': 1.18.1
 

@@ -84,3 +84,23 @@ test('Test clicking on logs button', async () => {
 
   expect(window.location.href).toContain('/build');
 });
+
+test('Render the Create VM button if NOT on Windows', async () => {
+  vi.mocked(bootcClient.isWindows).mockResolvedValue(false);
+  render(DiskImageActions, { object: mockHistoryInfo });
+
+  await vi.waitFor(() => {
+    const createVmButton = screen.getByRole('button', { name: 'Create VM' });
+    expect(createVmButton).not.toBeNull();
+  });
+});
+
+test('Do not render the Create VM button if on Windows', async () => {
+  vi.mocked(bootcClient.isWindows).mockResolvedValue(true);
+  render(DiskImageActions, { object: mockHistoryInfo });
+
+  await vi.waitFor(() => {
+    const createVmButton = screen.queryByRole('button', { name: 'Create VM' });
+    expect(createVmButton).toBeNull();
+  });
+});
