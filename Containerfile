@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2024 Red Hat, Inc.
+# Copyright (C) 2024-2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,11 @@ COPY LICENSE /extension/
 COPY packages/backend/icon.png /extension/
 COPY packages/backend/bootable.woff2 /extension/
 COPY README.md /extension/
+
+# We require the macadam.js binaries and library, so we will manually copy this over to the container image.
+# we rely on `pnpm build` before creating the container image, so we can safely assume that the macadam.js binaries are already present in the node_modules directory
+# and can copy them over to the container image.
+COPY node_modules/@crc-org/macadam.js /extension/node_modules/@crc-org/macadam.js
 
 FROM scratch
 
