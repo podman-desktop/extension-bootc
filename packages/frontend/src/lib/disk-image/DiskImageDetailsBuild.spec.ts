@@ -94,10 +94,17 @@ test('Handles empty logs correctly', async () => {
 test('Refreshes logs correctly', async () => {
   vi.mocked(bootcClient.loadLogsFromFolder).mockResolvedValue(mockLogs);
   vi.mocked(bootcClient.getConfigurationValue).mockResolvedValue(14);
+  vi.spyOn(global, 'setInterval');
 
   render(DiskImageDetailsBuild, { folder: '/empty/logs' });
 
+  // make sure the timer is created (onMount has run)
+  await waitFor(() => {
+    expect(setInterval).toHaveBeenCalled();
+  });
+
   // verify we start refreshing logs
-  await vi.advanceTimersByTimeAsync(2500);
+  expect(bootcClient.loadLogsFromFolder).toHaveBeenCalledTimes(1);
+  vi.advanceTimersToNextTimer();
   expect(bootcClient.loadLogsFromFolder).toHaveBeenCalledTimes(2);
 });
