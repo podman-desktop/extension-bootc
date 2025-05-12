@@ -16,7 +16,7 @@
  ***********************************************************************/
 
 import { render, screen, waitFor } from '@testing-library/svelte';
-import { vi, test, expect, beforeAll, beforeEach } from 'vitest';
+import { vi, test, expect, beforeAll, beforeEach, afterAll } from 'vitest';
 import DiskImageDetailsBuild from './DiskImageDetailsBuild.svelte';
 import { bootcClient } from '/@/api/client';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
@@ -48,10 +48,15 @@ beforeAll(() => {
       };
     },
   });
+  vi.useFakeTimers();
 });
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+afterAll(() => {
+  vi.useRealTimers();
 });
 
 const mockLogs = `Build log line 1
@@ -93,13 +98,6 @@ test('Refreshes logs correctly', async () => {
   render(DiskImageDetailsBuild, { folder: '/empty/logs' });
 
   // verify we start refreshing logs
-  await vi.waitFor(
-    () => {
-      expect(bootcClient.loadLogsFromFolder).toHaveBeenCalledTimes(2);
-    },
-    {
-      timeout: 3_500,
-      interval: 250,
-    },
-  );
+  await vi.advanceTimersByTimeAsync(2500);
+  expect(bootcClient.loadLogsFromFolder).toHaveBeenCalledTimes(2);
 });
