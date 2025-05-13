@@ -346,6 +346,10 @@ export class BootcApiImpl implements BootcApi {
     await podmanDesktopApi.env.openExternal(podmanDesktopApi.Uri.parse(link));
   }
 
+  async openResources(): Promise<void> {
+    return await podmanDesktopApi.navigation.navigateToResources();
+  }
+
   async generateUniqueBuildID(name: string): Promise<string> {
     return this.history.getUnusedHistoryName(name);
   }

@@ -147,7 +147,7 @@ async function createVM(): Promise<void> {
       <EmptyScreen icon={faCheck} title="Virtual machine created" message={createSuccessMessage}>
         <p class="text-md text-[var(--pd-content-text)] pb-2 ">
           In order to use the virtual machine, you must install the <Link
-            externalRef="https://github.com/redhat-developer/podman-desktop-rhel-ext">Macadam extension</Link>.<br/>Afterwards, you can find your virtual machine under <strong>Settings > Resources</strong>.
+            externalRef="https://github.com/redhat-developer/podman-desktop-rhel-ext">Macadam extension</Link>.<br/>Afterwards, you can find your virtual machine under <Link action={bootcClient.openResources}>Settings &gt; Resources</Link>.
         </p>
         <Button
           class="py-3"

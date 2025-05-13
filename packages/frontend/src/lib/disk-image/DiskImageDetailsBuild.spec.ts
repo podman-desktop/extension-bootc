@@ -16,7 +16,7 @@
  ***********************************************************************/
 
 import { render, screen, waitFor } from '@testing-library/svelte';
-import { vi, test, expect, beforeAll, beforeEach } from 'vitest';
+import { vi, test, expect, beforeAll, beforeEach, afterAll } from 'vitest';
 import DiskImageDetailsBuild from './DiskImageDetailsBuild.svelte';
 import { bootcClient } from '/@/api/client';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
@@ -48,10 +48,15 @@ beforeAll(() => {
       };
     },
   });
+  vi.useFakeTimers();
 });
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+afterAll(() => {
+  vi.useRealTimers();
 });
 
 const mockLogs = `Build log line 1
@@ -89,17 +94,17 @@ test('Handles empty logs correctly', async () => {
 test('Refreshes logs correctly', async () => {
   vi.mocked(bootcClient.loadLogsFromFolder).mockResolvedValue(mockLogs);
   vi.mocked(bootcClient.getConfigurationValue).mockResolvedValue(14);
+  const setIntervalSpy = vi.spyOn(global, 'setInterval');
 
   render(DiskImageDetailsBuild, { folder: '/empty/logs' });
 
+  // make sure the timer is created (onMount has run)
+  await waitFor(() => {
+    expect(setIntervalSpy).toHaveBeenCalled();
+  });
+
   // verify we start refreshing logs
-  await vi.waitFor(
-    () => {
-      expect(bootcClient.loadLogsFromFolder).toHaveBeenCalledTimes(2);
-    },
-    {
-      timeout: 3_500,
-      interval: 250,
-    },
-  );
+  expect(bootcClient.loadLogsFromFolder).toHaveBeenCalledTimes(1);
+  vi.advanceTimersToNextTimer();
+  expect(bootcClient.loadLogsFromFolder).toHaveBeenCalledTimes(2);
 });

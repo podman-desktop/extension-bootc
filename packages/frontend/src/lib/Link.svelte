@@ -9,9 +9,10 @@ interface Props {
   internalRef?: string;
   externalRef?: string;
   folder?: string;
+  action?: () => void;
   children?: Snippet;
 }
-let { title, internalRef, externalRef, folder, children }: Props = $props();
+let { title, internalRef, externalRef, folder, action, children }: Props = $props();
 
 async function click(): Promise<void> {
   if (internalRef) {
@@ -20,6 +21,8 @@ async function click(): Promise<void> {
     await bootcClient.openLink(externalRef);
   } else if (folder) {
     await bootcClient.openFolder(folder);
+  } else if (action) {
+    action();
   }
 }
 </script>

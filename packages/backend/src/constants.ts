@@ -19,6 +19,6 @@
 // Image related
 export const bootcImageBuilder = 'bootc-image-builder';
 export const bootcImageBuilderCentos =
-  'quay.io/centos-bootc/bootc-image-builder:sha256-e53a3916cfc416f00a54a93757d7a48beb1af7fce3a3a329d07a0eea2e2b0737';
+  'quay.io/centos-bootc/bootc-image-builder:sha256-de948b4d66006b26e2cb6a051afdb3cfcd569c9db52bb6fe7b1f2236ad216207';
 export const bootcImageBuilderRHEL = 'registry.redhat.io/rhel9/bootc-image-builder:9.5';
 export const macadamName = 'rhel';
