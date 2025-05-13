@@ -16,7 +16,7 @@
  ***********************************************************************/
 
 import { render, screen, waitFor } from '@testing-library/svelte';
-import { vi, test, expect, beforeAll, beforeEach, afterAll } from 'vitest';
+import { vi, test, expect, beforeAll, beforeEach, afterEach } from 'vitest';
 import DiskImageDetailsBuild from './DiskImageDetailsBuild.svelte';
 import { bootcClient } from '/@/api/client';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
@@ -37,25 +37,29 @@ vi.mock('/@/api/client', async () => ({
 
 beforeAll(() => {
   Object.defineProperty(window, 'ResizeObserver', {
-    value: vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() }),
+    value: vi.fn(),
   });
   Object.defineProperty(window, 'matchMedia', {
-    value: () => {
-      return {
-        matches: false,
-        addListener: (): void => {},
-        removeListener: (): void => {},
-      };
-    },
+    value: vi.fn(),
   });
-  vi.useFakeTimers();
 });
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
+  vi.useFakeTimers();
+
+  vi.mocked(window.ResizeObserver).mockReturnValue({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+  } as unknown as ResizeObserver);
+  vi.mocked(window.matchMedia).mockReturnValue({
+    matches: false,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+  } as unknown as MediaQueryList);
 });
 
-afterAll(() => {
+afterEach(() => {
   vi.useRealTimers();
 });
 
