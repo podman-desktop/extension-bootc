@@ -271,6 +271,26 @@ podman machine ssh
 rpm-ostree override reset --all
 ```
 
+**(Linux only) Unable to create virtual machine:**
+
+When creating a virtual machine on Linux, you may encounter a "macadam binary is missing" or "gvproxy binary is missing" message. This is because the binaries required have to be installed manually.
+
+Follow the below steps for the solution:
+
+**macadam binary:**
+
+1. Download the [macadam binary](https://github.com/crc-org/macadam/releases)
+2. `chmod +x macadam-linux-amd64`
+3. `sudo mkdir -p /opt/macadam/bin`
+4. `sudo mv macadam-linux-amd64 /opt/macadam/bin/macadam`
+
+**gvproxy binary:**
+
+1. Download the [gvproxy binary](https://github.com/containers/gvisor-tap-vsock/releases)
+2. `chmod +x gvproxy-linux-amd64`
+3. `sudo mkdir /usr/libexec/podman`
+4. `sudo mv gvproxy-linux-amd64 /usr/libexec/podman/gvproxy`
+
 ## Contributing
 
 Want to help develop and contribute to the bootc extension? View our [CONTRIBUTING](https://github.com/containers/podman-desktop-extension-bootc/blob/main/CONTRIBUTING.md) document.
