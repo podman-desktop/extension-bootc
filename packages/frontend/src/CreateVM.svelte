@@ -146,8 +146,7 @@ async function createVM(): Promise<void> {
     {:else if createSuccessMessage}
       <EmptyScreen icon={faCheck} title="Virtual machine created" message={createSuccessMessage}>
         <p class="text-md text-[var(--pd-content-text)] pb-2 ">
-          In order to use the virtual machine, you must install the <Link
-            externalRef="https://github.com/redhat-developer/podman-desktop-rhel-ext">Macadam extension</Link>.<br/>Afterwards, you can find your virtual machine under <Link action={bootcClient.openResources}>Settings &gt; Resources</Link>.
+          Your virtual machine is ready to use in <Link action={bootcClient.openResources}>Settings &gt; Resources</Link>.
         </p>
         <Button
           class="py-3"
@@ -167,9 +166,6 @@ async function createVM(): Promise<void> {
               Virtual machines are created using the <Link externalRef="https://github.com/crc-org/macadam"
                 >Macadam</Link> tool. This is a cross-platform tool to create and manage virtual machines. The following
               form will help you create a virtual machine by specifying the image file location and SSH credentials.<br /><br />
-              <strong>Requirement:</strong> In order to access and manage the virtual machine, you must install the <Link
-                externalRef="https://github.com/redhat-developer/podman-desktop-rhel-ext">Macadam extension</Link
-              >.<br /><br />
               <strong>Note:</strong> You must have added a valid public SSH key during the build process to be able to connect to
               the VM using the credentials below.
             </p>
