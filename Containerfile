@@ -24,10 +24,17 @@ COPY packages/backend/icon.png /extension/
 COPY packages/backend/bootable.woff2 /extension/
 COPY README.md /extension/
 
+# TEMPORARY. Permanent fix will be in the future when we can add all of this to vite script.
 # We require the macadam.js binaries and library, so we will manually copy this over to the container image.
 # we rely on `pnpm build` before creating the container image, so we can safely assume that the macadam.js binaries are already present in the node_modules directory
 # and can copy them over to the container image.
 COPY node_modules/@crc-org/macadam.js /extension/node_modules/@crc-org/macadam.js
+# Copy over ssh2 and it's dependencies (run jq '.dependencies' node_modules/ssh2/package.json locally to see)
+COPY node_modules/ssh2 /extension/node_modules/ssh2
+COPY node_modules/asn1 /extension/node_modules/asn1
+COPY node_modules/bcrypt-pbkdf /extension/node_modules/bcrypt-pbkdf
+COPY node_modules/safer-buffer /extension/node_modules/safer-buffer
+COPY node_modules/tweetnacl /extension/node_modules/tweetnacl
 
 FROM scratch
 
