@@ -1,2 +1,7 @@
 node_modules
 !node_modules/@crc-org/macadam.js
+!node_modules/ssh2
+!node_modules/asn1
+!node_modules/bcrypt-pbkdf
+!node_modules/safer-buffer
+!node_modules/tweetnacl
