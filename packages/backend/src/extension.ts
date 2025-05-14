@@ -176,7 +176,11 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
   );
 
   macadam = new macadamJSPackage.Macadam(macadamName);
-  await macadam.init();
+  try {
+    await macadam.init();
+  } catch (error) {
+    console.error('Error initializing macadam', error);
+  }
 
   const provider = await createProvider(extensionContext);
 
