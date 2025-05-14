@@ -12,7 +12,6 @@ import { historyInfo } from '/@/stores/historyInfo';
 import { goToDiskImages } from '../navigation';
 import DiskImageDetailsVirtualMachine from './DiskImageDetailsVirtualMachine.svelte';
 import type { Unsubscriber } from 'svelte/store';
-import { bootcClient } from '/@/api/client';
 import DiskImageActions from './DiskImageActions.svelte';
 
 interface Props {
@@ -23,13 +22,8 @@ let { id }: Props = $props();
 let diskImage = $state<BootcBuildInfo>();
 let detailsPage = $state<DetailsPage>();
 let historyInfoUnsubscribe = $state<Unsubscriber>();
-let isMac = $state(false);
-let isLinux = $state(false);
 
 onMount(async () => {
-  isMac = await bootcClient.isMac();
-  isLinux = await bootcClient.isLinux();
-
   // Subscribe to the history to update the details page
   const actualId = atob(id);
   historyInfoUnsubscribe = historyInfo.subscribe(value => {
@@ -71,13 +65,6 @@ onDestroy(() => {
   <svelte:fragment slot="tabs">
     <Tab title="Summary" selected={isTabSelected($router.path, 'summary')} url={getTabUrl($router.path, 'summary')} />
     <Tab title="Build Log" selected={isTabSelected($router.path, 'build')} url={getTabUrl($router.path, 'build')} />
-    <!-- Our "experimental" support is only supported on Linux now, as we have the Macadam button for macOS. -->
-    {#if isLinux}
-      <Tab
-        title="Virtual Machine (Experimental)"
-        selected={isTabSelected($router.path, 'vm')}
-        url={getTabUrl($router.path, 'vm')} />
-    {/if}
   </svelte:fragment>
   <svelte:fragment slot="content">
     <Route path="/summary" breadcrumb="Summary">
