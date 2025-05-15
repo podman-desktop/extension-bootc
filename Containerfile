@@ -41,6 +41,6 @@ FROM scratch
 LABEL org.opencontainers.image.title="Bootable Container Extension" \
         org.opencontainers.image.description="Podman Desktop extension for bootable OS containers (bootc) and generating disk images" \
         org.opencontainers.image.vendor="Red Hat" \
-        io.podman-desktop.api.version=">= 1.10.0"
+        io.podman-desktop.api.version=">= 1.18.0"
 
 COPY --from=builder /extension /extension
