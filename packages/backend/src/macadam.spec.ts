@@ -32,6 +32,9 @@ vi.mock('@podman-desktop/api', async () => {
         ({
           logUsage: mocks.logUsageMock,
         }) as unknown as extensionApi.TelemetryLogger,
+      isLinux: false,
+      isMac: false,
+      isWindows: false,
     },
     window: {
       withProgress: vi.fn().mockImplementation,
@@ -66,7 +69,7 @@ beforeEach(() => {
   vi.resetAllMocks();
 });
 
-test('Test creating VM with MacadamHandler', async () => {
+test('Test creating Mac VM with MacadamHandler', async () => {
   const macadamVm = new MacadamHandler(); // This must come first
   const macadamInstance = (macadam.Macadam as Mock).mock.results[0].value;
   macadamInstance.createVm.mockResolvedValue({ stdout: '', stderr: '' });
@@ -74,6 +77,7 @@ test('Test creating VM with MacadamHandler', async () => {
   vi.spyOn(extensionApi.window, 'withProgress').mockImplementation((_options, task) => {
     return task(progress, {} as unknown as extensionApi.CancellationToken);
   });
+  vi.mocked(extensionApi.env).isMac = true;
 
   await macadamVm.createVm({
     name: 'foobar',
@@ -89,6 +93,65 @@ test('Test creating VM with MacadamHandler', async () => {
   expect(mocks.logUsageMock).toHaveBeenCalledWith('createVM', {
     success: true,
     type: 'qcow2',
+    provider: 'applehv',
+  });
+});
+
+test('Test creating Windows VM with MacadamHandler', async () => {
+  const macadamVm = new MacadamHandler(); // This must come first
+  const macadamInstance = (macadam.Macadam as Mock).mock.results[0].value;
+  macadamInstance.createVm.mockResolvedValue({ stdout: '', stderr: '' });
+
+  vi.spyOn(extensionApi.window, 'withProgress').mockImplementation((_options, task) => {
+    return task(progress, {} as unknown as extensionApi.CancellationToken);
+  });
+  vi.mocked(extensionApi.env).isMac = false;
+  vi.mocked(extensionApi.env).isWindows = true;
+
+  await macadamVm.createVm({
+    name: 'foobar',
+    imagePath: '~/test-image.wsl2',
+    sshIdentityPath: '~/test-ssh-key',
+  });
+
+  expect(macadamInstance.createVm).toHaveBeenCalled();
+
+  const callOptions = macadamInstance.createVm.mock.calls[0][0];
+  expect(callOptions.imagePath).not.toContain('~/');
+  expect(callOptions.sshIdentityPath).not.toContain('~/');
+  expect(mocks.logUsageMock).toHaveBeenCalledWith('createVM', {
+    success: true,
+    type: 'wsl2',
+    provider: 'hyperv',
+  });
+});
+
+test('Test creating Linux VM with MacadamHandler', async () => {
+  const macadamVm = new MacadamHandler(); // This must come first
+  const macadamInstance = (macadam.Macadam as Mock).mock.results[0].value;
+  macadamInstance.createVm.mockResolvedValue({ stdout: '', stderr: '' });
+
+  vi.spyOn(extensionApi.window, 'withProgress').mockImplementation((_options, task) => {
+    return task(progress, {} as unknown as extensionApi.CancellationToken);
+  });
+  vi.mocked(extensionApi.env).isWindows = false;
+  vi.mocked(extensionApi.env).isLinux = true;
+
+  await macadamVm.createVm({
+    name: 'foobar',
+    imagePath: '~/test-image.raw',
+    sshIdentityPath: '~/test-ssh-key',
+  });
+
+  expect(macadamInstance.createVm).toHaveBeenCalled();
+
+  const callOptions = macadamInstance.createVm.mock.calls[0][0];
+  expect(callOptions.imagePath).not.toContain('~/');
+  expect(callOptions.sshIdentityPath).not.toContain('~/');
+  expect(mocks.logUsageMock).toHaveBeenCalledWith('createVM', {
+    success: true,
+    type: 'raw',
+    provider: undefined,
   });
 });
 
