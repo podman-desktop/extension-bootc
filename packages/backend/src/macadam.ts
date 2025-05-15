@@ -19,6 +19,7 @@ import * as macadam from '@crc-org/macadam.js';
 import { macadamName } from './constants';
 import { telemetryLogger } from './extension';
 import * as extensionApi from '@podman-desktop/api';
+import { isWSLEnabled } from './macadam/win/utils';
 
 interface StderrError extends Error {
   stderr?: string;
@@ -48,6 +49,16 @@ export class MacadamHandler {
             options.sshIdentityPath = options.sshIdentityPath.replace(/^~\//, `${process.env.HOME}/`);
           }
           options.imagePath = options.imagePath.replace(/^~\//, `${process.env.HOME}/`);
+
+          // force the correct provider so we're not dependent on .config/containers/containers.conf
+          let provider: 'wsl' | 'hyperv' | 'applehv' | undefined;
+          if (extensionApi.env.isWindows) {
+            provider = (await isWSLEnabled()) ? 'wsl' : 'hyperv';
+          } else if (extensionApi.env.isMac) {
+            provider = 'applehv';
+          }
+          telemetryData.provider = provider;
+          options.containerProvider = provider;
 
           await this.macadam.init();
           progress.report({ increment: 10 });
