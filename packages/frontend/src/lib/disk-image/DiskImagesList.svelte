@@ -1,5 +1,5 @@
 <script lang="ts">
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import DiskImageColumnActions from './columns/Actions.svelte';
@@ -20,11 +20,14 @@ import {
 } from '@podman-desktop/ui-svelte';
 import DiskImageEmptyScreen from './DiskImageEmptyScreen.svelte';
 import { gotoBuild, gotoCreateVMForm } from '../navigation';
+import type { Unsubscriber } from 'svelte/store';
 
 interface Props {
   searchTerm?: string;
 }
 let { searchTerm = '' }: Props = $props();
+let isWindows = $state(false);
+let historyInfoUnsubscribe = $state<Unsubscriber>();
 
 $effect(() => {
   searchPattern.set(searchTerm);
@@ -36,10 +39,18 @@ interface BootcBuildInfoWithSelected extends BootcBuildInfo {
   selected: boolean;
 }
 
-onMount(() => {
-  return filtered.subscribe(value => {
+onMount(async () => {
+  isWindows = await bootcClient.isWindows();
+
+  historyInfoUnsubscribe = filtered.subscribe(value => {
     history = value.map(build => ({ ...build, selected: false }));
   });
+});
+
+onDestroy(() => {
+  if (historyInfoUnsubscribe) {
+    historyInfoUnsubscribe();
+  }
 });
 
 // Bulk delete the selected builds
@@ -115,7 +126,10 @@ const row = new TableRow<BootcBuildInfo>({
 
 <NavPage bind:searchTerm={searchTerm} title="Disk Images" searchEnabled={true}>
   <svelte:fragment slot="additional-actions">
+  <!-- Only show for macOS and Linux -->
+  {#if !isWindows}
     <Button on:click={gotoCreateVMForm} icon={DiskImageIcon} title="Create VM">Create VM</Button>
+  {/if}
     <Button on:click={gotoBuild} icon={DiskImageIcon} title="Build">Build</Button>
   </svelte:fragment>
 

@@ -88,11 +88,13 @@ test('Homepage renders correctly with multiple rows', async () => {
     }
   });
 
-  // Name 'image1:latest' should be present
-  expect(screen.queryByText('image1:latest')).not.toBeNull();
+  await vi.waitFor(() => {
+    // Name 'image1:latest' should be present
+    expect(screen.queryByText('image1:latest')).not.toBeNull();
 
-  // Name 'image2:latest' should be present
-  expect(screen.queryByText('image2:latest')).not.toBeNull();
+    // Name 'image2:latest' should be present
+    expect(screen.queryByText('image2:latest')).not.toBeNull();
+  });
 });
 
 test('Test clicking on delete button', async () => {
@@ -107,8 +109,10 @@ test('Test clicking on delete button', async () => {
   });
 
   // Click on delete button
-  const deleteButton = screen.getAllByRole('button', { name: 'Delete Build' })[0];
-  deleteButton.click();
+  await vi.waitFor(() => {
+    const deleteButton = screen.getAllByRole('button', { name: 'Delete Build' })[0];
+    deleteButton.click();
+  });
 
   expect(bootcClient.deleteBuilds).toHaveBeenCalledWith(['name1']);
 });
@@ -128,4 +132,36 @@ test('Test clicking on build button', async () => {
   buildButton.click();
 
   expect(bootcClient.telemetryLogUsage).toHaveBeenCalled();
+});
+
+test('On non-windows, the Create VM button should show', async () => {
+  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
+  vi.mocked(bootcClient.isWindows).mockResolvedValue(false);
+
+  render(DiskImagesList);
+  await vi.waitFor(() => {
+    if (!screen.queryByText('Disk Images')) {
+      throw new Error();
+    }
+  });
+
+  // Check that the Create VM button is present
+  expect(screen.queryByText('Create VM')).not.toBeNull();
+});
+
+test('On windows, the Create VM button should not show', async () => {
+  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
+  vi.mocked(bootcClient.isWindows).mockResolvedValue(true);
+
+  render(DiskImagesList);
+  await vi.waitFor(() => {
+    if (!screen.queryByText('Disk Images')) {
+      throw new Error();
+    }
+  });
+
+  // Have to wait for initial load (since it's async), wait for it to disappear.
+  await vi.waitFor(() => {
+    expect(screen.queryByText('Create VM')).toBeNull();
+  });
 });
