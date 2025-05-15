@@ -31,8 +31,12 @@ async function gotoVM(): Promise<void> {
 }
 
 async function initMacadamVM(): Promise<void> {
-  // We must pass in the full path to the disk image, so we combine object.folder as well as 'image/disk.raw'.
-  const imagePath = object.folder + '/image/disk.raw';
+  let imagePath = object.folder;
+  if (object.type.includes('raw')) {
+    imagePath += '/image/disk.raw';
+  } else if (object.type.includes('qcow2')) {
+    imagePath += '/qcow2/disk.qcow2';
+  }
   await gotoCreateVM(object.image, imagePath);
 }
 
