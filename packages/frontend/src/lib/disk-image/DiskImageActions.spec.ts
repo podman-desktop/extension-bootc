@@ -21,6 +21,8 @@ import { bootcClient } from '/@/api/client';
 import { screen, render } from '@testing-library/svelte';
 import DiskImageActions from './DiskImageActions.svelte';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
+import { router } from 'tinro';
+import userEvent from '@testing-library/user-event';
 
 vi.mock('/@/api/client', async () => {
   return {
@@ -29,6 +31,7 @@ vi.mock('/@/api/client', async () => {
       isWindows: vi.fn(),
       isMac: vi.fn(),
       isLinux: vi.fn(),
+      telemetryLogUsage: vi.fn(),
     },
     rpcBrowser: {
       subscribe: (): Subscriber => {
@@ -40,13 +43,21 @@ vi.mock('/@/api/client', async () => {
   };
 });
 
+vi.mock('tinro', () => {
+  return {
+    router: {
+      goto: vi.fn(),
+    },
+  };
+});
+
 const mockHistoryInfo: BootcBuildInfo = {
   id: 'name1',
   image: 'image1',
   imageId: 'sha256:imageId1',
   engineId: 'engine1',
   tag: 'latest',
-  type: ['anaconda-iso'],
+  type: ['raw'],
   folder: '/foo/image1',
   arch: 'x86_64',
 };
@@ -80,9 +91,9 @@ test('Test clicking on logs button', async () => {
 
   // Click on logs button
   const logsButton = screen.getAllByRole('button', { name: 'Build Logs' })[0];
-  logsButton.click();
+  await userEvent.click(logsButton);
 
-  expect(window.location.href).toContain('/build');
+  expect(router.goto).toHaveBeenCalledWith('/disk-image/bmFtZTE=/build');
 });
 
 test('Render the Create VM button if NOT on Windows', async () => {
@@ -93,6 +104,35 @@ test('Render the Create VM button if NOT on Windows', async () => {
     const createVmButton = screen.getByRole('button', { name: 'Create VM' });
     expect(createVmButton).not.toBeNull();
   });
+});
+
+test('Test clicking on create VM button for raw', async () => {
+  vi.mocked(bootcClient.isWindows).mockResolvedValue(false);
+  render(DiskImageActions, { object: mockHistoryInfo });
+
+  await vi.waitFor(() => {
+    expect(screen.getByRole('button', { name: 'Create VM' })).not.toBeNull();
+  });
+
+  const createVmButton = screen.getByRole('button', { name: 'Create VM' });
+  await userEvent.click(createVmButton);
+
+  expect(router.goto).toHaveBeenCalledWith('/disk-images/createVM/aW1hZ2Ux/L2Zvby9pbWFnZTEvaW1hZ2UvZGlzay5yYXc=');
+});
+
+test('Test clicking on create VM button for qcow2', async () => {
+  vi.mocked(bootcClient.isWindows).mockResolvedValue(false);
+  mockHistoryInfo.type = ['qcow2'];
+  render(DiskImageActions, { object: mockHistoryInfo });
+
+  await vi.waitFor(() => {
+    expect(screen.getByRole('button', { name: 'Create VM' })).not.toBeNull();
+  });
+
+  const createVmButton = screen.getByRole('button', { name: 'Create VM' });
+  await userEvent.click(createVmButton);
+
+  expect(router.goto).toHaveBeenCalledWith('/disk-images/createVM/aW1hZ2Ux/L2Zvby9pbWFnZTEvcWNvdzIvZGlzay5xY293Mg==');
 });
 
 test('Do not render the Create VM button if on Windows', async () => {
