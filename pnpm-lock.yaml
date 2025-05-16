@@ -78,8 +78,8 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2(eslint@9.26.0(jiti@2.4.2))
       eslint-plugin-svelte:
-        specifier: ^3.5.1
-        version: 3.6.0(eslint@9.26.0(jiti@2.4.2))(svelte@5.30.1)
+        specifier: ^3.7.0
+        version: 3.7.0(eslint@9.26.0(jiti@2.4.2))(svelte@5.30.1)
       eslint-plugin-unicorn:
         specifier: ^59.0.0
         version: 59.0.1(eslint@9.26.0(jiti@2.4.2))
@@ -1982,8 +1982,8 @@ packages:
   electron-to-chromium@1.5.114:
     resolution: {integrity: sha512-DFptFef3iktoKlFQK/afbo274/XNWD00Am0xa7M8FZUepHlHT8PEuiNBoRfFHbH1okqN58AlhbJ4QTkcnXorjA==}
 
-  electron-to-chromium@1.5.154:
-    resolution: {integrity: sha512-G4VCFAyKbp1QJ+sWdXYIRYsPGvlV5sDACfCmoMFog3rjm1syLhI41WXm/swZypwCIWIm4IFLWzHY14joWMQ5Fw==}
+  electron-to-chromium@1.5.155:
+    resolution: {integrity: sha512-ps5KcGGmwL8VaeJlvlDlu4fORQpv3+GIcF5I3f9tUKUlJ/wsysh6HU8P5L1XWRYeXfA0oJd4PyM8ds8zTFf6Ng==}
 
   electron@36.2.1:
     resolution: {integrity: sha512-mm1Y+Ms46xcOTA69h8hpqfX392HfV4lga9aEkYkd/Syx1JBStvcACOIouCgGrnZpxNZPVS1jM8NTcMkNjuK6BQ==}
@@ -2167,8 +2167,8 @@ packages:
     peerDependencies:
       eslint: ^8.0.0 || ^9.0.0
 
-  eslint-plugin-svelte@3.6.0:
-    resolution: {integrity: sha512-IIf6Cj6yQuCwL7Qd8bX13BZspz+DQsOkClozMF9EkW20FSxI75Ndd5ZzbviCn32DdXRo9FUWXn+YMIL46qPOOg==}
+  eslint-plugin-svelte@3.7.0:
+    resolution: {integrity: sha512-/MQ9gYLbA24AFUN0QwpzRqi4VCISaRyt8xa2t3iVnI5mWa38xuTXM+iz/8LxKCg34jX2PfPcEkZH7CUem/Eugw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^8.57.1 || ^9.0.0
@@ -5511,7 +5511,7 @@ snapshots:
   browserslist@4.24.5:
     dependencies:
       caniuse-lite: 1.0.30001718
-      electron-to-chromium: 1.5.154
+      electron-to-chromium: 1.5.155
       node-releases: 2.0.19
       update-browserslist-db: 1.1.3(browserslist@4.24.5)
     optional: true
@@ -5836,7 +5836,7 @@ snapshots:
 
   electron-to-chromium@1.5.114: {}
 
-  electron-to-chromium@1.5.154:
+  electron-to-chromium@1.5.155:
     optional: true
 
   electron@36.2.1:
@@ -6113,9 +6113,9 @@ snapshots:
       semver: 7.7.1
       typescript: 5.8.3
 
-  eslint-plugin-svelte@3.6.0(eslint@9.26.0(jiti@2.4.2))(svelte@5.30.1):
+  eslint-plugin-svelte@3.7.0(eslint@9.26.0(jiti@2.4.2))(svelte@5.30.1):
     dependencies:
-      '@eslint-community/eslint-utils': 4.5.1(eslint@9.26.0(jiti@2.4.2))
+      '@eslint-community/eslint-utils': 4.7.0(eslint@9.26.0(jiti@2.4.2))
       '@jridgewell/sourcemap-codec': 1.5.0
       eslint: 9.26.0(jiti@2.4.2)
       esutils: 2.0.3
