@@ -196,8 +196,8 @@ importers:
   packages/frontend:
     dependencies:
       '@crc-org/macadam.js':
-        specifier: 0.0.1-202505091153-d597ec3
-        version: 0.0.1-202505091153-d597ec3
+        specifier: 0.0.1-202505091308-41f281b
+        version: 0.0.1-202505091308-41f281b
       svelte-check:
         specifier: ^4.1.6
         version: 4.2.1(picomatch@4.0.2)(svelte@5.32.1)(typescript@5.8.3)
@@ -560,9 +560,6 @@ packages:
   '@commitlint/types@19.8.1':
     resolution: {integrity: sha512-/yCrWGCoA1SVKOks25EGadP9Pnj0oAIHGpl2wH2M2Y46dPM2ueb8wyCVOD7O3WCTkaJ0IkKvzhl1JY7+uCT2Dw==}
     engines: {node: '>=v18'}
-
-  '@crc-org/macadam.js@0.0.1-202505091153-d597ec3':
-    resolution: {integrity: sha512-W1u4SR1kmacwAXEo2nlahQgN9NEDUjmoaWCmJ44RNsxHVubDrQ/Cl6Ws+W4fJtIM5UsRlNFY4CwrRzeXS0WkVA==}
 
   '@crc-org/macadam.js@0.0.1-202505091308-41f281b':
     resolution: {integrity: sha512-h3SipcK5ebuq+xwNs77jidW926mSOJYPvBevPO4+tj1gi9iAlEYuw42etNi8pUBxcaWk/l7yeJcbNC0wCYvSQw==}
@@ -4219,10 +4216,6 @@ snapshots:
     dependencies:
       '@types/conventional-commits-parser': 5.0.1
       chalk: 5.4.1
-
-  '@crc-org/macadam.js@0.0.1-202505091153-d597ec3':
-    dependencies:
-      '@podman-desktop/api': 1.19.1
 
   '@crc-org/macadam.js@0.0.1-202505091308-41f281b':
     dependencies:
