@@ -97,33 +97,27 @@ export class BootcPage {
     await playExpect(this.outputFolderPath).toBeVisible({ timeout: 10_000 });
     await this.outputFolderPath.scrollIntoViewIfNeeded();
     await this.outputFolderPath.clear();
-    await this.outputFolderPath.pressSequentially(pathToStore, { delay: 20 });
+    await this.outputFolderPath.fill(pathToStore);
     await this.uncheckedAllCheckboxes();
 
     switch (type.toLocaleLowerCase()) {
       case 'raw':
-        await this.rawCheckbox.check();
-        await playExpect(this.rawCheckbox).toBeChecked();
+        await this.checkCheckbox(this.rawCheckbox);
         break;
       case 'qcow2':
-        await this.qcow2Checkbox.check();
-        await playExpect(this.qcow2Checkbox).toBeChecked();
+        await this.checkCheckbox(this.qcow2Checkbox);
         break;
       case 'iso':
-        await this.isoCheckbox.check();
-        await playExpect(this.isoCheckbox).toBeChecked();
+        await this.checkCheckbox(this.isoCheckbox);
         break;
       case 'vmdk':
-        await this.vmdkCheckbox.check();
-        await playExpect(this.vmdkCheckbox).toBeChecked();
+        await this.checkCheckbox(this.vmdkCheckbox);
         break;
       case 'ami':
-        await this.amiCheckbox.check();
-        await playExpect(this.amiCheckbox).toBeChecked();
+        await this.checkCheckbox(this.amiCheckbox);
         break;
       case 'vhd':
-        await this.vhdCheckbox.check();
-        await playExpect(this.vhdCheckbox).toBeChecked();
+        await this.checkCheckbox(this.vhdCheckbox);
         break;
       default:
         throw new Error(`Unknown type: ${type}`);
@@ -173,18 +167,32 @@ export class BootcPage {
   }
 
   private async uncheckedAllCheckboxes(): Promise<void> {
-    await this.rawCheckbox.uncheck();
-    await playExpect(this.rawCheckbox).not.toBeChecked();
-    await this.qcow2Checkbox.uncheck();
-    await playExpect(this.qcow2Checkbox).not.toBeChecked();
-    await this.isoCheckbox.uncheck();
-    await playExpect(this.isoCheckbox).not.toBeChecked();
-    await this.vmdkCheckbox.uncheck();
-    await playExpect(this.vmdkCheckbox).not.toBeChecked();
-    await this.amiCheckbox.uncheck();
-    await playExpect(this.amiCheckbox).not.toBeChecked();
-    await this.vhdCheckbox.uncheck();
-    await playExpect(this.vhdCheckbox).not.toBeChecked();
+    await this.uncheckCheckbox(this.rawCheckbox);
+    await this.uncheckCheckbox(this.qcow2Checkbox);
+    await this.uncheckCheckbox(this.isoCheckbox);
+    await this.uncheckCheckbox(this.vmdkCheckbox);
+    await this.uncheckCheckbox(this.amiCheckbox);
+    await this.uncheckCheckbox(this.vhdCheckbox);
+  }
+
+  private async uncheckCheckbox(checkbox: Locator): Promise<void> {
+    await playExpect(checkbox).toBeVisible();
+    await checkbox.scrollIntoViewIfNeeded();
+
+    if (await checkbox.isChecked()) {
+      await checkbox.uncheck();
+    }
+    await playExpect(checkbox).not.toBeChecked();
+  }
+
+  private async checkCheckbox(checkbox: Locator): Promise<void> {
+    await playExpect(checkbox).toBeVisible();
+    await checkbox.scrollIntoViewIfNeeded();
+
+    if (!(await checkbox.isChecked())) {
+      await checkbox.check();
+    }
+    await playExpect(checkbox).toBeChecked();
   }
 
   async getCurrentStatusOfLatestEntry(): Promise<string> {
@@ -194,7 +202,7 @@ export class BootcPage {
     return '';
   }
 
-  async waitUntilCurrentBuildIsFinished(timeout = 600000): Promise<void> {
+  async waitUntilCurrentBuildIsFinished(timeout = 600_000): Promise<void> {
     const dialogMessageLocator = this.page.getByLabel('Dialog Message');
     await waitUntil(
       async () =>
@@ -203,7 +211,7 @@ export class BootcPage {
         (await dialogMessageLocator.isVisible()),
       {
         timeout: timeout,
-        diff: 2500,
+        diff: 2_500,
         message: `Build didn't finish before timeout!`,
       },
     );
