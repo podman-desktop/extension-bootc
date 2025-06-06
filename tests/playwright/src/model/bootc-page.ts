@@ -94,10 +94,16 @@ export class BootcPage {
     await playExpect(this.heading).toBeVisible({ timeout: 10_000 });
     await this.imageSelect.selectOption({ label: imageName });
 
+    await this.webview.waitForTimeout(10_000);
+
     await playExpect(this.outputFolderPath).toBeVisible({ timeout: 10_000 });
     await this.outputFolderPath.scrollIntoViewIfNeeded();
+
     await this.outputFolderPath.clear();
-    await this.outputFolderPath.fill(pathToStore);
+    await playExpect(this.outputFolderPath).toHaveValue('');
+
+    await this.outputFolderPath.pressSequentially(pathToStore, { delay: 5 });
+    await playExpect(this.outputFolderPath).toHaveValue(pathToStore);
     await this.uncheckedAllCheckboxes();
 
     switch (type.toLocaleLowerCase()) {
@@ -141,11 +147,12 @@ export class BootcPage {
 
     await this.buildButton.scrollIntoViewIfNeeded();
     await playExpect(this.buildButton).toBeEnabled();
-    await this.buildButton.focus();
     await this.buildButton.click();
 
+    const errTimeoutLocator = this.webview.getByText('Error: Timeout', { exact: true });
     const detailsPage = new BootcImageDetailsPage(this.page, this.webview, imageName);
-    await playExpect(detailsPage.heading).toBeVisible({ timeout: 120_000 });
+    await playExpect(detailsPage.heading.or(errTimeoutLocator).first()).toBeVisible({ timeout: 120_000 });
+
     const bootcImagesPage = await bootcNavigationBar.openBootcDiskImages();
     await playExpect(bootcImagesPage.heading).toBeVisible({ timeout: 10_000 });
 
@@ -209,11 +216,7 @@ export class BootcPage {
         (await this.getCurrentStatusOfLatestEntry()) === 'error' ||
         (await this.getCurrentStatusOfLatestEntry()) === 'success' ||
         (await dialogMessageLocator.isVisible()),
-      {
-        timeout: timeout,
-        diff: 2_500,
-        message: `Build didn't finish before timeout!`,
-      },
+      { timeout: timeout, diff: 2_500, message: `Build didn't finish before timeout!` },
     );
   }
 

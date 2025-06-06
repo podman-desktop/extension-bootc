@@ -167,7 +167,6 @@ test.describe('BootC Extension', () => {
                   __dirname,
                   '..',
                   'tests',
-                  'playwright',
                   'output',
                   'images',
                   `${type}-${architecture}`,
@@ -238,7 +237,6 @@ test.describe('BootC Extension', () => {
                   __dirname,
                   '..',
                   'tests',
-                  'playwright',
                   'output',
                   'images',
                   `${example.appName}-${type}`,
@@ -282,15 +280,7 @@ test.describe('BootC Extension', () => {
           await playExpect(bootcDashboardPage.heading).toBeVisible();
           await playExpect(bootcDashboardPage.buildDemoImageButton).toBeEnabled();
 
-          const pathToStore = path.resolve(
-            __dirname,
-            '..',
-            'tests',
-            'playwright',
-            'output',
-            'images',
-            `demoImage-${type}`,
-          );
+          const pathToStore = path.resolve(__dirname, '..', 'tests', 'output', 'images', `demoImage-${type}`);
 
           const result = await bootcDashboardPage.buildDemoImage(pathToStore, type);
           playExpect(result).toBeTruthy();
