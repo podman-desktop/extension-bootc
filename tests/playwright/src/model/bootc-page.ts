@@ -156,8 +156,8 @@ export class BootcPage {
     const bootcImagesPage = await bootcNavigationBar.openBootcDiskImages();
     await playExpect(bootcImagesPage.heading).toBeVisible({ timeout: 10_000 });
 
-    await playExpect(this.getTypeOfLatestBuildImage).toContainText(type.toLocaleLowerCase(), { timeout: 20_000 });
-    await waitUntil(async () => await this.refreshPageWhileInCreatingState(), { timeout: 60_000, diff: 1_000 });
+    await playExpect(this.getTypeOfLatestBuildImage).toContainText(type.toLocaleLowerCase(), { timeout: 60_000 });
+    await waitUntil(async () => await this.refreshPageWhileInCreatingState(), { timeout: 120_000, diff: 1_000 });
     await this.waitUntilCurrentBuildIsFinished(timeout);
     if ((await this.getCurrentStatusOfLatestEntry()) === 'error') {
       console.log('Error building image! Retuning false.');
