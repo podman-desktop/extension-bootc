@@ -94,8 +94,7 @@ export class BootcPage {
     await playExpect(this.heading).toBeVisible({ timeout: 10_000 });
     await this.imageSelect.selectOption({ label: imageName });
 
-    await this.webview.waitForTimeout(10_000);
-
+    await this.webview.waitForTimeout(5_000);
     await playExpect(this.outputFolderPath).toBeVisible({ timeout: 10_000 });
     await this.outputFolderPath.scrollIntoViewIfNeeded();
 
@@ -104,8 +103,9 @@ export class BootcPage {
 
     await this.outputFolderPath.pressSequentially(pathToStore, { delay: 5 });
     await playExpect(this.outputFolderPath).toHaveValue(pathToStore);
-    await this.uncheckedAllCheckboxes();
+    await this.webview.waitForTimeout(10_000);
 
+    await this.uncheckedAllCheckboxes();
     switch (type.toLocaleLowerCase()) {
       case 'raw':
         await this.checkCheckbox(this.rawCheckbox);
@@ -146,9 +146,7 @@ export class BootcPage {
     }
 
     await this.buildButton.scrollIntoViewIfNeeded();
-    await this.webview.waitForTimeout(2_000);
-
-    await playExpect(this.buildButton).toBeEnabled();
+    await playExpect(this.buildButton).toBeEnabled({ timeout: 15_000 });
     await this.buildButton.click();
 
     const errTimeoutLocator = this.webview.getByText('Error: Timeout', { exact: true });
