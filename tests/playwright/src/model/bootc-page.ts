@@ -103,9 +103,10 @@ export class BootcPage {
 
     await this.outputFolderPath.pressSequentially(pathToStore, { delay: 5 });
     await playExpect(this.outputFolderPath).toHaveValue(pathToStore);
-    await this.webview.waitForTimeout(10_000);
 
     await this.uncheckedAllCheckboxes();
+    await this.webview.waitForTimeout(10_000);
+
     switch (type.toLocaleLowerCase()) {
       case 'raw':
         await this.checkCheckbox(this.rawCheckbox);
