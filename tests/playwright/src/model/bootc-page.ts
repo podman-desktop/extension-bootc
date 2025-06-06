@@ -146,6 +146,8 @@ export class BootcPage {
     }
 
     await this.buildButton.scrollIntoViewIfNeeded();
+    await this.webview.waitForTimeout(2_000);
+
     await playExpect(this.buildButton).toBeEnabled();
     await this.buildButton.click();
 
