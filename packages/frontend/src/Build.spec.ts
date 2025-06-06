@@ -943,3 +943,37 @@ test('purposely fail prereqs, expect an error to show going to build', async () 
     expect(errorMessage).toBeDefined();
   });
 });
+
+// The below mocks are the same across all tests.
+const setupPlatformMocks = (platform: string): void => {
+  vi.mocked(bootcClient.isMac).mockResolvedValue(platform === 'macOS');
+  vi.mocked(bootcClient.isWindows).mockResolvedValue(platform === 'windows');
+  vi.mocked(bootcClient.isLinux).mockResolvedValue(platform === 'linux');
+  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
+  vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
+  vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
+  vi.mocked(bootcClient.buildExists).mockResolvedValue(false);
+  vi.mocked(bootcClient.inspectImage).mockResolvedValue(mockImageInspect);
+};
+
+// Test for macOS, Windows and Linux.
+test.each([
+  { platform: 'macOS', shouldShow: true },
+  { platform: 'windows', shouldShow: false },
+  { platform: 'linux', shouldShow: true },
+])('vm-disclaimer visibility on %s', async ({ platform, shouldShow }) => {
+  setupPlatformMocks(platform);
+
+  render(Build);
+
+  await vi.waitFor(() => {
+    expect(screen.getByLabelText('image-select')?.children.length).toBe(2);
+  });
+
+  const disclaimer = screen.queryByTestId('vm-disclaimer');
+  if (shouldShow) {
+    expect(disclaimer).toBeDefined();
+  } else {
+    expect(disclaimer).toBeNull();
+  }
+});
