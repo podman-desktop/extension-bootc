@@ -59,7 +59,7 @@
     "eslint-plugin-redundant-undefined": "^1.0.0",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "eslint-plugin-sonarjs": "^3.0.2",
-    "eslint-plugin-svelte": "^3.9.0",
+    "eslint-plugin-svelte": "^3.9.2",
     "eslint-plugin-unicorn": "^59.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.0",
