@@ -60,6 +60,7 @@ let errorFormValidation: string | undefined = undefined;
 // this boolean will be set to true if the selected image is Fedora and shown as a warning to the user.
 let fedoraDetected = false;
 let isLinux: boolean;
+let isMac: boolean;
 
 // AWS Related
 let awsAmiName: string = '';
@@ -420,6 +421,7 @@ function removeEmptyStrings<T>(obj: T): T | undefined {
 
 onMount(async () => {
   isLinux = await bootcClient.isLinux();
+  isMac = await bootcClient.isMac();
   const images = await bootcClient.listBootcImages();
 
   // filter to images that have a repo tag here, to avoid doing it everywhere
@@ -1085,14 +1087,24 @@ $: if (availableArchitectures) {
         {#if buildInProgress}
           <Button class="w-full" disabled={true}>Creating build task</Button>
         {:else}
-          <Button on:click={buildBootcImage} disabled={errorFormValidation !== undefined} class="w-full">Build</Button>
+
+          <!-- macOS and Linux you can use Macadam / VM creation, show a disclaimer as a tip that you should add your public SSH key to test the VM. -->
+          <!-- On macOS and Linux, show tip about SSH key for VM testing -->
+          {#if isMac || isLinux}
+            <p class="text-sm text-[var(--pd-content-text)] m-0 pt-0" data-testid="vm-disclaimer">
+              To test the virtual machine, add your public SSH key under <b>Users</b> in the interactive build config. Set the output format to RAW or QCOW2.
+            </p>
+          {/if}
+
           <!-- If on Linux, warn that during the build, credentials will be asked in order to run an escalated privileged build prompt -->
           {#if isLinux}
-            <p class="text-sm text-[var(--pd-content-text)] pt-1">
+            <p class="text-sm text-[var(--pd-content-text)] m-0 pt-0">
               For Linux users during the build, you will be asked for your credentials in order to run an escalated
               privileged build prompt for the build process.
             </p>
           {/if}
+
+          <Button on:click={buildBootcImage} disabled={errorFormValidation !== undefined} class="w-full mt-1">Build</Button>
         {/if}
       </div>
     {/if}
