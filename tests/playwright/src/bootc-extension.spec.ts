@@ -291,7 +291,6 @@ test.describe('BootC Extension', () => {
       test.skip(isLinux);
 
       test('Change builder to RHEL in Preferences', async ({ navigationBar }) => {
-        test.setTimeout(60_000);
         await changeToRHELBuilderInPreferences(navigationBar);
       });
 
@@ -315,9 +314,9 @@ test.describe('BootC Extension', () => {
             for (const type of types) {
               test.describe
                 .serial('Building images ', () => {
-                  // eslint-disable-next-line sonarjs/no-nested-functions
                   test(`Building ${example.appName} bootable image type: ${type} with RHEL builder`, async ({
                     runner,
+                    // eslint-disable-next-line sonarjs/no-nested-functions
                   }) => {
                     test.skip(isLinux);
                     test.setTimeout(1_250_000);
@@ -382,8 +381,6 @@ async function changeToRHELBuilderInPreferences(navigationBar: NavigationBar): P
   const rhelBuilderButton = preferencesPage.getPage().getByRole('button', { name: 'RHEL' });
   await playExpect(rhelBuilderButton).toBeVisible({ timeout: 10_000 });
   await rhelBuilderButton.click();
-
-  await preferencesPage.getPage().waitForTimeout(2_000);
 
   await playExpect(centosBuilderButton).not.toBeVisible({ timeout: 10_000 });
   await playExpect(rhelBuilderButton).toBeVisible({ timeout: 10_000 });
