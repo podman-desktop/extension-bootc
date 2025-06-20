@@ -27,6 +27,7 @@ import {
   expect as playExpect,
   RunnerOptions,
   ArchitectureType,
+  PreferencesPage,
 } from '@podman-desktop/tests-playwright';
 import * as path from 'node:path';
 import * as os from 'node:os';
@@ -285,6 +286,71 @@ test.describe('BootC Extension', () => {
       }
     });
 
+  test.describe
+    .serial('Bootc image with RHEL builder', () => {
+      test.skip(isLinux);
+
+      test('Change builder to RHEL in Preferences', async ({ navigationBar }) => {
+        test.setTimeout(60_000);
+        await changeToRHELBuilderInPreferences(navigationBar);
+      });
+
+      const examples = [{ appName: 'WiFi', imageName: 'registry.gitlab.com/fedora/bootc/examples/wifi:latest' }];
+
+      for (const example of examples) {
+        test.describe
+          .serial(`Bootc examples for bootable image`, () => {
+            test(`Pull ${example.appName} bootable image`, async ({ runner }) => {
+              test.setTimeout(310_000);
+
+              [page, webview] = await handleWebview(runner);
+              const bootcNavigationBar = new BootcNavigationBar(page, webview);
+              const bootcExamplesPage = await bootcNavigationBar.openBootcExamples();
+              await playExpect(bootcExamplesPage.heading).toBeVisible();
+              await bootcExamplesPage.pullImage(example.appName);
+            });
+
+            types = ['QCOW2'];
+
+            for (const type of types) {
+              test.describe
+                .serial('Building images ', () => {
+                  // eslint-disable-next-line sonarjs/no-nested-functions
+                  test(`Building ${example.appName} bootable image type: ${type} with RHEL builder`, async ({
+                    runner,
+                  }) => {
+                    test.skip(isLinux);
+                    test.setTimeout(1_250_000);
+
+                    [page, webview] = await handleWebview(runner);
+                    const bootcNavigationBar = new BootcNavigationBar(page, webview);
+                    const bootcExamplesPage = await bootcNavigationBar.openBootcExamples();
+                    await playExpect(bootcExamplesPage.heading).toBeVisible();
+                    await playExpect(bootcExamplesPage.buildImageButtonLocator(example.appName)).toBeEnabled();
+
+                    const pathToStore = path.resolve(
+                      __dirname,
+                      '..',
+                      'tests',
+                      'output',
+                      'images',
+                      `${example.appName}-${type}`,
+                    );
+
+                    const result = await bootcExamplesPage.buildImage(
+                      example.appName,
+                      example.imageName,
+                      pathToStore,
+                      type,
+                    );
+                    playExpect(result).toBeTruthy();
+                  });
+                });
+            }
+          });
+      }
+    });
+
   test('Remove bootc extension through Settings', async ({ navigationBar }) => {
     await ensureBootcIsRemoved(navigationBar);
   });
@@ -301,6 +367,26 @@ async function ensureBootcIsRemoved(navigationBar: NavigationBar): Promise<void>
   await playExpect
     .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30000 })
     .toBeFalsy();
+}
+
+async function changeToRHELBuilderInPreferences(navigationBar: NavigationBar): Promise<void> {
+  const settingsBar = await navigationBar.openSettings();
+  const preferencesPage = await settingsBar.openTabPage(PreferencesPage);
+  await playExpect(preferencesPage.heading).toBeVisible();
+
+  const centosBuilderButton = preferencesPage.getPage().getByRole('button', { name: 'CentOS' });
+  await playExpect(centosBuilderButton).toBeVisible({ timeout: 10_000 });
+  await centosBuilderButton.scrollIntoViewIfNeeded();
+  await centosBuilderButton.click();
+
+  const rhelBuilderButton = preferencesPage.getPage().getByRole('button', { name: 'RHEL' });
+  await playExpect(rhelBuilderButton).toBeVisible({ timeout: 10_000 });
+  await rhelBuilderButton.click();
+
+  await preferencesPage.getPage().waitForTimeout(2_000);
+
+  await playExpect(centosBuilderButton).not.toBeVisible({ timeout: 10_000 });
+  await playExpect(rhelBuilderButton).toBeVisible({ timeout: 10_000 });
 }
 
 async function handleWebview(runner: Runner): Promise<[Page, Page]> {
