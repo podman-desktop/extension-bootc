@@ -1,6 +1,6 @@
 # BootC (Bootable Container) Extension for Podman Desktop
 
-![](https://raw.githubusercontent.com/containers/podman-desktop-extension-bootc/main/docs/img/logo.png)
+![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/logo.png)
 
 Want to create a bootable operating system from a Containerfile? Download this extension!
 
@@ -104,7 +104,7 @@ All of our maintained example images are on the [gitlab.com/fedora/bootc/example
 
 You can also pull our example image based on the [`httpd`](https://gitlab.com/bootc-org/examples/-/tree/main/httpd) example:
 
-![](https://raw.githubusercontent.com/containers/podman-desktop-media/bootc-extension/gifs/clicking_pull.gif)
+![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/clicking_pull.gif)
 
 After building, read our [Virtual Machine Guide](https://github.com/containers/podman-desktop-extension-bootc/blob/main/docs/vm_guide.md) on how to launch your image and access your HTTP server.
 
@@ -154,7 +154,7 @@ podman machine start
 
 Or set when initially creating a Podman Machine via Podman Desktop:
 
-![rootful setup](https://raw.githubusercontent.com/containers/podman-desktop-extension-bootc/main/docs/img/rootful_setup.png)
+![rootful setup](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/rootful_setup.png)
 
 ### Escalated Privileges (Linux)
 
@@ -172,7 +172,7 @@ This extension can be installed through the **Extensions** section of Podman Des
 2. Click on the **Catalog** tab.
 3. Install the extension.
 
-![](https://raw.githubusercontent.com/containers/podman-desktop-media/bootc-extension/gifs/catalog_install.gif)
+![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/catalog_install.gif)
 
 ### Nightly version
 
@@ -196,25 +196,25 @@ FROM quay.io/centos-bootc/centos-bootc:stream9
 RUN echo "root:root" | chpasswd
 ```
 
-![](https://raw.githubusercontent.com/containers/podman-desktop-media/bootc-extension/gifs/build_image.gif)
+![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/build_image.gif)
 
 2. **Build the disk image:**
 
 > Build the disk image, this takes approximatley 2-5 minutes depending on the performance of your machine.
 
-![](https://raw.githubusercontent.com/containers/podman-desktop-media/bootc-extension/gifs/bootc_building.gif)
+![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/bootc_building.gif)
 
 3. **Launching the VM:**
 
 > See our [Virtual Machine Guide](https://github.com/containers/podman-desktop-extension-bootc/blob/main/docs/vm_guide.md) on how to launch the image!
 
-![](https://raw.githubusercontent.com/containers/podman-desktop-media/bootc-extension/gifs/os_booting.gif)
+![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/os_booting.gif)
 
 ## Preferences
 
 Preferences such as the default `bootc-builder-image` as well as timeouts can be adjusted within the **Preferences** section of Podman Desktop.
 
-![](https://raw.githubusercontent.com/containers/podman-desktop-extension-bootc/main/docs/img/preferences.png)
+![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/preferences.png)
 
 ## Known issues
 
