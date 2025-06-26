@@ -30,38 +30,19 @@ Once a machine is created from the disk image, it can apply transactional update
 
 There are many projects at work at creating "bootc" images. Below is a non-exhaustive list of compatible images which are known to work with [`bootc-image-builder`](https://github.com/osbuild/bootc-image-builder).
 
-**CentOS Stream 9:**
-
-- Containerfile: `FROM quay.io/centos-bootc/centos-bootc:stream9`
-- Repo: [`quay.io/centos-bootc/centos-bootc:stream9`](https://quay.io/centos-bootc/centos-bootc)
-- Example Images: [gitlab.com/fedora/bootc/examples](https://gitlab.com/fedora/bootc/examples)
-- Documentation: [fedoraproject.org](https://docs.fedoraproject.org/en-US/bootc/)
-- Notes: N/A
-
-**Fedora 42:**
-
-- Containerfile: `FROM quay.io/fedora/fedora-bootc:42`
-- Repo: [`quay.io/fedora/fedora-bootc:42`](https://quay.io/fedora/fedora-bootc)
-- Example Images: [gitlab.com/fedora/bootc/examples](https://gitlab.com/fedora/bootc/examples)
-- Documentation: [fedoraproject.org](https://docs.fedoraproject.org/en-US/bootc/)
-- Notes: Must select "XFS", "EXT4" or "BTRFS" for the root filesystem when building in the GUI. [Read more here.](https://docs.fedoraproject.org/en-US/bootc/default-rootfs-type/)
-
-**RHEL (Red Hat Enterprise Linux) 9:**
-
-- Containerfile: `FROM registry.redhat.io/rhel9/rhel-bootc:9.5`
-- Repo: [`registry.redhat.io/rhel9/rhel-bootc:9.5`](https://catalog.redhat.com/search?gs&q=bootc)
-- Documentation: [Red Hat Customer Portal](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/using_image_mode_for_rhel_to_build_deploy_and_manage_operating_systems/index#doc-wrapper)
-
-**RHEL (Red Hat Enterprise Linux) 10 BETA:**
-
-- Containerfile: `FROM registry.redhat.io/rhel10-beta/rhel-bootc:latest`
-- Repo: [`registry.redhat.io/rhel10-beta/rhel-bootc:latest`](https://catalog.redhat.com/search?gs&q=bootc)
-- Documentation: [Red Hat Customer Portal](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/10-beta/html/using_image_mode_for_rhel_to_build_deploy_and_manage_operating_systems/index#doc-wrapper)
+| Distribution         | Repo                                                                                          | Examples                                                                                                                                                                | Docs                                                                                                                                                               |
+| -------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **CentOS Stream 9**  | [`quay.io/centos-bootc/centos-bootc:stream9`](https://quay.io/centos-bootc/centos-bootc)      | [Examples](https://gitlab.com/fedora/bootc/examples)                                                                                                                    | [Docs](https://docs.fedoraproject.org/en-US/bootc/)                                                                                                                |
+| **CentOS Stream 10** | [`quay.io/centos-bootc/centos-bootc:stream10`](https://quay.io/centos-bootc/centos-bootc)     | [Examples](https://gitlab.com/fedora/bootc/examples)                                                                                                                    | [Docs](https://docs.fedoraproject.org/en-US/bootc/)                                                                                                                |
+| **Fedora 42**        | [`quay.io/fedora/fedora-bootc:42`](https://quay.io/fedora/fedora-bootc)                       | [Examples](https://gitlab.com/fedora/bootc/examples)                                                                                                                    | [Docs](https://docs.fedoraproject.org/en-US/bootc/)                                                                                                                |
+| **Fedora 43**        | [`quay.io/fedora/fedora-bootc:43`](https://quay.io/fedora/fedora-bootc)                       | [Examples](https://gitlab.com/fedora/bootc/examples)                                                                                                                    | [Docs](https://docs.fedoraproject.org/en-US/bootc/)                                                                                                                |
+| **RHEL 9**           | [`registry.redhat.io/rhel9/rhel-bootc:latest`](https://catalog.redhat.com/search?gs&q=bootc)  | [Examples](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/using_image_mode_for_rhel_to_build_deploy_and_manage_operating_systems/index)  | [Docs](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/using_image_mode_for_rhel_to_build_deploy_and_manage_operating_systems/index) |
+| **RHEL 10**          | [`registry.redhat.io/rhel10/rhel-bootc:latest`](https://catalog.redhat.com/search?gs&q=bootc) | [Examples](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/10/html/using_image_mode_for_rhel_to_build_deploy_and_manage_operating_systems/index) | [Docs](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10/html/using_image_mode_for_rhel_to_build_deploy_and_manage_operating_systems/index)     |
 
 The images can then be added to your Containerfile:
 
 ```Dockerfile
-FROM quay.io/centos-bootc/centos-bootc:stream9
+FROM quay.io/centos-bootc/centos-bootc:stream10
 ```
 
 ### Learning more
@@ -189,7 +170,7 @@ ghcr.io/containers/podman-desktop-extension-bootc:nightly
 > In the example below, we are going to change the root password for testing purposes when accessing the OS.
 
 ```Dockerfile
-FROM quay.io/centos-bootc/centos-bootc:stream9
+FROM quay.io/centos-bootc/centos-bootc:stream10
 
 # Change the root password
 # CAUTION: This is NOT recommended and is used only for testing / hello world purposes
