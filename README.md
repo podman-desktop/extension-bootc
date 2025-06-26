@@ -200,15 +200,9 @@ RUN echo "root:root" | chpasswd
 
 2. **Build the disk image:**
 
-> Build the disk image, this takes approximatley 2-5 minutes depending on the performance of your machine.
+> Build the disk image, this takes approximately 2-5 minutes depending on the performance of your machine.
 
 ![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/bootc_building.gif)
-
-3. **Launching the VM:**
-
-> See our [Virtual Machine Guide](https://github.com/containers/podman-desktop-extension-bootc/blob/main/docs/vm_guide.md) on how to launch the image!
-
-![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/os_booting.gif)
 
 ## Preferences
 
