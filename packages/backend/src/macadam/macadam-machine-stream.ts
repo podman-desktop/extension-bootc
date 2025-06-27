@@ -98,7 +98,6 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
       .on('ready', () => {
         this.#client?.shell((err, stream) => {
           if (err) {
-            console.error(err);
             this.onErrorEmit.fire({ error: err.message });
             return;
           }
@@ -132,7 +131,7 @@ export class ProviderConnectionShellAccessImpl implements ProviderConnectionShel
       onEnd: this.onEnd,
       write: this.write.bind(this),
       resize: this.resize.bind(this),
-      close: this.close,
+      close: this.close.bind(this),
     };
   }
 }
