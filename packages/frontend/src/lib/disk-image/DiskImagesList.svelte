@@ -124,7 +124,7 @@ const row = new TableRow<BootcBuildInfo>({
 });
 </script>
 
-<NavPage bind:searchTerm={searchTerm} title="Disk Images" searchEnabled={true}>
+<NavPage bind:searchTerm={searchTerm} title="disk images" searchEnabled={true}>
   <svelte:fragment slot="additional-actions">
   <!-- Only show for macOS and Linux -->
   {#if !isWindows}

@@ -83,7 +83,7 @@ test('Homepage renders correctly with multiple rows', async () => {
 
   render(DiskImagesList);
   await vi.waitFor(() => {
-    if (!screen.queryByText('Disk Images')) {
+    if (!screen.queryByText('disk images')) {
       throw new Error();
     }
   });
@@ -103,7 +103,7 @@ test('Test clicking on delete button', async () => {
 
   render(DiskImagesList);
   await vi.waitFor(() => {
-    if (!screen.queryByText('Disk Images')) {
+    if (!screen.queryByText('disk images')) {
       throw new Error();
     }
   });
@@ -122,7 +122,7 @@ test('Test clicking on build button', async () => {
 
   render(DiskImagesList);
   await vi.waitFor(() => {
-    if (!screen.queryByText('Disk Images')) {
+    if (!screen.queryByText('disk images')) {
       throw new Error();
     }
   });
@@ -140,7 +140,7 @@ test('On non-windows, the Create VM button should show', async () => {
 
   render(DiskImagesList);
   await vi.waitFor(() => {
-    if (!screen.queryByText('Disk Images')) {
+    if (!screen.queryByText('disk images')) {
       throw new Error();
     }
   });
@@ -155,7 +155,7 @@ test('On windows, the Create VM button should not show', async () => {
 
   render(DiskImagesList);
   await vi.waitFor(() => {
-    if (!screen.queryByText('Disk Images')) {
+    if (!screen.queryByText('disk images')) {
       throw new Error();
     }
   });
