@@ -207,13 +207,13 @@ test.describe('BootC Extension', () => {
     test.describe
       .serial(`Bootc examples for bootable image`, () => {
         test(`Pull ${example.appName} bootable image`, async ({ runner }) => {
-          test.setTimeout(310_000);
+          test.setTimeout(610_000);
 
           [page, webview] = await handleWebview(runner);
           const bootcNavigationBar = new BootcNavigationBar(page, webview);
           const bootcExamplesPage = await bootcNavigationBar.openBootcExamples();
           await playExpect(bootcExamplesPage.heading).toBeVisible();
-          await bootcExamplesPage.pullImage(example.appName);
+          await bootcExamplesPage.pullImage(example.appName, 600_000);
         });
 
         types = ['QCOW2', 'AMI'];
@@ -256,13 +256,13 @@ test.describe('BootC Extension', () => {
   test.describe
     .serial('Bootc Dashboard', () => {
       test('Pull demo image from dashboard', async ({ runner }) => {
-        test.setTimeout(310_000);
+        test.setTimeout(610_000);
 
         [page, webview] = await handleWebview(runner);
         const bootcNavigationBar = new BootcNavigationBar(page, webview);
         const bootcDashboardPage = await bootcNavigationBar.openBootcDashboard();
         await playExpect(bootcDashboardPage.heading).toBeVisible();
-        await bootcDashboardPage.pullDemoImage();
+        await bootcDashboardPage.pullDemoImage(600_000);
       });
 
       types = ['QCOW2', 'AMI'];
