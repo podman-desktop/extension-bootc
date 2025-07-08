@@ -16,6 +16,7 @@ Easily go from container to VM / ISO-on-a-USB / RAW image!
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Advanced Usage](#advanced-usage)
 - [Preferences](#preferences)
 - [Known Issues](#known-issues)
 - [Contributing](#contributing)
@@ -86,8 +87,6 @@ All of our maintained example images are on the [gitlab.com/fedora/bootc/example
 You can also pull our example image based on the [`httpd`](https://gitlab.com/bootc-org/examples/-/tree/main/httpd) example:
 
 ![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/clicking_pull.gif)
-
-After building, read our [Virtual Machine Guide](https://github.com/containers/podman-desktop-extension-bootc/blob/main/docs/vm_guide.md) on how to launch your image and access your HTTP server.
 
 ## Use Case
 
@@ -184,6 +183,37 @@ RUN echo "root:root" | chpasswd
 > Build the disk image, this takes approximately 2-5 minutes depending on the performance of your machine.
 
 ![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/bootc_building.gif)
+
+3. **Testing the image locally (macOS and Linux):**
+
+> You can test the image locally on both macOS and Linux using the "Create VM" button on the "Disk Images" page. Windows support is upcoming.
+
+![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/vm.gif)
+
+## Advanced usage
+
+![](/docs/img/balena_etcher.png)
+
+### Booting the image
+
+After building, there are multiple ways you can _use_ the outputting image format.
+
+- **Virtually:** Use the built-in support in the extension that uses [macadam](https://github.com/crc-org/macadam), see our [usage](#usage) guide.
+- **Third-party software:** Launch the image using your preferred virtualization software, such as VMware, VirtualBox, virt-manager (libvirt), QEMU, or GNOME Boxes.
+- **USB flash drive:** Use tools like [balenaEtcher](https://www.balena.io/etcher/), [Rufus](https://rufus.ie/) or [Fedora MediaWriter](https://github.com/FedoraQt/MediaWriter) to flash the image to a USB stick. Then boot from it on real hardware.
+
+### Using the `bootc` CLI tool
+
+The `bootc` CLI command is the "bread-and-butter" of all bootc-derived images.
+
+Once booted into the system, you can manage it using the `bootc` CLI:
+
+- **Status:** `bootc status` shows the current image and version.
+- **Upgrade:** `bootc upgrade` pulls the latest OCI image to apply next reboot.
+- **Fetch:** `bootc fetch` pre-downloads an update without applying it.
+- **Install:** `bootc install --target /dev/sdX` writes the OS to a block device, good for when "live booting" on a USB flash drive for testing.
+
+See [bootc-dev.github.io/bootc](https://bootc-dev.github.io/bootc) for more information.
 
 ## Preferences
 
