@@ -9,9 +9,6 @@ Easily go from container to VM / ISO-on-a-USB / RAW image!
 ## Topics
 
 - [Technology](#technology)
-- [Bootable Container Images](#bootable-container-images)
-- [Read Before Using](#read-before-using)
-- [Example Images](#example-images)
 - [Use Case](#use-case)
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -27,7 +24,7 @@ The **Bootable Container (bootc)** extension uses [bootc-image-builder](https://
 
 Once a machine is created from the disk image, it can apply transactional updates "in place" from newly pushed container images (without creating a new disk image). For more information, see [bootc](https://bootc-dev.github.io/bootc/).
 
-## Bootable Container Images
+### Bootable Container Images
 
 There are many projects at work at creating "bootc" images. Below is a non-exhaustive list of compatible images which are known to work with [`bootc-image-builder`](https://github.com/osbuild/bootc-image-builder).
 
@@ -50,11 +47,11 @@ FROM quay.io/centos-bootc/centos-bootc:stream10
 
 If you want to learn more about bootable containers, please refer to the [Fedora Getting Started Guide](https://docs.fedoraproject.org/en-US/bootc/getting-started/) where you can find a number of videos, demos, best practices and detailed information.
 
-## Read Before Using
+### Read Before Using
 
 Some concepts to grasp before using.
 
-### **Think of it as an OS provisioning tool!**
+#### Think of it as an OS provisioning tool!
 
 You are "creating" an OS straight from a Containerfile, isn't that awesome?
 
@@ -62,7 +59,7 @@ You are "creating" an OS straight from a Containerfile, isn't that awesome?
 
 **SECONDLY** ask yourself what applications you want to have running (perhaps on boot too!).
 
-### Creating your first bootable OS Containerfile
+#### Creating your first bootable OS Containerfile
 
 Want a quick straight-to-the-point Hello World Containerfile?
 
@@ -78,7 +75,7 @@ RUN echo "root:root" | chpasswd
 
 After creating your image you can now login and explore your bootable OS.
 
-## Example images
+### Example images
 
 Want to view more example images Such as [`httpd`](https://gitlab.com/bootc-org/examples/-/tree/main/httpd) and [`nvidia`](https://gitlab.com/bootc-org/examples/-/tree/main/nvidia)?
 
