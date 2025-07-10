@@ -76,7 +76,7 @@ jobs:
       - name: Update podman
         run: |
           # ubuntu version from kubic repository to install podman we need (v5)
-          ubuntu_version='23.04'
+          ubuntu_version='24.04'
           sudo sh -c "echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list"
           curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/Release.key" | sudo apt-key add -
           # install necessary dependencies for criu package which is not part of 23.04
