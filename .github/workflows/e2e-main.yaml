@@ -80,7 +80,7 @@ jobs:
           echo "Add unstable kubic repo into list of available sources and get the repo key"
           sudo sh -c "echo 'deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/ /' > /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list"
           curl -L "https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/unstable/xUbuntu_${ubuntu_version}/Release.key" | sudo apt-key add -
-          echo "Updating all dependencies..."
+          echo "Updating database of packages..."
           sudo apt-get update -qq
           echo "install necessary dependencies for criu package which is not part of ${ubuntu_version}"
           sudo apt-get install -qq libprotobuf32t64 python3-protobuf libnet1
