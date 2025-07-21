@@ -27,7 +27,7 @@ export class BootcImagesPage {
   constructor(page: Page, webview: Page) {
     this.page = page;
     this.webview = webview;
-    this.heading = webview.getByRole('region', { name: 'Disk Images', exact: true });
+    this.heading = webview.getByRole('region', { name: 'disk images', exact: true });
     this.buildButton = webview.getByRole('button', { name: 'Build', exact: true });
   }
 }
