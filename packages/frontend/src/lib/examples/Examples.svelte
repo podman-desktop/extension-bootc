@@ -4,7 +4,6 @@ import { onMount } from 'svelte';
 import { NavPage } from '@podman-desktop/ui-svelte';
 import { bootcClient } from '/@/api/client';
 import ExamplesCard from './ExamplesCard.svelte';
-import { SvelteMap } from 'svelte/reactivity';
 
 let groups: Map<Category, Example[]> = new Map();
 
@@ -19,7 +18,10 @@ onMount(async () => {
 
   const categoryDict = Object.fromEntries(examples.categories.map((category: Category) => [category.id, category]));
 
-  const output: SvelteMap<Category, Example[]> = new SvelteMap();
+  // The linter incorrectly flags this line. We can safely ignore it
+  // because 'output' is a temporary local variable, not reactive state.
+  // eslint-disable-next-line svelte/prefer-svelte-reactivity
+  const output: Map<Category, Example[]> = new Map();
 
   for (const example of examples.examples) {
     if (example.categories.length === 0) {
