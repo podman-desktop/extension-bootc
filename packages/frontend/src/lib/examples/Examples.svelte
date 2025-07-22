@@ -5,8 +5,10 @@ import { NavPage } from '@podman-desktop/ui-svelte';
 import { bootcClient } from '/@/api/client';
 import ExamplesCard from './ExamplesCard.svelte';
 import { SvelteMap } from 'svelte/reactivity';
+import { imageInfo } from '/@/stores/imageInfo';
 
-let groups: Map<Category, Example[]> = new Map();
+let baseExamples = $state<Example[]>([]);
+let baseCategories = $state<Category[]>([]);
 
 const UNCLASSIFIED: Category = {
   id: 'unclassified',
@@ -14,33 +16,47 @@ const UNCLASSIFIED: Category = {
 };
 
 onMount(async () => {
-  // onmount get the examples
-  let examples = await bootcClient.getExamples();
+  const data = await bootcClient.getExamples();
+  baseExamples = data.examples;
+  baseCategories = data.categories;
+});
 
-  const categoryDict = Object.fromEntries(examples.categories.map((category: Category) => [category.id, category]));
+const examplesWithState = $derived.by(() => {
+  const pulledImages = new Set($imageInfo?.map(image => image.RepoTags?.[0] ?? '') ?? []);
+  return baseExamples.map(example => {
+    const exampleWithState: Example = {
+      ...example,
+      state: pulledImages.has(`${example.image}:${example.tag}`) ? 'pulled' : 'unpulled',
+    };
+    return exampleWithState;
+  });
+});
 
-  const output: SvelteMap<Category, Example[]> = new SvelteMap();
+const groups = $derived.by(() => {
+  const newGroups = new SvelteMap<Category, Example[]>();
+  const categoryDict = Object.fromEntries(baseCategories.map(c => [c.id, c]));
 
-  for (const example of examples.examples) {
+  for (const example of examplesWithState) {
+    const addExampleToCategory = (key: Category): void => {
+      const list = newGroups.get(key);
+      if (list) {
+        list.push(example);
+      } else {
+        newGroups.set(key, [example]);
+      }
+    };
+
     if (example.categories.length === 0) {
-      output.set(UNCLASSIFIED, [...(output.get(UNCLASSIFIED) ?? []), example]);
+      addExampleToCategory(UNCLASSIFIED);
       continue;
     }
 
-    // iterate over all categories
     for (const categoryId of example.categories) {
-      let key: Category;
-      if (categoryId in categoryDict) {
-        key = categoryDict[categoryId];
-      } else {
-        key = UNCLASSIFIED;
-      }
-
-      output.set(key, [...(output.get(key) ?? []), example]);
+      const key = categoryDict[categoryId] ?? UNCLASSIFIED;
+      addExampleToCategory(key);
     }
   }
-
-  groups = output;
+  return newGroups;
 });
 </script>
 
@@ -48,8 +64,8 @@ onMount(async () => {
   <div slot="content" class="flex flex-col min-w-full min-h-full">
     <div class="min-w-full min-h-full flex-1">
       <div class="px-5 space-y-5">
-        {#each groups.entries() as [category, examples](category.id)}
-          <ExamplesCard category={category} examples={examples} />
+        {#each groups.entries() as [category, examples] (category.id)}
+          <ExamplesCard {category} {examples} />
         {/each}
       </div>
     </div>
