@@ -4,6 +4,7 @@ import { onMount } from 'svelte';
 import { NavPage } from '@podman-desktop/ui-svelte';
 import { bootcClient } from '/@/api/client';
 import ExamplesCard from './ExamplesCard.svelte';
+import { SvelteMap } from 'svelte/reactivity';
 
 let groups: Map<Category, Example[]> = new Map();
 
@@ -13,32 +14,30 @@ const UNCLASSIFIED: Category = {
 };
 
 onMount(async () => {
-  // onmount get the examples
   let examples = await bootcClient.getExamples();
-
   const categoryDict = Object.fromEntries(examples.categories.map((category: Category) => [category.id, category]));
 
-  // The linter incorrectly flags this line. We can safely ignore it
-  // because 'output' is a temporary local variable, not reactive state.
-  // eslint-disable-next-line svelte/prefer-svelte-reactivity
-  const output: Map<Category, Example[]> = new Map();
+  const output = new SvelteMap<Category, Example[]>();
 
   for (const example of examples.examples) {
+    const processCategory = (key: Category): void => {
+      // Get the existing array for the category or create a new one.
+      const list = output.get(key);
+      if (list) {
+        list.push(example);
+      } else {
+        output.set(key, [example]);
+      }
+    };
+
     if (example.categories.length === 0) {
-      output.set(UNCLASSIFIED, [...(output.get(UNCLASSIFIED) ?? []), example]);
+      processCategory(UNCLASSIFIED);
       continue;
     }
 
-    // iterate over all categories
     for (const categoryId of example.categories) {
-      let key: Category;
-      if (categoryId in categoryDict) {
-        key = categoryDict[categoryId];
-      } else {
-        key = UNCLASSIFIED;
-      }
-
-      output.set(key, [...(output.get(key) ?? []), example]);
+      const key = categoryDict[categoryId] ?? UNCLASSIFIED;
+      processCategory(key);
     }
   }
 
