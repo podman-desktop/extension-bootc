@@ -220,58 +220,21 @@ Preferences such as the default `bootc-builder-image` as well as timeouts can be
 
 ## Known issues
 
-**Unable to build cross-arch images on macOS and Windows:**
+**(macOS only) Unable to build cross-arch images:**
 
-This is a [known issue](https://github.com/containers/podman-desktop-extension-bootc/issues/808) when attempting to build cross-architecture images using Podman Machine on macOS and Windows. For example, building an x86 image on macOS with Apple Silicon (ARM).
+This is a [known upstream issue](https://github.com/osbuild/bootc-image-builder/issues?q=is%3Aissue+state%3Aopen+cross-arch) caused by limitations in `podman machine` and [Rosetta 2](https://support.apple.com/en-us/102527) compatibility.
 
-The issue stems from a missing [openat2](https://www.mail-archive.com/qemu-devel@nongnu.org/msg1064233.html) system call in QEMU, which has now been patched upstream. While waiting for the patch to be incorporated into Podman Machine, Fedora packages have been created to address the issue.
+_There is currently no workaround for macOS users._
 
-Your Podman Machine might not have the required QEMU patch to build cross-architecture images.
+If you need to build images for a different architecture (ex. AMD64), follow these steps:
 
-**macOS only**:
+1. **Build the image** for the target architecture: `podman build --platform linux/amd64 -t quay.io/username/my-bootc-image .`
+2. **Push the image** to a registry: `podman push quay.io/username/my-bootc-image`
+3. **Switch to a different machine** that matches the target architecture (ex. AMD64).
+4. **Pull the image** on that machine: `podman pull quay.io/username/my-bootc-image`
+5. **Build as usual** with the bootc extension.
 
-1. Delete your current Podman Machine via **Settings > Resources > Podman**.
-2. Disable Rosetta under **Settings > Preferences > Extension: Podman > Rosetta**.
-3. Create a new Podman Machine.
-
-**Windows and macOS**:
-
-1. Start your Podman Machine.
-2. SSH into the Podman Machine:
-
-```sh
-podman machine ssh
-```
-
-3. Override the QEMU binaries:
-
-If your host machine is x86 (AMD64), run:
-
-```sh
-rpm-ostree override replace https://download.copr.fedorainfracloud.org/results/michaelvogt/qemu-user-with-openat2/fedora-40-x86_64/08033635-qemu/qemu-user-8.2.6-3.mvo1.fc40.x86_64.rpm
-rpm-ostree override replace https://download.copr.fedorainfracloud.org/results/michaelvogt/qemu-user-with-openat2/fedora-40-x86_64/08033635-qemu/qemu-user-static-aarch64-8.2.6-3.mvo1.fc40.x86_64.rpm
-```
-
-If your host machine is ARM (ARM64), run:
-
-```sh
-rpm-ostree override replace https://download.copr.fedorainfracloud.org/results/michaelvogt/qemu-user-with-openat2/fedora-40-aarch64/08033635-qemu/qemu-user-8.2.6-3.mvo1.fc40.aarch64.rpm
-rpm-ostree override replace https://download.copr.fedorainfracloud.org/results/michaelvogt/qemu-user-with-openat2/fedora-40-aarch64/08033635-qemu/qemu-user-static-x86-8.2.6-3.mvo1.fc40.aarch64.rpm
-```
-
-4. Restart your Podman Machine:
-
-```sh
-podman machine stop
-podman machine start
-```
-
-To undo the fix, either delete and re-create the Podman Machine, or:
-
-```sh
-podman machine ssh
-rpm-ostree override reset --all
-```
+Alternatively, you can also _export_ and _import_ the image between machines using [our managing images tutorial](https://podman-desktop.io/tutorial/managing-your-application-resources#managing-images).
 
 **(Linux only) Unable to create virtual machine:**
 
