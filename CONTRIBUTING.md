@@ -4,9 +4,9 @@ You can use `pnpm watch --extension-folder` from the Podman Desktop directory to
 
 ```sh
 git clone https://github.com/containers/podman-desktop
-git clone https://github.com/containers/podman-desktop-extension-bootc
+git clone https://github.com/containers/extension-bootc
 cd podman-desktop
-pnpm watch --extension-folder ../podman-desktop-extension-bootc/packages/backend
+pnpm watch --extension-folder ../extension-bootc/packages/backend
 ```
 
 ### Testing & Developing
