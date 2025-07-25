@@ -977,3 +977,27 @@ test.each([
     expect(disclaimer).toBeNull();
   }
 });
+
+test.each([
+  { platform: 'macOS', shouldShow: true },
+  { platform: 'windows', shouldShow: false },
+  { platform: 'linux', shouldShow: true },
+])('cross-architecture-warning visibility on %s when amd64 is selected', async ({ platform, shouldShow }) => {
+  setupPlatformMocks(platform);
+  render(Build);
+
+  await vi.waitFor(() => {
+    expect(screen.getByLabelText('image-select')?.children.length).toBe(2);
+  });
+
+  const x86_64 = screen.getByLabelText('amd64-select');
+  expect(x86_64).toBeDefined();
+  await userEvent.click(x86_64);
+
+  const warning = screen.queryByTestId('cross-architecture-warning');
+  if (shouldShow) {
+    expect(warning).toBeDefined();
+  } else {
+    expect(warning).toBeNull();
+  }
+});

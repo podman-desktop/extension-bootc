@@ -27,6 +27,8 @@ import { goToDiskImages } from './lib/navigation';
 export let imageName: string | undefined = undefined;
 export let imageTag: string | undefined = undefined;
 
+const bootcExtensionGithubUrl = 'https://github.com/podman-desktop/extension-bootc';
+
 // Image variables
 let selectedImage: string | undefined;
 let existingBuild: boolean = false;
@@ -810,6 +812,16 @@ $: if (availableArchitectures) {
                   </label>
                 </li>
               </ul>
+
+              <!-- If AMD64 is selected, and we are on mac, we MUST say
+              that there may be issues with cross-architecture building and to read our README for more information -->
+              {#if isMac && buildArch === 'amd64'}
+                <p class="text-sm text-[var(--pd-state-warning)] pt-2"
+                data-testid="cross-architecture-warning">
+                  Cross-architecture building may not work correctly on macOS. Please refer to our
+                  <Link externalRef={bootcExtensionGithubUrl}>README</Link> for more information.
+                </p>
+              {/if}
               <p class="text-sm text-[var(--pd-content-text)] pt-2">
                 Disk image architecture must match the architecture of the original image. For example, you must have an
                 ARM container image to build an ARM disk image. You can only select the architecture that is detectable
