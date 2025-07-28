@@ -13,6 +13,7 @@ import Link from '../Link.svelte';
 import { Messages } from '/@shared/src/messages/Messages';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
+import { REPOSITORY_URL } from '/@shared/src/repository-infos';
 
 interface Props {
   build: BootcBuildInfo | undefined;
@@ -37,7 +38,7 @@ let vmLaunchPrereqs = $state<string>();
 let notifySubscriber = $state<Subscriber>();
 
 const VM_LAUNCH_ERROR_MESSAGE = 'VM launch error';
-const GUIDE_LINK = 'https://github.com/containers/podman-desktop-extension-bootc/blob/main/docs/vm_launcher.md';
+const GUIDE_LINK = `${REPOSITORY_URL}/blob/main/docs/vm_launcher.md`;
 
 // Event handlers for the WebSocket connection
 // which are needed to update the connection status
@@ -305,7 +306,7 @@ export function goToHomePage(): void {
       <p class="text-md">
         View our guide for further information on troubleshooting steps: <Link externalRef={GUIDE_LINK}
           >Virtual Machine Launcher BootC Guide.</Link> If you are still experiencing issues, please open an issue on our
-        <Link externalRef="https://github.com/containers/podman-desktop-extension-bootc">GitHub repository</Link>.
+        <Link externalRef={REPOSITORY_URL}>GitHub repository</Link>.
       </p>
     </div>
   </EmptyScreen>

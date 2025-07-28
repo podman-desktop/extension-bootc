@@ -23,11 +23,10 @@ import { Button, Input, EmptyScreen, FormPage, Checkbox, ErrorMessage, Expandabl
 import Link from './lib/Link.svelte';
 import { historyInfo } from '/@/stores/historyInfo';
 import { goToDiskImages } from './lib/navigation';
+import { REPOSITORY_URL } from '/@shared/src/repository-infos';
 
 export let imageName: string | undefined = undefined;
 export let imageTag: string | undefined = undefined;
-
-const bootcExtensionGithubUrl = 'https://github.com/podman-desktop/extension-bootc';
 
 // Image variables
 let selectedImage: string | undefined;
@@ -623,7 +622,7 @@ $: if (availableArchitectures) {
             {#if bootcAvailableImages.length === 0}
               <p class="text-[var(--pd-state-warning)] pt-1">
                 No bootable container compatible images found. Learn to create one on our <Link
-                  externalRef="https://github.com/containers/podman-desktop-extension-bootc">README</Link
+                  externalRef={REPOSITORY_URL}>README</Link
                 >.
               </p>
             {/if}
@@ -819,7 +818,7 @@ $: if (availableArchitectures) {
                 <p class="text-sm text-[var(--pd-state-warning)] pt-2"
                 data-testid="cross-architecture-warning">
                   Cross-architecture building may not work correctly on macOS. Please refer to our
-                  <Link externalRef={bootcExtensionGithubUrl}>README</Link> for more information.
+                  <Link externalRef={REPOSITORY_URL}>README</Link> for more information.
                 </p>
               {/if}
               <p class="text-sm text-[var(--pd-content-text)] pt-2">
