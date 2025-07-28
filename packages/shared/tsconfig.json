@@ -8,7 +8,9 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "allowJs": true,
-    "checkJs": true
+    "checkJs": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.js", "types/*.d.ts", "../../types/**/*.d.ts"]
 }

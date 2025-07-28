@@ -13,6 +13,7 @@ import redhatImage from './redhat.png';
 import fedoraImage from './fedora.png';
 import BootcImageIcon from '../BootcImageIcon.svelte';
 import FirstImage from '../FirstImage.svelte';
+import { REPOSITORY_URL } from '/@shared/src/repository-infos';
 
 let bootcImageCount = $derived($imageInfo.length);
 let diskImageCount = $derived($historyInfo.length);
@@ -20,7 +21,6 @@ let diskImageCount = $derived($historyInfo.length);
 const bootcImageBuilderSite = 'https://github.com/osbuild/bootc-image-builder';
 const bootcSite = 'https://bootc-dev.github.io/bootc/';
 const fedoraBaseImages = 'https://docs.fedoraproject.org/en-US/bootc/base-images/';
-const extensionSite = 'https://github.com/containers/podman-desktop-extension-bootc';
 </script>
 
 <DashboardPage>
@@ -39,7 +39,7 @@ const extensionSite = 'https://github.com/containers/podman-desktop-extension-bo
           >, and <Link externalRef={bootcSite}>bootc</Link>, your container image is transformed into a bootable disk image.
         </div>
         <div>
-          Want to learn more including building your own Containerfile? Check out the <Link externalRef={extensionSite}
+          Want to learn more including building your own Containerfile? Check out the <Link externalRef={REPOSITORY_URL}
             >extension documentation</Link>.
         </div>
       </div>

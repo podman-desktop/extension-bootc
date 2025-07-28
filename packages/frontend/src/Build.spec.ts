@@ -28,6 +28,7 @@ import { router } from 'tinro';
 import userEvent from '@testing-library/user-event';
 import { historyInfo } from './stores/historyInfo';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
+import { REPOSITORY_URL } from '/@shared/src/repository-infos';
 
 const mockHistoryInfo: BootcBuildInfo[] = [
   {
@@ -454,7 +455,7 @@ test('Do not show an image if it has no repotags and has isManifest as false', a
 
   await userEvent.click(link);
 
-  expect(bootcClient.openLink).toBeCalledWith('https://github.com/containers/podman-desktop-extension-bootc');
+  expect(bootcClient.openLink).toBeCalledWith(REPOSITORY_URL);
 });
 
 test('If inspectImage fails, do not select any architecture / make them available', async () => {
