@@ -36,7 +36,10 @@
     "wrap-ansi": "^7.0.0"
   },
   "lint-staged": {
-    "*.{js,ts,tsx,svelte}": ["eslint --cache --fix", "biome format --write"],
+    "*.{js,ts,tsx,svelte}": [
+      "eslint --cache --fix",
+      "biome format --write"
+    ],
     "*.md": "prettier --cache --write",
     "*.{css,json}": "biome format --write"
   },
