@@ -35,7 +35,10 @@
         "bootc.builder": {
           "type": "string",
           "default": "CentOS",
-          "enum": ["CentOS", "RHEL"],
+          "enum": [
+            "CentOS",
+            "RHEL"
+          ],
           "description": "Builder image used to create disk images"
         }
       }
