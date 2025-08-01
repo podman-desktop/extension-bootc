@@ -6,13 +6,14 @@
   },
   "files": {
     "maxSize": 1600000,
-    "ignore": [
-      "**/builtin/*.cdix/**",
-      "**/coverage/**",
-      "**/dist/**",
-      "**/output/**",
-      "**/packages/ui/.svelte-kit/**",
-      "**/exposedIn*.d.ts"
+    "includes": [
+      "**",
+      "!**/builtin/**/*.cdix/**",
+      "!**/coverage/**",
+      "!**/dist/**",
+      "!**/output/**",
+      "!**/packages/ui/.svelte-kit/**",
+      "!**/exposedIn*.d.ts"
     ]
   },
   "javascript": {
@@ -36,7 +37,5 @@
   "linter": {
     "enabled": true
   },
-  "organizeImports": {
-    "enabled": false
-  }
+  "assist": { "actions": { "source": { "organizeImports": "off" } } }
 }

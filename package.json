@@ -36,12 +36,15 @@
     "wrap-ansi": "^7.0.0"
   },
   "lint-staged": {
-    "*.{js,ts,tsx,svelte}": ["eslint --cache --fix", "biome format --write"],
+    "*.{js,ts,tsx,svelte}": [
+      "eslint --cache --fix",
+      "biome format --write"
+    ],
     "*.md": "prettier --cache --write",
     "*.{css,json}": "biome format --write"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.1.3",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/compat": "^1.2.7",
