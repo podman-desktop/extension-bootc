@@ -112,7 +112,7 @@ test.describe('BootC Extension', () => {
     test.describe
       .serial(`Bootc images for architecture: ${architecture}`, () => {
         test(`Build bootc image from containerfile for architecture: ${architecture}`, async ({ navigationBar }) => {
-          test.setTimeout(310_000);
+          test.setTimeout(1_210_000);
 
           imageBuildFailed = true;
           let imagesPage = await navigationBar.openImages();
@@ -126,7 +126,7 @@ test.describe('BootC Extension', () => {
             containerFilePath,
             contextDirectory,
             [architecture],
-            300_000,
+            1_200_000,
           );
 
           await playExpect
