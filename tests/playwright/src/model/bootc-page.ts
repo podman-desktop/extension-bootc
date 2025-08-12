@@ -130,6 +130,8 @@ export class BootcPage {
         throw new Error(`Unknown type: ${type}`);
     }
 
+    await this.webview.waitForTimeout(10_000);
+
     switch (architecture) {
       case ArchitectureType.AMD64:
         await playExpect(this.amd64Button).toBeEnabled();
