@@ -29,7 +29,7 @@ jobs:
       matrix:
         os: [windows-2022, ubuntu-22.04, macos-14]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -70,7 +70,7 @@ jobs:
     env:
       SKIP_INSTALLATION: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           path: podman-desktop-extension-bootc
       - uses: actions/setup-node@v4
@@ -78,7 +78,7 @@ jobs:
           node-version: 22
 
       # Checkout podman desktop
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           repository: containers/podman-desktop
           ref: main
