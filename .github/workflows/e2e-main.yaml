@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2024 Red Hat, Inc.
+# Copyright (C) 2024-2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@ on:
   workflow_dispatch:
     inputs:
       organization:
-        default: 'containers'
+        default: 'podman-desktop'
         description: 'Organization of the Podman Desktop repository'
         type: string
         required: true
       repositoryName:
-        default: 'podman-desktop-extension-bootc'
+        default: 'extension-bootc'
         description: 'Podman Desktop Extension BootC repository name'
         type: string
         required: true
@@ -129,6 +129,17 @@ jobs:
         env:
           PODMAN_DESKTOP_ARGS: ${{ github.workspace }}/podman-desktop
         run: pnpm test:e2e
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: always() # always run even if the previous step fails
+        with:
+          annotate_only: true
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+          require_tests: true
+          report_paths: '**/*results.xml'
 
       - uses: actions/upload-artifact@v4
         if: always()

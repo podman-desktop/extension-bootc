@@ -157,6 +157,17 @@ jobs:
           PODMAN_DESKTOP_ARGS: ${{ github.workspace }}/podman-desktop
         run: pnpm test:e2e
 
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v5
+        if: always() # always run even if the previous step fails
+        with:
+          annotate_only: true
+          fail_on_failure: true
+          include_passed: true
+          detailed_summary: true
+          require_tests: true
+          report_paths: '**/*results.xml'
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
