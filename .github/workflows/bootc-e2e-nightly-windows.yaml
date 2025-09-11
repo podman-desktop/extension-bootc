@@ -43,7 +43,7 @@ on:
         type: string
         required: true
       podman_remote_url:
-        default: 'https://github.com/containers/podman/releases/download/v5.6.0/podman-5.6.0-setup.exe'
+        default: 'https://github.com/containers/podman/releases/download/v5.6.1/podman-5.6.1-setup.exe'
         description: 'podman remote setup exe'
         type: string
         required: true
@@ -61,6 +61,11 @@ on:
         default: 'v0.0.3'
         description: 'PDE2E runner, builder, podman image versions'
         type: string
+        required: true
+      podman_provider:
+        default: 'wsl'
+        description: 'Podman virtualization provider'
+        type: 'string'
         required: true
       mapt_params:
         default: 'IMAGE=quay.io/redhat-developer/mapt;VERSION_TAG=v0.9.7;CPUS=8;MEMORY=32;EXCLUDED_REGIONS="westindia,centralindia,southindia,australiacentral,australiacentral2,australiaeast,australiasoutheast,southafricanorth,southafricawest"'
@@ -93,17 +98,19 @@ jobs:
         env:
           DEFAULT_PODMAN_DESKTOP_REPO_ARGS: 'REPO=podman-desktop,FORK=podman-desktop,BRANCH=main'
           DEFAULT_NPM_TARGET: 'test:e2e'
+          DEFAULT_PODMAN_PROVIDER: 'wsl'
           DEFAULT_ENV_VARS: 'TEST_PODMAN_MACHINE=true,ELECTRON_ENABLE_INSPECT=true'
           DEFAULT_PODMAN_OPTIONS: 'INIT=1,START=1,ROOTFUL=1,NETWORKING=0'
           DEFAULT_EXT_TESTS_OPTIONS: 'EXT_RUN_TESTS_FROM_EXTENSION=1,EXT_RUN_TESTS_AS_ADMIN=1'
           EFAULT_EXT_REPO_OPTIONS: 'REPO=podman-desktop-rhel-ext,FORK=redhat-developer,BRANCH=main'
-          DEFAULT_PODMAN_VERSION: "${{ env.PD_PODMAN_VERSION || '5.3.2' }}"
+          DEFAULT_PODMAN_VERSION: "${{ env.PD_PODMAN_VERSION || '5.6.1' }}"
           DEFAULT_URL: 'https://github.com/containers/podman/releases/download/v$DEFAULT_PODMAN_VERSION/podman-$DEFAULT_PODMAN_VERSION-setup.exe'
           DEFAULT_PDE2E_IMAGE_VERSION: 'v0.0.3-windows'
           DEFAULT_MAPT_PARAMS: 'IMAGE=${{ vars.MAPT_IMAGE || ''quay.io/redhat-developer/mapt'' }};VERSION_TAG=${{ vars.MAPT_VERSION_TAG || ''v0.9.7'' }};CPUS=${{ vars.MAPT_CPUS || ''8  '' }};MEMORY=${{ vars.MAPT_MEMORY || ''32'' }};EXCLUDED_REGIONS="${{ vars.MAPT_EXCLUDED_REGIONS || ''westindia,centralindia,southindia,australiacentral,australiacentral2,australiaeast,australiasoutheast,southafricanorth,southafricawest'' }}"'
         run: |
           echo "NPM_TARGET=${{ github.event.inputs.npm_target || env.DEFAULT_NPM_TARGET }}" >> $GITHUB_ENV
           echo "ENV_VARS=${{ github.event.inputs.env_vars || env.DEFAULT_ENV_VARS }}" >> $GITHUB_ENV
+          echo "PODMAN_PROVIDER=${{ github.event.inputs.podman_provider || env.DEFAULT_PODMAN_PROVIDER }}" >> $GITHUB_ENV
           echo "PODMAN_URL=${{ github.event.inputs.podman_remote_url || env.DEFAULT_URL }}" >> $GITHUB_ENV
           echo "PDE2E_IMAGE_VERSION=${{ github.event.inputs.pde2e_image_version || env.DEFAULT_PDE2E_IMAGE_VERSION }}" >> $GITHUB_ENV
           echo "${{ github.event.inputs.podman_desktop_repo_args || env.DEFAULT_PODMAN_DESKTOP_REPO_ARGS }}" | awk -F ',' \
@@ -167,7 +174,7 @@ jobs:
           podman-start: ${{ env.PODMAN_START }}
           rootful: ${{ env.PODMAN_ROOTFUL }}
           user-networking: ${{ env.PODMAN_NETWORKING }}
-          podman-provider: 'wsl'
+          podman-provider: ${{ env.PODMAN_PROVIDER }}
           env-vars: ${{ env.ENV_VARS }}
           ci-bot-token: ${{ secrets.PODMAN_DESKTOP_BOT_TOKEN }}
 
