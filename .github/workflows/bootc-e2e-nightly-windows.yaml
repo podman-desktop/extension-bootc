@@ -33,7 +33,7 @@ on:
         type: string
         required: true
       ext_tests_options:
-        default: 'EXT_RUN_TESTS_FROM_EXTENSION=1,EXT_RUN_TESTS_AS_ADMIN=1'
+        default: 'EXT_RUN_TESTS_FROM_EXTENSION=1,EXT_RUN_TESTS_AS_ADMIN=0'
         description: 'E2E tests options in format VAR1=xxx,VAR2=true,VAR3=15 etc.'
         type: string
         required: true
@@ -101,7 +101,7 @@ jobs:
           DEFAULT_PODMAN_PROVIDER: 'wsl'
           DEFAULT_ENV_VARS: 'TEST_PODMAN_MACHINE=true,ELECTRON_ENABLE_INSPECT=true'
           DEFAULT_PODMAN_OPTIONS: 'INIT=1,START=1,ROOTFUL=1,NETWORKING=0'
-          DEFAULT_EXT_TESTS_OPTIONS: 'EXT_RUN_TESTS_FROM_EXTENSION=1,EXT_RUN_TESTS_AS_ADMIN=1'
+          DEFAULT_EXT_TESTS_OPTIONS: 'EXT_RUN_TESTS_FROM_EXTENSION=1,EXT_RUN_TESTS_AS_ADMIN=0'
           EFAULT_EXT_REPO_OPTIONS: 'REPO=podman-desktop-rhel-ext,FORK=redhat-developer,BRANCH=main'
           DEFAULT_PODMAN_VERSION: "${{ env.PD_PODMAN_VERSION || '5.6.1' }}"
           DEFAULT_URL: 'https://github.com/containers/podman/releases/download/v$DEFAULT_PODMAN_VERSION/podman-$DEFAULT_PODMAN_VERSION-setup.exe'
