@@ -105,7 +105,7 @@ jobs:
           EFAULT_EXT_REPO_OPTIONS: 'REPO=podman-desktop-rhel-ext,FORK=redhat-developer,BRANCH=main'
           DEFAULT_PODMAN_VERSION: "${{ env.PD_PODMAN_VERSION || '5.6.1' }}"
           DEFAULT_URL: 'https://github.com/containers/podman/releases/download/v$DEFAULT_PODMAN_VERSION/podman-$DEFAULT_PODMAN_VERSION-setup.exe'
-          DEFAULT_PDE2E_IMAGE_VERSION: 'v0.0.3-windows'
+          DEFAULT_PDE2E_IMAGE_VERSION: 'v0.0.3'
           DEFAULT_MAPT_PARAMS: 'IMAGE=${{ vars.MAPT_IMAGE || ''quay.io/redhat-developer/mapt'' }};VERSION_TAG=${{ vars.MAPT_VERSION_TAG || ''v0.9.7'' }};CPUS=${{ vars.MAPT_CPUS || ''8  '' }};MEMORY=${{ vars.MAPT_MEMORY || ''32'' }};EXCLUDED_REGIONS="${{ vars.MAPT_EXCLUDED_REGIONS || ''westindia,centralindia,southindia,australiacentral,australiacentral2,australiaeast,australiasoutheast,southafricanorth,southafricawest'' }}"'
         run: |
           echo "NPM_TARGET=${{ github.event.inputs.npm_target || env.DEFAULT_NPM_TARGET }}" >> $GITHUB_ENV
