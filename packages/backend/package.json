@@ -129,7 +129,7 @@
     "vitest": "^3.1.2"
   },
   "dependencies": {
-    "@crc-org/macadam.js": "0.0.1-202505091308-41f281b",
+    "@crc-org/macadam.js": "0.2.0-202509150634-790fbcd",
     "semver": "^7.7.2",
     "compare-versions": "^6.1.1",
     "ssh2": "^1.16.0"
