@@ -37,7 +37,8 @@
           "default": "CentOS",
           "enum": [
             "CentOS",
-            "RHEL"
+            "RHEL9",
+            "RHEL10"
           ],
           "description": "Builder image used to create disk images"
         }

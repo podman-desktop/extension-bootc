@@ -22,7 +22,12 @@ import * as fs from 'node:fs';
 import path, { resolve } from 'node:path';
 import os from 'node:os';
 import * as containerUtils from './container-utils';
-import { bootcImageBuilder, bootcImageBuilderCentos, bootcImageBuilderRHEL } from './constants';
+import {
+  bootcImageBuilder,
+  bootcImageBuilderCentos,
+  bootcImageBuilderRHEL9,
+  bootcImageBuilderRHEL10,
+} from './constants';
 import type { BootcBuildInfo, BuildConfig, BuildType } from '/@shared/src/models/bootc';
 import type { History } from './history';
 import * as machineUtils from './machine-utils';
@@ -398,8 +403,10 @@ export async function getBuilder(): Promise<string> {
   // use the preference to decide which builder to use
   const buildProp = await getConfigurationValue<string>('builder');
 
-  if (buildProp === 'RHEL') {
-    return bootcImageBuilderRHEL;
+  if (buildProp === 'RHEL' || buildProp === 'RHEL9') {
+    return bootcImageBuilderRHEL9;
+  } else if (buildProp === 'RHEL10') {
+    return bootcImageBuilderRHEL10;
   }
 
   // always default to centos bib
