@@ -27,7 +27,7 @@ import {
   createBuildConfigJSON,
   buildDiskImage,
 } from './build-disk-image';
-import { bootcImageBuilderCentos, bootcImageBuilderRHEL } from './constants';
+import { bootcImageBuilderCentos, bootcImageBuilderRHEL9, bootcImageBuilderRHEL10 } from './constants';
 import type { ContainerInfo, Configuration } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import { containerEngine } from '@podman-desktop/api';
@@ -307,13 +307,31 @@ test('check build exists', async () => {
   expect(exists).toEqual(false);
 });
 
-test('check uses RHEL builder', async () => {
+test('check uses RHEL builder for backward compatibility', async () => {
   configurationGetConfigurationMock.mockReturnValue('RHEL');
 
   const builder = await getBuilder();
 
   expect(builder).toBeDefined();
-  expect(builder).toEqual(bootcImageBuilderRHEL);
+  expect(builder).toEqual(bootcImageBuilderRHEL9);
+});
+
+test('check uses RHEL 9 builder', async () => {
+  configurationGetConfigurationMock.mockReturnValue('RHEL9');
+
+  const builder = await getBuilder();
+
+  expect(builder).toBeDefined();
+  expect(builder).toEqual(bootcImageBuilderRHEL9);
+});
+
+test('check uses RHEL 10 builder', async () => {
+  configurationGetConfigurationMock.mockReturnValue('RHEL10');
+
+  const builder = await getBuilder();
+
+  expect(builder).toBeDefined();
+  expect(builder).toEqual(bootcImageBuilderRHEL10);
 });
 
 test('check uses Centos builder', async () => {
