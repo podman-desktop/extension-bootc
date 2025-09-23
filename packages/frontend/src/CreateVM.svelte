@@ -123,12 +123,14 @@ async function createVM(): Promise<void> {
   inProgress={createInProgress}
   breadcrumbLeftPart="Disk Images"
   breadcrumbRightPart="Create Virtual Machine"
-  breadcrumbTitle="Go back to disk images"
   onclose={goToDiskImages}
   onbreadcrumbClick={goToDiskImages}>
-  <DiskImageIcon slot="icon" size="30px" />
+  {#snippet icon()}
+    <DiskImageIcon size="30px" />
+  {/snippet}
 
-  <div slot="content" class="p-5 min-w-full h-fit">
+  {#snippet content()}
+  <div class="p-5 min-w-full h-fit">
     {#if createErrorMessage}
       <EmptyScreen
         icon={faTriangleExclamation}
@@ -225,4 +227,5 @@ async function createVM(): Promise<void> {
       </div>
     {/if}
   </div>
+  {/snippet}
 </FormPage>

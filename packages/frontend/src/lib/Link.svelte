@@ -5,14 +5,13 @@ import { Link } from '@podman-desktop/ui-svelte';
 import type { Snippet } from 'svelte';
 
 interface Props {
-  title?: string;
   internalRef?: string;
   externalRef?: string;
   folder?: string;
   action?: () => void;
   children?: Snippet;
 }
-let { title, internalRef, externalRef, folder, action, children }: Props = $props();
+let { internalRef, externalRef, folder, action, children }: Props = $props();
 
 async function click(): Promise<void> {
   if (internalRef) {
@@ -27,6 +26,6 @@ async function click(): Promise<void> {
 }
 </script>
 
-<Link title={title} on:click={click}>
+<Link onclick={click}>
   {@render children?.()}
 </Link>

@@ -7,7 +7,7 @@ import BootcImageIcon from '../BootcImageIcon.svelte';
 <EmptyScreen
   icon={BootcImageIcon}
   title="No bootable container images">
-  <div slot="upperContent">
+  {#snippet upperContent()}
     <FirstImageScreen/>
-  </div>
+  {/snippet}
 </EmptyScreen>

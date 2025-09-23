@@ -53,20 +53,21 @@ onDestroy(() => {
   title="{diskImage?.image}:{diskImage?.tag}"
   breadcrumbLeftPart="Disk Images"
   breadcrumbRightPart="Disk Image Details"
-  breadcrumbTitle="Go back to disk images"
   onclose={goToDiskImages}
   onbreadcrumbClick={goToDiskImages}>
-  <DiskImageIcon slot="icon" size="30px" />
-  <svelte:fragment slot="actions">
+  {#snippet iconSnippet()}
+    <DiskImageIcon size="30px" />
+  {/snippet}
+  {#snippet actionsSnippet()}
     {#if diskImage}
       <DiskImageActions object={diskImage} detailed={true} />
     {/if}
-  </svelte:fragment>
-  <svelte:fragment slot="tabs">
+  {/snippet}
+  {#snippet tabsSnippet()}
     <Tab title="Summary" selected={isTabSelected($router.path, 'summary')} url={getTabUrl($router.path, 'summary')} />
     <Tab title="Build Log" selected={isTabSelected($router.path, 'build')} url={getTabUrl($router.path, 'build')} />
-  </svelte:fragment>
-  <svelte:fragment slot="content">
+  {/snippet}
+  {#snippet contentSnippet()}
     <Route path="/summary" breadcrumb="Summary">
       <DiskImageDetailsSummary image={diskImage} />
     </Route>
@@ -79,5 +80,5 @@ onDestroy(() => {
         <DiskImageDetailsVirtualMachine build={diskImage} />
       {/if}
     </Route>
-  </svelte:fragment>
+  {/snippet}
 </DetailsPage>

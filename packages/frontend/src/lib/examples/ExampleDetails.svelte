@@ -37,11 +37,12 @@ onMount(async () => {
   title={example?.name}
   breadcrumbLeftPart="Examples"
   breadcrumbRightPart={example?.name}
-  breadcrumbTitle="Go back to Examples"
   onclose={goToExamplesPage}
   onbreadcrumbClick={goToExamplesPage}>
-  <DiskImageIcon slot="icon" size="30px" />
-  <svelte:fragment slot="content">
+  {#snippet iconSnippet()}
+    <DiskImageIcon size="30px" />
+  {/snippet}
+  {#snippet contentSnippet()}
     <div class="bg-[var(--pd-content-bg)] h-full overflow-y-auto">
       <ExampleDetailsLayout detailsTitle="Example details" detailsLabel="Example details">
         <svelte:fragment slot="content">
@@ -62,5 +63,5 @@ onMount(async () => {
         </svelte:fragment>
       </ExampleDetailsLayout>
     </div>
-  </svelte:fragment>
+  {/snippet}
 </DetailsPage>

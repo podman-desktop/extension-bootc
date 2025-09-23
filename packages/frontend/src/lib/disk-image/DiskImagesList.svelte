@@ -33,9 +33,9 @@ $effect(() => {
   searchPattern.set(searchTerm);
 });
 
-let history = $state<BootcBuildInfoWithSelected[]>([]);
+let history = $state<BootcBuildInfoUI[]>([]);
 
-interface BootcBuildInfoWithSelected extends BootcBuildInfo {
+interface BootcBuildInfoUI extends BootcBuildInfo {
   selected: boolean;
 }
 
@@ -71,28 +71,28 @@ async function deleteSelectedBuilds(): Promise<void> {
 }
 
 let selectedItemsNumber = $state<number>(0);
-let table = $state<Table>();
+let table = $state<Table<BootcBuildInfoUI>>();
 
 // COLUMNS
-let statusColumn = new TableColumn<BootcBuildInfo>('Status', {
+let statusColumn = new TableColumn<BootcBuildInfoUI>('Status', {
   align: 'center',
   width: '70px',
   renderer: DiskImageColumnStatus,
 });
 
-let imageColumn = new TableColumn<BootcBuildInfo>('Image', {
+let imageColumn = new TableColumn<BootcBuildInfoUI>('Image', {
   width: '2fr',
   renderer: DiskImageColumnImage,
   comparator: (a, b): number => a.image.localeCompare(b.image),
 });
 
-let typeColumn = new TableColumn<BootcBuildInfo, string>('Type', {
+let typeColumn = new TableColumn<BootcBuildInfoUI, string>('Type', {
   renderMapping: (object: BootcBuildInfo): string => object.type.join(),
   renderer: TableSimpleColumn,
   comparator: (a, b): number => a.type.join().localeCompare(b.type.join()),
 });
 
-let archColumn = new TableColumn<BootcBuildInfo, string>('Arch', {
+let archColumn = new TableColumn<BootcBuildInfoUI, string>('Arch', {
   renderMapping: (object: BootcBuildInfo): string => object.arch ?? '',
   renderer: TableSimpleColumn,
   comparator: (a, b): number => {
@@ -119,21 +119,21 @@ const columns = [
   new TableColumn<BootcBuildInfo>('Actions', { align: 'right', renderer: DiskImageColumnActions, overflow: true }),
 ];
 
-const row = new TableRow<BootcBuildInfo>({
+const row = new TableRow<BootcBuildInfoUI>({
   selectable: (_build): boolean => true,
 });
 </script>
 
 <NavPage bind:searchTerm={searchTerm} title="disk images" searchEnabled={true}>
-  <svelte:fragment slot="additional-actions">
+  {#snippet additionalActions()}
   <!-- Only show for macOS and Linux -->
   {#if !isWindows}
     <Button on:click={gotoCreateVMForm} icon={DiskImageIcon} title="Create VM">Create VM</Button>
   {/if}
     <Button on:click={gotoBuild} icon={DiskImageIcon} title="Build">Build</Button>
-  </svelte:fragment>
+  {/snippet}
 
-  <svelte:fragment slot="bottom-additional-actions">
+  {#snippet bottomAdditionalActions()}
     {#if selectedItemsNumber > 0}
       <Button
         on:click={deleteSelectedBuilds}
@@ -142,9 +142,10 @@ const row = new TableRow<BootcBuildInfo>({
         icon={faTrash} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
-  </svelte:fragment>
+  {/snippet}
 
-  <div class="flex min-w-full h-full" slot="content">
+  {#snippet content()}
+  <div class="flex min-w-full h-full">
     <Table
       kind="disk images"
       bind:this={table}
@@ -164,4 +165,5 @@ const row = new TableRow<BootcBuildInfo>({
       <DiskImageEmptyScreen />
     {/if}
   </div>
+  {/snippet}
 </NavPage>

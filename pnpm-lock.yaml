@@ -221,8 +221,8 @@ importers:
         specifier: ^7.0.1
         version: 7.0.1
       '@podman-desktop/ui-svelte':
-        specifier: 1.18.0-202503071223-ce53e6c5bd4
-        version: 1.18.0-202503071223-ce53e6c5bd4(svelte-fa@4.0.4(svelte@5.39.6))(svelte@5.39.6)
+        specifier: 1.21.0
+        version: 1.21.0(svelte-fa@4.0.4(svelte@5.39.6))(svelte@5.39.6)
       '@sveltejs/vite-plugin-svelte':
         specifier: ^6.2.1
         version: 6.2.1(svelte@5.39.6)(vite@7.1.7(@types/node@22.18.6)(jiti@2.5.1)(lightningcss@1.30.1)(yaml@2.8.1))
@@ -797,40 +797,20 @@ packages:
     resolution: {integrity: sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@fortawesome/fontawesome-common-types@6.7.2':
-    resolution: {integrity: sha512-Zs+YeHUC5fkt7Mg1l6XTniei3k4bwG/yo3iFUtZWd/pMx9g3fdvkSK9E0FOC+++phXOka78uJcYb8JaFkW52Xg==}
-    engines: {node: '>=6'}
-
   '@fortawesome/fontawesome-common-types@7.0.1':
     resolution: {integrity: sha512-0VpNtO5cNe1/HQWMkl4OdncYK/mv9hnBte0Ew0n6DMzmo3Q3WzDFABHm6LeNTipt5zAyhQ6Ugjiu8aLaEjh1gg==}
-    engines: {node: '>=6'}
-
-  '@fortawesome/fontawesome-free@6.7.2':
-    resolution: {integrity: sha512-JUOtgFW6k9u4Y+xeIaEiLr3+cjoUPiAuLXoyKOJSia6Duzb7pq+A76P9ZdPDoAoxHdHzq6gE9/jKBGXlZT8FbA==}
     engines: {node: '>=6'}
 
   '@fortawesome/fontawesome-free@7.0.1':
     resolution: {integrity: sha512-RLmb9U6H2rJDnGxEqXxzy7ANPrQz7WK2/eTjdZqyU9uRU5W+FkAec9uU5gTYzFBH7aoXIw2WTJSCJR4KPlReQw==}
     engines: {node: '>=6'}
 
-  '@fortawesome/free-brands-svg-icons@6.7.2':
-    resolution: {integrity: sha512-zu0evbcRTgjKfrr77/2XX+bU+kuGfjm0LbajJHVIgBWNIDzrhpRxiCPNT8DW5AdmSsq7Mcf9D1bH0aSeSUSM+Q==}
-    engines: {node: '>=6'}
-
   '@fortawesome/free-brands-svg-icons@7.0.1':
     resolution: {integrity: sha512-6xPmn5SrND/GM0+W33E77x05+aDn6RpR02eWd8eLdN0IxY0vXa5yU/ugaAKloOVxiG9w2330TSRsbJYL6c57Ow==}
     engines: {node: '>=6'}
 
-  '@fortawesome/free-regular-svg-icons@6.7.2':
-    resolution: {integrity: sha512-7Z/ur0gvCMW8G93dXIQOkQqHo2M5HLhYrRVC0//fakJXxcF1VmMPsxnG6Ee8qEylA8b8Q3peQXWMNZ62lYF28g==}
-    engines: {node: '>=6'}
-
   '@fortawesome/free-regular-svg-icons@7.0.1':
     resolution: {integrity: sha512-4V9fHbHjcx9Qu4O99AM5B4zuEDfB4zajk1I77hEzOxPN00f8g3484Aeq6WpfFcmookvjLE3Pr71Dhf/lqw7tbA==}
-    engines: {node: '>=6'}
-
-  '@fortawesome/free-solid-svg-icons@6.7.2':
-    resolution: {integrity: sha512-GsBrnOzU8uj0LECDfD5zomZJIjrPhIlWU82AHwa2s40FKH+kcxQaBvBo3Z4TxyZHIyX8XTDxsyA33/Vx9eFuQA==}
     engines: {node: '>=6'}
 
   '@fortawesome/free-solid-svg-icons@7.0.1':
@@ -916,8 +896,8 @@ packages:
   '@podman-desktop/tests-playwright@1.21.0':
     resolution: {integrity: sha512-gMZSYD8QV5VDdDhgDIkZWehHF+FDYErEF5cAFBt86+WbHQUIZZz6EK06o20R9VdARDbRfv26DGmPksTqRn0N8g==}
 
-  '@podman-desktop/ui-svelte@1.18.0-202503071223-ce53e6c5bd4':
-    resolution: {integrity: sha512-iXPyknOYiQyRFureR8dVkeR2nmJt69KdiCfasipL5J0LCYlpdyF5MLRFvtCbS/OcJXJIgtiw2sQLx+k8kliyDQ==}
+  '@podman-desktop/ui-svelte@1.21.0':
+    resolution: {integrity: sha512-5ptTIAflI191jgF5q0n4YHxCo588OC4eUEAJhgUz01EglCIRSCUluI7WzQ8ML7X90iLbcJ5O8gsbXj6eERdbkg==}
     peerDependencies:
       svelte: ^4.0.0 || ^5.0.0
       svelte-fa: ^4.0.0
@@ -4312,33 +4292,17 @@ snapshots:
       '@eslint/core': 0.15.2
       levn: 0.4.1
 
-  '@fortawesome/fontawesome-common-types@6.7.2': {}
-
   '@fortawesome/fontawesome-common-types@7.0.1': {}
 
-  '@fortawesome/fontawesome-free@6.7.2': {}
-
   '@fortawesome/fontawesome-free@7.0.1': {}
-
-  '@fortawesome/free-brands-svg-icons@6.7.2':
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 6.7.2
 
   '@fortawesome/free-brands-svg-icons@7.0.1':
     dependencies:
       '@fortawesome/fontawesome-common-types': 7.0.1
 
-  '@fortawesome/free-regular-svg-icons@6.7.2':
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 6.7.2
-
   '@fortawesome/free-regular-svg-icons@7.0.1':
     dependencies:
       '@fortawesome/fontawesome-common-types': 7.0.1
-
-  '@fortawesome/free-solid-svg-icons@6.7.2':
-    dependencies:
-      '@fortawesome/fontawesome-common-types': 6.7.2
 
   '@fortawesome/free-solid-svg-icons@7.0.1':
     dependencies:
@@ -4424,12 +4388,12 @@ snapshots:
 
   '@podman-desktop/tests-playwright@1.21.0': {}
 
-  '@podman-desktop/ui-svelte@1.18.0-202503071223-ce53e6c5bd4(svelte-fa@4.0.4(svelte@5.39.6))(svelte@5.39.6)':
+  '@podman-desktop/ui-svelte@1.21.0(svelte-fa@4.0.4(svelte@5.39.6))(svelte@5.39.6)':
     dependencies:
-      '@fortawesome/fontawesome-free': 6.7.2
-      '@fortawesome/free-brands-svg-icons': 6.7.2
-      '@fortawesome/free-regular-svg-icons': 6.7.2
-      '@fortawesome/free-solid-svg-icons': 6.7.2
+      '@fortawesome/fontawesome-free': 7.0.1
+      '@fortawesome/free-brands-svg-icons': 7.0.1
+      '@fortawesome/free-regular-svg-icons': 7.0.1
+      '@fortawesome/free-solid-svg-icons': 7.0.1
       humanize-duration: 3.33.1
       moment: 2.30.1
       svelte: 5.39.6

@@ -561,12 +561,14 @@ $: if (availableArchitectures) {
   inProgress={buildInProgress}
   breadcrumbLeftPart="Disk Images"
   breadcrumbRightPart="Build Disk Image"
-  breadcrumbTitle="Go back to disk images"
   onclose={goToDiskImages}
   onbreadcrumbClick={goToDiskImages}>
-  <DiskImageIcon slot="icon" size="30px" />
+  {#snippet icon()}
+  <DiskImageIcon size="30px" />
+  {/snippet}
 
-  <div slot="content" class="p-5 min-w-full h-fit">
+  {#snippet content()}
+  <div class="p-5 min-w-full h-fit">
     {#if buildErrorMessage}
       <EmptyScreen icon={faTriangleExclamation} title="Error with image build" message={buildErrorMessage}>
         <Button
@@ -1120,4 +1122,5 @@ $: if (availableArchitectures) {
       </div>
     {/if}
   </div>
+  {/snippet}
 </FormPage>

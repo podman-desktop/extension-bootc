@@ -61,7 +61,8 @@ const groups = $derived.by(() => {
 </script>
 
 <NavPage title="Examples" searchEnabled={false}>
-  <div slot="content" class="flex flex-col min-w-full min-h-full">
+  {#snippet content()}
+  <div class="flex flex-col min-w-full min-h-full">
     <div class="min-w-full min-h-full flex-1">
       <div class="px-5 space-y-5">
         {#each groups.entries() as [category, examples] (category.id)}
@@ -70,4 +71,5 @@ const groups = $derived.by(() => {
       </div>
     </div>
   </div>
+  {/snippet}
 </NavPage>
