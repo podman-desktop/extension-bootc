@@ -76,7 +76,7 @@ async function deleteSelectedImages(): Promise<void> {
 }
 
 let selectedItemsNumber = $state<number>(0);
-let table: Table;
+let table: Table<ImageInfoUI>;
 
 let statusColumn = new TableColumn<ImageInfoUI>('Status', {
   align: 'center',
@@ -120,19 +120,19 @@ const row = new TableRow<ImageInfoUI>({
 </script>
 
 <NavPage bind:searchTerm={searchTerm} title="images">
-
-  <svelte:fragment slot="bottom-additional-actions">
+  {#snippet bottomAdditionalActions()}
     {#if selectedItemsNumber > 0}
      <Button
         on:click={deleteSelectedImages}
         title="Delete {selectedItemsNumber} selected items"
-        bind:inProgress={bulkDeleteInProgress}
+        inProgress={bulkDeleteInProgress}
         icon={faTrash} />
       <span>On {selectedItemsNumber} selected items.</span>
     {/if}
-  </svelte:fragment>
+  {/snippet}
 
-  <div class="flex min-w-full h-full" slot="content">
+  {#snippet content()}
+  <div class="flex min-w-full h-full">
     <Table
       kind="image"
       bind:this={table}
@@ -151,4 +151,5 @@ const row = new TableRow<ImageInfoUI>({
       {/if}
     {/if}
   </div>
+  {/snippet}
 </NavPage>
