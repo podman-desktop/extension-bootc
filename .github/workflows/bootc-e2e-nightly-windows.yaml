@@ -102,7 +102,7 @@ jobs:
           DEFAULT_ENV_VARS: 'TEST_PODMAN_MACHINE=true,ELECTRON_ENABLE_INSPECT=true'
           DEFAULT_PODMAN_OPTIONS: 'INIT=1,START=1,ROOTFUL=1,NETWORKING=0'
           DEFAULT_EXT_TESTS_OPTIONS: 'EXT_RUN_TESTS_FROM_EXTENSION=1,EXT_RUN_TESTS_AS_ADMIN=0'
-          EFAULT_EXT_REPO_OPTIONS: 'REPO=podman-desktop-rhel-ext,FORK=redhat-developer,BRANCH=main'
+          EFAULT_EXT_REPO_OPTIONS: 'REPO=extension-bootc,FORK=podman-desktop,BRANCH=main'
           DEFAULT_PODMAN_VERSION: "${{ env.PD_PODMAN_VERSION || '5.6.1' }}"
           DEFAULT_URL: 'https://github.com/containers/podman/releases/download/v$DEFAULT_PODMAN_VERSION/podman-$DEFAULT_PODMAN_VERSION-setup.exe'
           DEFAULT_PDE2E_IMAGE_VERSION: 'v0.0.3'
