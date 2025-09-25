@@ -22,6 +22,7 @@ updates:
       commitlint:
         applies-to: version-updates
         patterns:
+          - 'commitlint'
           - '@commitlint/*'
       eslint:
         applies-to: version-updates
