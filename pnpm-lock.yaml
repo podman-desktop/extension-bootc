@@ -130,8 +130,8 @@ importers:
         version: 1.17.0
     devDependencies:
       '@podman-desktop/api':
-        specifier: 1.21.0
-        version: 1.21.0
+        specifier: 1.22.0
+        version: 1.22.0
       '@types/node':
         specifier: ^22
         version: 22.18.6
@@ -890,8 +890,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@podman-desktop/api@1.21.0':
-    resolution: {integrity: sha512-EaQU3ommk2F6nb/qYAGdZSm0F1xpxGmhNQTlDOx8yMbHMwKPFM01zNBHD9+xyjrAhYWcVP79nVxkfBrzBfvitw==}
+  '@podman-desktop/api@1.22.0':
+    resolution: {integrity: sha512-erh6Sw+rj8k908WNox5wDGxB9g4XpP4isf2PEdaFHzONph3zRE33VSsf9Ogpj09OCF4P04pgiqk4Fhol8DRpFw==}
 
   '@podman-desktop/tests-playwright@1.22.0':
     resolution: {integrity: sha512-b5Z/hmchZ9SbttCPAEnCAp6nlp7ibyzfwya5QnHsUcSvyZtaqF6YAW4PtLGfHz0qkJJunl21gkuwpngGLnaH8A==}
@@ -4122,7 +4122,7 @@ snapshots:
 
   '@crc-org/macadam.js@0.2.0-202509150634-790fbcd':
     dependencies:
-      '@podman-desktop/api': 1.21.0
+      '@podman-desktop/api': 1.22.0
 
   '@csstools/color-helpers@5.1.0': {}
 
@@ -4388,7 +4388,7 @@ snapshots:
     dependencies:
       playwright: 1.55.1
 
-  '@podman-desktop/api@1.21.0': {}
+  '@podman-desktop/api@1.22.0': {}
 
   '@podman-desktop/tests-playwright@1.22.0': {}
 
