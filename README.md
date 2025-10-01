@@ -246,8 +246,7 @@ Follow the below steps for the solution:
 
 1. Download the [macadam binary](https://github.com/crc-org/macadam/releases)
 2. `chmod +x macadam-linux-amd64`
-3. `sudo mkdir -p /opt/macadam/bin`
-4. `sudo mv macadam-linux-amd64 /opt/macadam/bin/macadam`
+3. `sudo mv macadam-linux-amd64 /usr/local/bin/macadam`
 
 **gvproxy binary:**
 
