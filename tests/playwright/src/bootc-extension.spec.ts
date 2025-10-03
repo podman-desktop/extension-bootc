@@ -378,7 +378,7 @@ async function changeToRHELBuilderInPreferences(navigationBar: NavigationBar): P
   await centosBuilderButton.scrollIntoViewIfNeeded();
   await centosBuilderButton.click();
 
-  const rhelBuilderButton = preferencesPage.getPage().getByRole('button', { name: 'RHEL' });
+  const rhelBuilderButton = preferencesPage.getPage().getByRole('button', { name: 'RHEL' }).first();
   await playExpect(rhelBuilderButton).toBeVisible({ timeout: 10_000 });
   await rhelBuilderButton.click();
 
