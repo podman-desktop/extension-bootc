@@ -68,9 +68,14 @@ on:
         type: 'string'
         required: true
       mapt_params:
-        default: 'IMAGE=quay.io/redhat-developer/mapt;VERSION_TAG=v0.9.8;CPUS=8;MEMORY=32;EXCLUDED_REGIONS="westindia,centralindia,southindia,australiacentral,australiacentral2,australiaeast,australiasoutheast,southafricanorth,southafricawest"'
-        description: 'MAPT image, version tag, cpus and memory request, and excluded regions in format IMAGE=xxx;VERSION_TAG=xxx;CPUS=xxx;MEMORY=xxx;EXCLUDED_REGIONS=xxx'
-        required: true
+        description: |
+          **Create instance (leave empty to use repo secrets/variables)**
+
+          **Format:** IMAGE=xxx;VERSION_TAG=xxx;CPUS=xxx;MEMORY=xxx;EXCLUDED_REGIONS=xxx
+
+          **Example:** 
+            IMAGE=quay.io/redhat-developer/mapt;VERSION_TAG=v0.9.8;CPUS=8;MEMORY=32;EXCLUDED_REGIONS="westindia,centralindia,southindia,australiacentral,australiacentral2,australiaeast,australiasoutheast,southafricanorth,southafricawest"
+        required: false
         type: string
 
 jobs:
@@ -106,7 +111,6 @@ jobs:
           DEFAULT_PODMAN_VERSION: "${{ env.PD_PODMAN_VERSION || '5.6.1' }}"
           DEFAULT_URL: 'https://github.com/containers/podman/releases/download/v$DEFAULT_PODMAN_VERSION/podman-$DEFAULT_PODMAN_VERSION-setup.exe'
           DEFAULT_PDE2E_IMAGE_VERSION: 'v0.0.3'
-          DEFAULT_MAPT_PARAMS: 'IMAGE=${{ vars.MAPT_IMAGE || ''quay.io/redhat-developer/mapt'' }};VERSION_TAG=${{ vars.MAPT_VERSION_TAG || ''v0.9.8'' }};CPUS=${{ vars.MAPT_CPUS || ''8  '' }};MEMORY=${{ vars.MAPT_MEMORY || ''32'' }};EXCLUDED_REGIONS="${{ vars.MAPT_EXCLUDED_REGIONS || ''westindia,centralindia,southindia,australiacentral,australiacentral2,australiaeast,australiasoutheast,southafricanorth,southafricawest'' }}"'
         run: |
           echo "NPM_TARGET=${{ github.event.inputs.npm_target || env.DEFAULT_NPM_TARGET }}" >> $GITHUB_ENV
           echo "ENV_VARS=${{ github.event.inputs.env_vars || env.DEFAULT_ENV_VARS }}" >> $GITHUB_ENV
@@ -121,8 +125,14 @@ jobs:
             '{for (i=1; i<=NF; i++) {split($i, kv, "="); print "PODMAN_"kv[1]"="kv[2]}}' >> $GITHUB_ENV
           echo "${{ github.event.inputs.ext_repo_options || env.DEFAULT_EXT_REPO_OPTIONS }}" | awk -F ',' \
             '{for (i=1; i<=NF; i++) {split($i, kv, "="); print "EXT_"kv[1]"="kv[2]}}' >> $GITHUB_ENV
-          echo "${{ github.event.inputs.mapt_params || env.DEFAULT_MAPT_PARAMS }}" | awk -F ';' \
-            '{for (i=1; i<=NF; i++) {split($i, kv, "="); print "MAPT_"kv[1]"="kv[2]}}' >> $GITHUB_ENV
+
+          # For mapt_params, use repo variables directly if input is empty
+          if [ -n "${{ github.event.inputs.mapt_params }}" ]; then
+            mapt_params="${{ github.event.inputs.mapt_params }}"
+          else
+            mapt_params="IMAGE=${{ vars.MAPT_IMAGE }};VERSION_TAG=${{ vars.MAPT_VERSION_TAG }};CPUS=${{ vars.MAPT_CPUS }};MEMORY=${{ vars.MAPT_MEMORY }};EXCLUDED_REGIONS=\"${{ vars.MAPT_EXCLUDED_REGIONS }}\""
+          fi
+          echo "$mapt_params" | awk -F ';' '{for (i=1; i<=NF; i++) {split($i, kv, "="); print "MAPT_"kv[1]"="kv[2]}}' >> $GITHUB_ENV
 
       - name: Create instance
         uses: podman-desktop/e2e/.github/actions/create-instance@36e440f2ac18193214f4ffa8f7f1c4c0cb8c9446
