@@ -32,6 +32,7 @@ import { getErrorMessage, verifyContainerProivder } from './macadam/utils';
 import { LoggerDelegator } from './macadam/logger';
 import { ProviderConnectionShellAccessImpl } from './macadam/macadam-machine-stream';
 import { macadamName } from './constants';
+import { isWindows } from './machine-utils';
 
 export const telemetryLogger = extensionApi.env.createTelemetryLogger();
 
@@ -175,18 +176,20 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
     }),
   );
 
-  macadam = new macadamJSPackage.Macadam(macadamName);
-  try {
-    await macadam.init();
-  } catch (error) {
-    console.error('Error initializing macadam', error);
+  if (!isWindows()) {
+    macadam = new macadamJSPackage.Macadam(macadamName);
+    try {
+      await macadam.init();
+    } catch (error) {
+      console.error('Error initializing macadam', error);
+    }
+
+    const provider = await createProvider(extensionContext);
+
+    monitorMachines(provider, extensionContext).catch((error: unknown) => {
+      console.error('Error while monitoring machines', error);
+    });
   }
-
-  const provider = await createProvider(extensionContext);
-
-  monitorMachines(provider, extensionContext).catch((error: unknown) => {
-    console.error('Error while monitoring machines', error);
-  });
 }
 
 function checkVersion(version: string): boolean {
