@@ -314,8 +314,8 @@ importers:
   tests/playwright:
     devDependencies:
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.56.0
+        version: 1.56.0
       '@podman-desktop/tests-playwright':
         specifier: 1.22.0
         version: 1.22.0
@@ -885,8 +885,8 @@ packages:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
 
-  '@playwright/test@1.55.1':
-    resolution: {integrity: sha512-IVAh/nOJaw6W9g+RJVlIQJ6gSiER+ae6mKQ5CX1bERzQgbC1VSeBlwdvczT7pxb0GWiyrxH4TGKbMfDb4Sq/ig==}
+  '@playwright/test@1.56.0':
+    resolution: {integrity: sha512-Tzh95Twig7hUwwNe381/K3PggZBZblKUe2wv25oIpzWLr6Z0m4KgV1ZVIjnR6GM9ANEqjZD7XsZEa6JL/7YEgg==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -1597,8 +1597,8 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  baseline-browser-mapping@2.8.11:
-    resolution: {integrity: sha512-i+sRXGhz4+QW8aACZ3+r1GAKMt0wlFpeA8M5rOQd0HEYw9zhDrlx9Wc8uQ0IdXakjJRthzglEwfB/yqIjO6iDg==}
+  baseline-browser-mapping@2.8.12:
+    resolution: {integrity: sha512-vAPMQdnyKCBtkmQA6FMCBvU9qFIppS3nzyXnEM+Lo2IAhG4Mpjv9cCxMudhgV3YdNNJv6TNqXy97dfRVL2LmaQ==}
     hasBin: true
 
   baseline-browser-mapping@2.8.4:
@@ -1670,8 +1670,8 @@ packages:
   caniuse-lite@1.0.30001743:
     resolution: {integrity: sha512-e6Ojr7RV14Un7dz6ASD0aZDmQPT/A+eZU+nuTNfjqmRrmkmQlnTNWH0SKmqagx9PeW87UVqapSurtAXifmtdmw==}
 
-  caniuse-lite@1.0.30001747:
-    resolution: {integrity: sha512-mzFa2DGIhuc5490Nd/G31xN1pnBnYMadtkyTjefPI7wzypqgCEpeWu9bJr0OnDsyKrW75zA9ZAt7pbQFmwLsQg==}
+  caniuse-lite@1.0.30001748:
+    resolution: {integrity: sha512-5P5UgAr0+aBmNiplks08JLw+AW/XG/SurlgZLgB1dDLfAw7EfRGxIwzPHxdSCGY/BTKDqIVyJL87cCN6s0ZR0w==}
 
   chai@5.3.3:
     resolution: {integrity: sha512-4zNhdJD/iOjSH0A05ea+Ke6MU5mmpQcbQsSOkgdaUMJ9zTlDTD/GYlwohmIE2u0gaxHYiVHEn1Fw9mZ/ktJWgw==}
@@ -2908,6 +2908,9 @@ packages:
   node-releases@2.0.21:
     resolution: {integrity: sha512-5b0pgg78U3hwXkCM8Z9b2FJdPZlr9Psr9V2gQPESdGHqbntyFJKFW4r5TeWGFzafGY3hzs1JC62VEQMbl1JFkw==}
 
+  node-releases@2.0.23:
+    resolution: {integrity: sha512-cCmFDMSm26S6tQSDpBCg/NR8NENrVPhAJSf+XbxBG4rPFaaonlEoE9wHQmun+cls499TQGSb7ZyPBRlzgKfpeg==}
+
   normalize-range@0.1.2:
     resolution: {integrity: sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==}
     engines: {node: '>=0.10.0'}
@@ -3024,13 +3027,13 @@ packages:
     engines: {node: '>=0.10'}
     hasBin: true
 
-  playwright-core@1.55.1:
-    resolution: {integrity: sha512-Z6Mh9mkwX+zxSlHqdr5AOcJnfp+xUWLCt9uKV18fhzA8eyxUd8NUWzAjxUh55RZKSYwDGX0cfaySdhZJGMoJ+w==}
+  playwright-core@1.56.0:
+    resolution: {integrity: sha512-1SXl7pMfemAMSDn5rkPeZljxOCYAmQnYLBTExuh6E8USHXGSX3dx6lYZN/xPpTz1vimXmPA9CDnILvmJaB8aSQ==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.55.1:
-    resolution: {integrity: sha512-cJW4Xd/G3v5ovXtJJ52MAOclqeac9S/aGGgRzLabuF8TnIb6xHvMzKIa6JmrRzUkeXJgfL1MhukP0NK6l39h3A==}
+  playwright@1.56.0:
+    resolution: {integrity: sha512-X5Q1b8lOdWIE4KAoHpW3SE8HvUB+ZZsUoN64ZhjnN8dOb1UpujxBtENGiZFE+9F/yhzJwYa+ca3u43FeLbboHA==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -4390,9 +4393,9 @@ snapshots:
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
-  '@playwright/test@1.55.1':
+  '@playwright/test@1.56.0':
     dependencies:
-      playwright: 1.55.1
+      playwright: 1.56.0
 
   '@podman-desktop/api@1.22.0': {}
 
@@ -5140,7 +5143,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  baseline-browser-mapping@2.8.11:
+  baseline-browser-mapping@2.8.12:
     optional: true
 
   baseline-browser-mapping@2.8.4: {}
@@ -5176,10 +5179,10 @@ snapshots:
 
   browserslist@4.26.3:
     dependencies:
-      baseline-browser-mapping: 2.8.11
-      caniuse-lite: 1.0.30001747
+      baseline-browser-mapping: 2.8.12
+      caniuse-lite: 1.0.30001748
       electron-to-chromium: 1.5.230
-      node-releases: 2.0.21
+      node-releases: 2.0.23
       update-browserslist-db: 1.1.3(browserslist@4.26.3)
     optional: true
 
@@ -5215,7 +5218,7 @@ snapshots:
 
   caniuse-lite@1.0.30001743: {}
 
-  caniuse-lite@1.0.30001747:
+  caniuse-lite@1.0.30001748:
     optional: true
 
   chai@5.3.3:
@@ -6545,6 +6548,9 @@ snapshots:
 
   node-releases@2.0.21: {}
 
+  node-releases@2.0.23:
+    optional: true
+
   normalize-range@0.1.2: {}
 
   object-inspect@1.13.4: {}
@@ -6659,11 +6665,11 @@ snapshots:
 
   pidtree@0.6.0: {}
 
-  playwright-core@1.55.1: {}
+  playwright-core@1.56.0: {}
 
-  playwright@1.55.1:
+  playwright@1.56.0:
     dependencies:
-      playwright-core: 1.55.1
+      playwright-core: 1.56.0
     optionalDependencies:
       fsevents: 2.3.2
 
