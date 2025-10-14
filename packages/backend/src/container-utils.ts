@@ -99,7 +99,7 @@ export async function deleteOldImages(engineId: string, currentImage: string): P
   try {
     // List all the images and check to see if it exists
     const images = await extensionApi.containerEngine.listImages();
-    if (!images || images.length === 0) {
+    if (!images.length) {
       return;
     }
 

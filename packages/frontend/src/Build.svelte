@@ -182,7 +182,7 @@ async function validate(): Promise<void> {
     return;
   }
 
-  if (!buildType || buildType.length === 0) {
+  if (!buildType?.length) {
     errorFormValidation = 'Must select at least one disk image type';
     existingBuild = false;
     return;
