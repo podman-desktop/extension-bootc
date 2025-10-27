@@ -211,7 +211,7 @@ jobs:
           report_paths: '**/*results.xml'
 
       - name: Upload test artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: results-e2e-${{ matrix.windows-version }}${{ matrix.windows-featurepack }}
