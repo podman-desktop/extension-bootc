@@ -1,5 +1,6 @@
 name: Enhancement ✨
 description: Suggest an enhancement to an existing feature
+type: enhancement
 labels: [kind/enhancement ✨]
 
 body:
