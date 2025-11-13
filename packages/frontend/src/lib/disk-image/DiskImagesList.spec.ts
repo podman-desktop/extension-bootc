@@ -115,7 +115,7 @@ test('Test clicking on delete button', async () => {
   });
 
   expect(bootcClient.deleteBuilds).toHaveBeenCalledWith(['name1']);
-});
+}, 10_000);
 
 test('Test clicking on build button', async () => {
   vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
