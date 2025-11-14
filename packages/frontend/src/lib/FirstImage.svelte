@@ -11,6 +11,7 @@ let pullInProgress = $state(false);
 let displayDisclaimer = $state(false);
 
 const exampleImage = 'registry.gitlab.com/fedora/bootc/examples/httpd:latest';
+const exampleImageReadmeUrl = 'https://gitlab.com/fedora/bootc/examples/-/tree/main/httpd';
 
 async function gotoBuild(): Promise<void> {
   // Split the image name to get the image name and tag and go to build page
@@ -45,7 +46,7 @@ let imageExists = $derived($imageInfo?.some(image => image.RepoTags?.includes(ex
 <div class="flex flex-col">
   <p class="pb-1 max-w-xl text-[var(--pd-card-header-text)]">
     Create your first disk image by {imageExists ? 'building' : 'pulling'} the <Link
-      externalRef={`https://${exampleImage}`}>example container image</Link
+      externalRef={`${exampleImageReadmeUrl}`}>example container image</Link
     >:
   </p>
 
