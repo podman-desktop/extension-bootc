@@ -1,7 +1,6 @@
 name: Epic ⚡
 description: A high-level feature
 type: epic
-labels: [kind/epic ⚡]
 
 body:
   - type: markdown
