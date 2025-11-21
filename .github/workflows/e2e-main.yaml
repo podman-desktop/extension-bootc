@@ -44,20 +44,20 @@ jobs:
     name: Run E2E tests
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: github.event_name == 'workflow_dispatch'
         with:
           repository: ${{ github.event.inputs.organization }}/${{ github.event.inputs.repositoryName }}
           ref: ${{ github.event.inputs.branch }}
           path: ${{ github.event.inputs.repositoryName }}
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         if: github.event_name == 'push'
         with:
           path: podman-desktop-extension-bootc
 
       # Checkout podman desktop
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           repository: podman-desktop/podman-desktop
           ref: main
