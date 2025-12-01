@@ -17,3 +17,12 @@
  ***********************************************************************/
 
 import 'vitest-canvas-mock';
+
+// Mock ResizeObserver for @floating-ui/dom
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+global.window.ResizeObserver = ResizeObserverMock;
