@@ -36,9 +36,6 @@ vi.mock('/@/api/client', async () => ({
 }));
 
 beforeAll(() => {
-  Object.defineProperty(window, 'ResizeObserver', {
-    value: vi.fn(),
-  });
   Object.defineProperty(window, 'matchMedia', {
     value: vi.fn(),
   });
@@ -48,10 +45,6 @@ beforeEach(() => {
   vi.resetAllMocks();
   vi.useFakeTimers();
 
-  vi.mocked(window.ResizeObserver).mockReturnValue({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-  } as unknown as ResizeObserver);
   vi.mocked(window.matchMedia).mockReturnValue({
     matches: false,
     addListener: vi.fn(),
@@ -76,7 +69,7 @@ test('Render logs and terminal setup', async () => {
 
   // Wait for the logs to be shown
   await waitFor(() => {
-    expect(bootcClient.loadLogsFromFolder).toHaveBeenCalledWith('/path/to/logs');
+    expect(bootcClient.loadLogsFromFolder).toHaveBeenCalledWith(folderLocation);
     expect(screen.queryByText('Build log line 1')).toBeDefined();
     expect(screen.queryByText('Build log line 2')).toBeDefined();
     expect(screen.queryByText('Build log line 3')).toBeDefined();

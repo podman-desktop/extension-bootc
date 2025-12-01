@@ -19,7 +19,7 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { expect, test, vi } from 'vitest';
+import { beforeEach, expect, test, vi } from 'vitest';
 
 import CreateVM from './CreateVM.svelte';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
@@ -41,6 +41,10 @@ vi.mock('./api/client', async () => {
       },
     },
   };
+});
+
+beforeEach(() => {
+  vi.mocked(bootcClient.listVMs).mockResolvedValue([]);
 });
 
 test('Expect CreateVM to load correctly', async () => {

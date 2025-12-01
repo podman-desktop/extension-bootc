@@ -15,11 +15,10 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { vi, test, expect } from 'vitest';
+import { vi, test, expect, beforeEach } from 'vitest';
 import { screen, render } from '@testing-library/svelte';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import { bootcClient } from '/@/api/client';
-import { beforeEach } from 'node:test';
 import DiskImagesList from './DiskImagesList.svelte';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 

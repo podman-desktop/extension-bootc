@@ -113,6 +113,7 @@ vi.mock('./api/client', async () => {
       isMac: vi.fn().mockImplementation(() => mockIsMac),
       isWindows: vi.fn().mockImplementation(() => mockIsWindows),
       openLink: vi.fn(),
+      getUidGid: vi.fn(),
     },
     rpcBrowser: {
       subscribe: (): Subscriber => {

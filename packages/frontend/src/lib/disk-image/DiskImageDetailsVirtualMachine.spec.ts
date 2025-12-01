@@ -16,7 +16,7 @@
  ***********************************************************************/
 
 import { render, screen, waitFor } from '@testing-library/svelte';
-import { vi, test, expect, beforeAll } from 'vitest';
+import { vi, test, expect } from 'vitest';
 import { bootcClient } from '/@/api/client';
 import DiskImageDetailsVirtualMachine from './DiskImageDetailsVirtualMachine.svelte';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
@@ -41,12 +41,6 @@ vi.mock('/@/api/client', async () => {
       isWindows: vi.fn(),
     },
   };
-});
-
-beforeAll(() => {
-  Object.defineProperty(window, 'ResizeObserver', {
-    value: vi.fn().mockReturnValue({ observe: vi.fn(), unobserve: vi.fn() }),
-  });
 });
 
 test('Render virtual machine terminal window', async () => {
