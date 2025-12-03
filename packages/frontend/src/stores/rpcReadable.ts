@@ -28,8 +28,8 @@ export function RPCReadable<T>(
   // For example, you can pass in a custom function such as "getPullingStatuses".
   updater: () => Promise<T>,
 ): Readable<T> {
-  let timeoutId: NodeJS.Timeout | undefined;
-  let timeoutThrottle: NodeJS.Timeout | undefined;
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+  let timeoutThrottle: ReturnType<typeof setTimeout> | undefined;
 
   const debouncedUpdater = debounce(updater);
   const origWritable = writable(value);

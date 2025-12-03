@@ -25,7 +25,7 @@ let resizeObserver = $state<ResizeObserver>();
 let termFit = $state<FitAddon>();
 
 let logsTerminal = $state<Terminal>();
-let logInterval = $state<NodeJS.Timeout>();
+let logInterval = $state<ReturnType<typeof setInterval>>();
 
 async function fetchFolderLogs(): Promise<void> {
   if (!folder) {
