@@ -19,7 +19,7 @@
      */
     "allowJs": true,
     "checkJs": true,
-    "types": ["@testing-library/jest-dom", "node"]
+    "types": ["@testing-library/jest-dom"]
   },
   "include": [
     "src/**/*.d.ts",
