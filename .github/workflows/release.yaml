@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2023-2024 Red Hat, Inc.
+# Copyright (C) 2023-2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -103,32 +103,104 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+  builder-image:
+    needs: tag
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
         with:
-          run_install: false
+          ref: ${{ needs.tag.outputs.githubTag }}
 
-      - uses: actions/setup-node@v6
+      - name: build builder image
+        id: builder-image
+        uses: redhat-actions/buildah-build@v2
         with:
-          node-version: 22
-          cache: 'pnpm'
+          image: extension-bootc-builder
+          tags: latest ${{ needs.tag.outputs.bootcExtensionVersion }}
+          platforms: linux/amd64, linux/arm64
+          containerfiles: |
+            build/Containerfile.builder
+          context: .
+          oci: true
 
-      - name: Execute pnpm
-        run: pnpm install
+      - name: Log in to ghcr.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
 
-      - name: Run Build
-        run: pnpm build
+      - name: publish builder to ghcr.io
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.builder-image.outputs.image }}
+          tags: ${{ steps.builder-image.outputs.tags }}
+          registry: ghcr.io/${{ github.repository_owner }}
 
-      - name: Login to ghcr.io
-        run: podman login --username ${{ github.repository_owner }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-name: ghcr.io/${{ github.repository_owner }}/extension-bootc-builder
+          subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
+          push-to-registry: true
 
-      - name: Publish Image
-        id: publish-image
-        run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/podman-desktop-extension-bootc
-          IMAGE_WITH_TAG=${IMAGE_NAME}:${{ steps.TAG_UTIL.outputs.bootcExtensionVersion }}
-          IMAGE_LATEST=${IMAGE_NAME}:latest
-          podman build -t $IMAGE_WITH_TAG .
-          podman push $IMAGE_WITH_TAG
-          podman tag $IMAGE_WITH_TAG $IMAGE_LATEST
-          podman push $IMAGE_LATEST
+  extension-image:
+    name: Build and publish extension OCI image
+
+    runs-on: ubuntu-24.04
+    needs: [builder-image, tag]
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: build extension image
+        id: extension-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: extension-bootc
+          tags: latest ${{ needs.tag.outputs.bootcExtensionVersion }}
+          archs: amd64, arm64
+          containerfiles: |
+            build/Containerfile
+          context: .
+          oci: true
+
+      - name: Log in to ghcr.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+
+      - name: publish extension to ghcr.io
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.extension-image.outputs.image }}
+          tags: ${{ steps.extension-image.outputs.tags }}
+          registry: ghcr.io/${{ github.repository_owner }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-name: ghcr.io/${{ github.repository_owner }}/extension-bootc
+          subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
+          push-to-registry: true
+
+  release:
+    needs: [tag, builder-image, extension-image]
+    name: Release
+    runs-on: ubuntu-24.04
+    steps:
+      - name: id
+        run: echo the release id is ${{ needs.tag.outputs.releaseId}}
+
+      - name: Publish release
+        uses: StuYarrow/publish-release@v1.1.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          id: ${{ needs.tag.outputs.releaseId}}
