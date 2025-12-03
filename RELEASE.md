@@ -19,7 +19,7 @@ In the below example, we will pretend that we're upgrading from `1.1.0` to `1.2.
 1. Make sure that all tasks for the respective release milestone are completed / updated, then close it. https://github.com/podman-desktop/podman-desktop-extension-bootc/milestones
 1. If not already created, click on `New Milestone` and create a new milestone for the NEXT release.
 1. Check that https://github.com/podman-desktop/podman-desktop-extension-bootc/actions/workflows/release.yaml has been completed.
-1. Ensure the image has been successfully published to https://github.com/podman-desktop/extension-bootc/pkgs/container/podman-desktop-extension-bootc
+1. Ensure the image has been successfully published to https://github.com/podman-desktop/extension-bootc/pkgs/container/extension-bootc
 1. There should be an automated PR that has been created. The title looks like `chore: 📢 Bump version to 1.3.0`. Rerun workflow manually if some of e2e tests are failing.
 1. Wait for the PR above to be approved and merged before continuing with the steps.
 1. Edit the new release https://github.com/podman-desktop/podman-desktop-extension-bootc/releases/edit/v1.2.0.
