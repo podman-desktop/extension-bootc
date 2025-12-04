@@ -3,8 +3,8 @@
 You can use `pnpm watch --extension-folder` from the Podman Desktop directory to automatically rebuild and test the bootc extension:
 
 ```sh
-git clone https://github.com/containers/podman-desktop
-git clone https://github.com/containers/extension-bootc
+git clone https://github.com/podman-desktop/podman-desktop
+git clone https://github.com/podman-desktop/extension-bootc
 cd podman-desktop
 pnpm watch --extension-folder ../extension-bootc/packages/backend
 ```

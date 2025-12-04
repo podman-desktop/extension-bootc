@@ -111,7 +111,7 @@ Compatible on Windows, macOS & Linux
 
 **Software:**
 
-- [Podman Desktop 1.10.0+](https://github.com/containers/podman-desktop)
+- [Podman Desktop 1.10.0+](https://github.com/podman-desktop/podman-desktop)
 - [Podman 5.0.1+](https://github.com/containers/podman)
 
 ### Podman Machine (macOS / Windows)
@@ -330,4 +330,4 @@ podman pull registry.redhat.io/rhel10/rhel-bootc:latest
 
 ## Contributing
 
-Want to help develop and contribute to the bootc extension? View our [CONTRIBUTING](https://github.com/containers/podman-desktop-extension-bootc/blob/main/CONTRIBUTING.md) document.
+Want to help develop and contribute to the bootc extension? View our [CONTRIBUTING](https://github.com/podman-desktop/extension-bootc/blob/main/CONTRIBUTING.md) document.
