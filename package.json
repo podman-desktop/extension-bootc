@@ -70,7 +70,7 @@
     "prettier": "^3.7.4",
     "prettier-plugin-svelte": "^3.4.0",
     "svelte-check": "^4.3.4",
-    "svelte-eslint-parser": "^1.4.0",
+    "svelte-eslint-parser": "^1.4.1",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.48.1",
     "vite": "7.2.6",
