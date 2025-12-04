@@ -140,7 +140,7 @@ describe('version checker', () => {
 
   /**
    * This check ensure we do not support old nighties version to be used
-   * update introduced in https://github.com/containers/podman-desktop/pull/7643
+   * update introduced in https://github.com/podman-desktop/podman-desktop/pull/7643
    */
   test('old nightlies version', async () => {
     (podmanDesktopApi.version as string) = 'v0.0.202404030805-3cb4544';
