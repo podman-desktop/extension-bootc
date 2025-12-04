@@ -36,7 +36,7 @@ jobs:
       - name: Check for builder-related changes
         id: check
         run: |
-          if git diff --name-only HEAD^ HEAD | grep -E '^(package.json|pnpm-lock.yaml|build/Containerfile.builder|.github/workflows/next-build.yaml)$'; then
+          if git diff --name-only HEAD^ HEAD | grep -E '^(package.json|pnpm-lock.yaml|build/Containerfile.builder|.github/workflows/build-next.yaml)$'; then
             echo "builder_required=true" >> $GITHUB_OUTPUT
           else
             echo "builder_required=false" >> $GITHUB_OUTPUT

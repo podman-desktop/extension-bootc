@@ -40,14 +40,11 @@ RUN pnpm install && \
 RUN mkdir /opt/app-root/extension && \
       cp -r dist /opt/app-root/extension/ && \
       cp package.json /opt/app-root/extension/ && \
-      cp ./*.png /opt/app-root/extension/
-
-COPY package.json /opt/app-root/extension/
-COPY LICENSE /opt/app-root/extension/
-COPY README.md /opt/app-root/extension/
-COPY icon.png /opt/app-root/extension/
-COPY packages/backend/bootable.woff2 /opt/app-root/extension/
-COPY packages/backend/media/ /opt/app-root/extension/media
+      cp ./*.png /opt/app-root/extension/ && \
+      cp LICENSE /opt/app-root/extension/ && \
+      cp README.md /opt/app-root/extension/ && \
+      cp packages/backend/bootable.woff2 /opt/app-root/extension/ && \
+      cp packages/backend/media/ /opt/app-root/extension/media
 
 # TEMPORARY. Permanent fix will be in the future when we can add all of this to vite script.
 # We require the macadam.js binaries and library, so we will manually copy this over to the container image.
