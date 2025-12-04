@@ -64,7 +64,6 @@ const config = {
     },
     alias: {
       '@podman-desktop/api': resolve(PACKAGE_ROOT, '__mocks__', '@podman-desktop', 'api.js'),
-      '@crc-org/macadam.js': resolve(PACKAGE_ROOT, '__mocks__', '@crc-org', 'macadam.js'),
     },
   },
 };
