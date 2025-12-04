@@ -42,9 +42,9 @@ on:
         description: 'npm target to run tests'
         type: string
         required: true
-      podman_remote_url:
-        default: 'https://github.com/containers/podman/releases/download/v5.6.1/podman-5.6.1-setup.exe'
-        description: 'podman remote setup exe'
+      podman_version:
+        default: 'latest'
+        description: 'Podman version (use "latest" to auto-fetch latest release, or specify version like "v5.6.1")'
         type: string
         required: true
       podman_options:
@@ -94,11 +94,14 @@ jobs:
           - windows-version: '11'
             windows-featurepack: '22h2-ent'
     steps:
-      - name: Get Podman version used by Desktop
-        run: |
-          version=$(curl https://raw.githubusercontent.com/containers/podman-desktop/main/extensions/podman/packages/extension/src/podman5.json | jq -r '.version')
-          echo "Default Podman Version from Podman Desktop: ${version}"
-          echo "PD_PODMAN_VERSION=${version}" >> $GITHUB_ENV
+      - name: Fetch latest Podman version
+        id: fetch-podman
+        uses: redhat-actions/podman-install/.github/actions/fetch-latest-podman-version-windows@6b757b792b67ec663765a4f2ca36226e12b2f4cd
+        with:
+          version_input: ${{ github.event.inputs.podman_version || 'latest' }}
+          file_type: 'setup.exe'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Set the default env. variables
         env:
           DEFAULT_PODMAN_DESKTOP_REPO_ARGS: 'REPO=podman-desktop,FORK=podman-desktop,BRANCH=main'
@@ -108,14 +111,12 @@ jobs:
           DEFAULT_PODMAN_OPTIONS: 'INIT=1,START=1,ROOTFUL=1,NETWORKING=0'
           DEFAULT_EXT_TESTS_OPTIONS: 'EXT_RUN_TESTS_FROM_EXTENSION=1,EXT_RUN_TESTS_AS_ADMIN=0'
           DEFAULT_EXT_REPO_OPTIONS: 'REPO=extension-bootc,FORK=podman-desktop,BRANCH=main'
-          DEFAULT_PODMAN_VERSION: "${{ env.PD_PODMAN_VERSION || '5.6.1' }}"
-          DEFAULT_URL: 'https://github.com/containers/podman/releases/download/v$DEFAULT_PODMAN_VERSION/podman-$DEFAULT_PODMAN_VERSION-setup.exe'
           DEFAULT_PDE2E_IMAGE_VERSION: 'v0.0.3'
         run: |
           echo "NPM_TARGET=${{ github.event.inputs.npm_target || env.DEFAULT_NPM_TARGET }}" >> $GITHUB_ENV
           echo "ENV_VARS=${{ github.event.inputs.env_vars || env.DEFAULT_ENV_VARS }}" >> $GITHUB_ENV
           echo "PODMAN_PROVIDER=${{ github.event.inputs.podman_provider || env.DEFAULT_PODMAN_PROVIDER }}" >> $GITHUB_ENV
-          echo "PODMAN_URL=${{ github.event.inputs.podman_remote_url || env.DEFAULT_URL }}" >> $GITHUB_ENV
+          echo "PODMAN_URL=${{ steps.fetch-podman.outputs.download_url }}" >> $GITHUB_ENV
           echo "PDE2E_IMAGE_VERSION=${{ github.event.inputs.pde2e_image_version || env.DEFAULT_PDE2E_IMAGE_VERSION }}" >> $GITHUB_ENV
           echo "${{ github.event.inputs.podman_desktop_repo_args || env.DEFAULT_PODMAN_DESKTOP_REPO_ARGS }}" | awk -F ',' \
             '{for (i=1; i<=NF; i++) {split($i, kv, "="); print "PD_"kv[1]"="kv[2]}}' >> $GITHUB_ENV
@@ -135,7 +136,7 @@ jobs:
           echo "$mapt_params" | awk -F ';' '{for (i=1; i<=NF; i++) {split($i, kv, "="); print "MAPT_"kv[1]"="kv[2]}}' >> $GITHUB_ENV
 
       - name: Create instance
-        uses: podman-desktop/e2e/.github/actions/create-instance@36e440f2ac18193214f4ffa8f7f1c4c0cb8c9446
+        uses: podman-desktop/e2e/.github/actions/create-instance@213a276952d746324895f63cea0b23083013990f
         with:
           mapt-image: ${{ env.MAPT_IMAGE || '' }}
           mapt-version: ${{ env.MAPT_VERSION_TAG || '' }}
