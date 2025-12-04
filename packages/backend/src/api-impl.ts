@@ -25,7 +25,6 @@ import { buildDiskImage, buildExists } from './build-disk-image';
 import { History } from './history';
 import * as containerUtils from './container-utils';
 import { Messages } from '/@shared/src/messages/Messages';
-import { telemetryLogger } from './extension';
 import { checkPrereqs, isLinux, isMac, isWindows, getUidGid, getArch } from './machine-utils';
 import * as fs from 'node:fs';
 import path from 'node:path';
@@ -42,6 +41,7 @@ export class BootcApiImpl implements BootcApi {
 
   constructor(
     private readonly extensionContext: podmanDesktopApi.ExtensionContext,
+    private readonly telemetryLogger: podmanDesktopApi.TelemetryLogger,
     webview: podmanDesktopApi.Webview,
   ) {
     this.history = new History(extensionContext.storagePath);
@@ -74,13 +74,13 @@ export class BootcApiImpl implements BootcApi {
 
   // Launches a macadam VM by initializing the class and initializing the VM
   async createVM(options: CreateVmOptions): Promise<void> {
-    const macadam = new MacadamHandler();
+    const macadam = new MacadamHandler(this.telemetryLogger);
     await macadam.createVm(options);
   }
 
   // Returns a list of all the VM's currently in use
   async listVMs(): Promise<VmDetails[]> {
-    const macadam = new MacadamHandler();
+    const macadam = new MacadamHandler(this.telemetryLogger);
     return await macadam.listVms();
   }
 
@@ -370,12 +370,12 @@ export class BootcApiImpl implements BootcApi {
 
   // Log an event to telemetry
   async telemetryLogUsage(eventName: string, data?: Record<string, unknown>): Promise<void> {
-    telemetryLogger.logUsage(eventName, data);
+    this.telemetryLogger.logUsage(eventName, data);
   }
 
   // Log an error to telemetry
   async telemetryLogError(eventName: string, data?: Record<string, unknown>): Promise<void> {
-    telemetryLogger.logError(eventName, data);
+    this.telemetryLogger.logError(eventName, data);
   }
 
   async isLinux(): Promise<boolean> {

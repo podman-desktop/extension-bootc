@@ -16,50 +16,62 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { expect, test, vi } from 'vitest';
+import { expect, test, vi, beforeEach } from 'vitest';
 import examplesCatalog from '../assets/examples.json';
 import type { ExamplesList } from '/@shared/src/models/examples';
 import { BootcApiImpl } from './api-impl';
 import * as podmanDesktopApi from '@podman-desktop/api';
-import type { CreateVmOptions, VmDetails } from '@crc-org/macadam.js';
+import type * as macadam from '@crc-org/macadam.js';
 import { MacadamHandler } from './macadam';
 
-vi.mock('@podman-desktop/api', async () => {
-  return {
-    window: {
-      showErrorMessage: vi.fn(),
-      showOpenDialog: vi.fn(),
-    },
-    containerEngine: {
-      listImages: vi.fn(),
-      listContainers: vi.fn(),
-      deleteImage: vi.fn(),
-    },
-    env: {
-      openExternal: vi.fn(),
-      createTelemetryLogger: vi.fn(),
-    },
-  };
-});
+const TELEMETRY_LOGGER_MOCK: podmanDesktopApi.TelemetryLogger = {
+  logUsage: vi.fn(),
+} as unknown as podmanDesktopApi.TelemetryLogger;
 
-vi.mock('@crc-org/macadam.js', () => {
-  const mockInstance = {
-    init: vi.fn(),
-    createVm: vi.fn(),
-    listVms: vi.fn(),
-  };
-  return {
-    Macadam: vi.fn(() => mockInstance),
-  };
+vi.mock(
+  import('@podman-desktop/api'),
+  () =>
+    ({
+      window: {
+        showErrorMessage: vi.fn(),
+        showOpenDialog: vi.fn(),
+      },
+      containerEngine: {
+        listImages: vi.fn(),
+        listContainers: vi.fn(),
+        deleteImage: vi.fn(),
+      },
+      env: {
+        openExternal: vi.fn(),
+        createTelemetryLogger: vi.fn(),
+      },
+    }) as unknown as typeof podmanDesktopApi,
+);
+
+vi.mock(
+  import('@crc-org/macadam.js'),
+  () =>
+    ({
+      Macadam: vi.fn(
+        class {
+          createVm = vi.fn();
+          init = vi.fn();
+          listVms = vi.fn();
+        },
+      ),
+    }) as unknown as typeof macadam,
+);
+
+beforeEach(() => {
+  vi.resetAllMocks();
 });
 
 function createAPI(): BootcApiImpl {
   const postMessageMock = vi.fn().mockResolvedValue(undefined);
 
-  return new BootcApiImpl(
-    {} as podmanDesktopApi.ExtensionContext,
-    { postMessage: postMessageMock } as unknown as podmanDesktopApi.Webview,
-  );
+  return new BootcApiImpl({} as podmanDesktopApi.ExtensionContext, TELEMETRY_LOGGER_MOCK, {
+    postMessage: postMessageMock,
+  } as unknown as podmanDesktopApi.Webview);
 }
 
 test('getExamples should return examplesCatalog', async () => {
@@ -69,7 +81,7 @@ test('getExamples should return examplesCatalog', async () => {
 
   const webviewMock = {} as podmanDesktopApi.Webview;
 
-  const bootcApi = new BootcApiImpl(extensionContextMock, webviewMock);
+  const bootcApi = new BootcApiImpl(extensionContextMock, TELEMETRY_LOGGER_MOCK, webviewMock);
 
   // When running get Examples we should return the examplesCatalog (it's exported)
   const result = await bootcApi.getExamples();
@@ -95,10 +107,9 @@ test('listContainers should return list from extension api', async () => {
 test('deleteImage should call the extension api and fire event', async () => {
   const postMessageMock = vi.fn().mockResolvedValue(undefined);
 
-  const apiImpl = new BootcApiImpl(
-    {} as podmanDesktopApi.ExtensionContext,
-    { postMessage: postMessageMock } as unknown as podmanDesktopApi.Webview,
-  );
+  const apiImpl = new BootcApiImpl({} as podmanDesktopApi.ExtensionContext, TELEMETRY_LOGGER_MOCK, {
+    postMessage: postMessageMock,
+  } as unknown as podmanDesktopApi.Webview);
 
   await apiImpl.deleteImage('a', 'b');
 
@@ -116,7 +127,7 @@ test('createVM should call the extension api', async () => {
     imagePath: '~/foobar',
     sshIdentityPath: '~/foobar/id_rsa',
     username: 'foobar',
-  } as CreateVmOptions;
+  } as macadam.CreateVmOptions;
 
   await apiImpl.createVM(options);
 
@@ -130,14 +141,14 @@ test('check createVM passes underlying error message', async () => {
   const apiImpl = createAPI();
 
   try {
-    await apiImpl.createVM({} as CreateVmOptions);
+    await apiImpl.createVM({} as macadam.CreateVmOptions);
   } catch (e) {
     expect(e).toEqual('failed');
   }
 });
 
 test('listVMs should call the extension api', async () => {
-  vi.spyOn(MacadamHandler.prototype, 'listVms').mockResolvedValue([{ name: 'foobar' } as unknown as VmDetails]);
+  vi.spyOn(MacadamHandler.prototype, 'listVms').mockResolvedValue([{ name: 'foobar' } as unknown as macadam.VmDetails]);
 
   const apiImpl = createAPI();
 

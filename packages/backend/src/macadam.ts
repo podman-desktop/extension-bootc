@@ -15,9 +15,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
-import * as macadam from '@crc-org/macadam.js';
+import { Macadam } from '@crc-org/macadam.js';
+import type { CreateVmOptions, VmDetails } from '@crc-org/macadam.js';
 import { macadamName } from './constants';
-import { telemetryLogger } from './extension';
 import * as extensionApi from '@podman-desktop/api';
 import { isWSLEnabled } from './macadam/win/utils';
 
@@ -25,16 +25,16 @@ interface StderrError extends Error {
   stderr?: string;
 }
 export class MacadamHandler {
-  private macadam: macadam.Macadam;
+  private macadam: Macadam;
 
-  constructor() {
+  constructor(private readonly telemetryLogger: extensionApi.TelemetryLogger) {
     // IMPORTANT NOTE
     // In order for this to work with the RHEL VM extension, you must use 'rhel' as the macadam name.
     // This is the given "type" and will only appear within Settings > Resources if it's prefixed with rhel.
-    this.macadam = new macadam.Macadam(macadamName);
+    this.macadam = new Macadam(macadamName);
   }
 
-  async createVm(options: macadam.CreateVmOptions): Promise<void> {
+  async createVm(options: CreateVmOptions): Promise<void> {
     // Store information for telemetry, starting with the type
     const telemetryData: Record<string, unknown> = {};
     telemetryData.type = options.imagePath.substring(options.imagePath.lastIndexOf('.') + 1);
@@ -82,12 +82,12 @@ export class MacadamHandler {
         throw new Error(`Error creating VM: ${errorMessage}`);
       })
       .finally(() => {
-        telemetryLogger.logUsage('createVM', telemetryData);
+        this.telemetryLogger.logUsage('createVM', telemetryData);
       });
   }
 
   // List all virtual machines.
-  async listVms(): Promise<macadam.VmDetails[]> {
+  async listVms(): Promise<VmDetails[]> {
     try {
       await this.macadam.init();
       const vms = await this.macadam.listVms({});
