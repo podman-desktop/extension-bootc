@@ -14,6 +14,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
+import '@testing-library/jest-dom/vitest';
 
 import { render, screen, waitFor } from '@testing-library/svelte';
 import { vi, test, expect, beforeAll, beforeEach, afterEach } from 'vitest';
@@ -91,7 +92,7 @@ test('Handles empty logs correctly', async () => {
 test('Refreshes logs correctly', async () => {
   vi.mocked(bootcClient.loadLogsFromFolder).mockResolvedValue(mockLogs);
   vi.mocked(bootcClient.getConfigurationValue).mockResolvedValue(14);
-  const setIntervalSpy = vi.spyOn(global, 'setInterval');
+  const setIntervalSpy = vi.spyOn(window.globalThis, 'setInterval');
 
   render(DiskImageDetailsBuild, { folder: '/empty/logs' });
 

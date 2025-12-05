@@ -162,7 +162,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
   rpcExtension.init();
   extensionContext.subscriptions.push(rpcExtension);
 
-  const bootcApi = new BootcApiImpl(extensionContext, panel.webview);
+  const bootcApi = new BootcApiImpl(extensionContext, telemetryLogger, panel.webview);
   rpcExtension.registerInstance<BootcApiImpl>(BootcApiImpl, bootcApi);
 
   // Create the historyNotifier and push to subscriptions

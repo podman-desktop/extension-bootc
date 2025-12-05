@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { builtinModules } from 'module';
 
 const PACKAGE_ROOT = __dirname;
@@ -54,6 +54,17 @@ const config = {
     },
     emptyOutDir: true,
     reportCompressedSize: false,
+  },
+  test: {
+    include: ['**/*.{test,spec}.?(c|m)[jt]s?(x)', '../shared/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['lcov', 'text'],
+      extension: '.ts',
+    },
+    alias: {
+      '@podman-desktop/api': resolve(PACKAGE_ROOT, '__mocks__', '@podman-desktop', 'api.js'),
+    },
   },
 };
 

@@ -21,30 +21,35 @@ import { createVMManager, stopCurrentVM } from './vm-manager';
 import { isLinux, isMac, isArm } from './machine-utils';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import * as extensionApi from '@podman-desktop/api';
-import fs from 'node:fs';
+import { readFile } from 'node:fs/promises';
 
 // Mock the functions from machine-utils
-vi.mock('./machine-utils', () => ({
+vi.mock(import('./machine-utils'), () => ({
   isWindows: vi.fn(),
   isLinux: vi.fn(),
   isMac: vi.fn(),
   isArm: vi.fn(),
   isX86: vi.fn(),
 }));
-vi.mock('node:fs');
-vi.mock('@podman-desktop/api', async () => ({
-  process: {
-    exec: vi.fn(),
-  },
-  env: {
-    isLinux: vi.fn(),
-    isMac: vi.fn(),
-    isArm: vi.fn(),
-  },
-}));
+vi.mock(import('node:fs'));
+vi.mock(import('node:fs/promises'));
+vi.mock(
+  import('@podman-desktop/api'),
+  () =>
+    ({
+      process: {
+        exec: vi.fn(),
+      },
+      env: {
+        isLinux: vi.fn(),
+        isMac: vi.fn(),
+        isArm: vi.fn(),
+      },
+    }) as unknown as typeof extensionApi,
+);
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
 });
 
 test('createVMManager: should create a MacArmNativeVMManager for macOS ARM build', () => {
@@ -141,7 +146,7 @@ test('createVMManager: should throw an error for unsupported OS/architecture', (
 });
 
 test('stopCurrentVM: should call kill command with the pid from pidfile', async () => {
-  vi.spyOn(fs.promises, 'readFile').mockResolvedValueOnce('1234');
+  vi.mocked(readFile).mockResolvedValueOnce('1234');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   vi.spyOn(extensionApi.process, 'exec').mockResolvedValueOnce({ stdout: '' } as any);
 

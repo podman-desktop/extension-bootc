@@ -21,57 +21,59 @@ import { MacadamHandler } from './macadam';
 import * as macadam from '@crc-org/macadam.js';
 import * as extensionApi from '@podman-desktop/api';
 
-const mocks = vi.hoisted(() => ({
-  logUsageMock: vi.fn(),
-}));
+const TELEMETRY_LOGGER_MOCK: extensionApi.TelemetryLogger = {
+  logUsage: vi.fn(),
+} as unknown as extensionApi.TelemetryLogger;
 
-vi.mock('@podman-desktop/api', async () => {
-  return {
-    env: {
-      createTelemetryLogger: (): extensionApi.TelemetryLogger =>
-        ({
-          logUsage: mocks.logUsageMock,
-        }) as unknown as extensionApi.TelemetryLogger,
-      isLinux: false,
-      isMac: false,
-      isWindows: false,
-    },
-    window: {
-      withProgress: vi.fn().mockImplementation,
-      showErrorMessage: vi.fn(),
-    },
-    ProgressLocation: {
-      TASK_WIDGET: 'TASK_WIDGET',
-    },
-    telemetryLogger: {
-      logUsage: vi.fn(),
-    },
-  };
-});
+vi.mock(
+  import('@podman-desktop/api'),
+  () =>
+    ({
+      env: {
+        createTelemetryLogger: vi.fn(),
+        isLinux: false,
+        isMac: false,
+        isWindows: false,
+      },
+      window: {
+        withProgress: vi.fn(),
+        showErrorMessage: vi.fn(),
+      },
+      ProgressLocation: {
+        TASK_WIDGET: 'TASK_WIDGET',
+      },
+      telemetryLogger: {
+        logUsage: vi.fn(),
+      },
+    }) as unknown as typeof extensionApi,
+);
 
 const progress = {
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   report: (): void => {},
 };
 
-vi.mock('@crc-org/macadam.js', () => {
-  const mockInstance = {
-    init: vi.fn(),
-    createVm: vi.fn(),
-    listVms: vi.fn(),
-  };
-  return {
-    Macadam: vi.fn(() => mockInstance),
-  };
-});
+vi.mock(
+  import('@crc-org/macadam.js'),
+  () =>
+    ({
+      Macadam: vi.fn(
+        class {
+          createVm = vi.fn();
+          init = vi.fn();
+          listVms = vi.fn();
+        },
+      ),
+    }) as unknown as typeof macadam,
+);
 
 beforeEach(() => {
   vi.resetAllMocks();
 });
 
 test('Test creating Mac VM with MacadamHandler', async () => {
-  const macadamVm = new MacadamHandler(); // This must come first
-  const macadamInstance = (macadam.Macadam as Mock).mock.results[0].value;
+  const macadamVm = new MacadamHandler(TELEMETRY_LOGGER_MOCK); // This must come first
+  const macadamInstance = vi.mocked(macadam.Macadam).mock.results[0].value;
   macadamInstance.createVm.mockResolvedValue({ stdout: '', stderr: '' });
 
   vi.spyOn(extensionApi.window, 'withProgress').mockImplementation((_options, task) => {
@@ -90,7 +92,7 @@ test('Test creating Mac VM with MacadamHandler', async () => {
   const callOptions = macadamInstance.createVm.mock.calls[0][0];
   expect(callOptions.imagePath).not.toContain('~/');
   expect(callOptions.sshIdentityPath).not.toContain('~/');
-  expect(mocks.logUsageMock).toHaveBeenCalledWith('createVM', {
+  expect(TELEMETRY_LOGGER_MOCK.logUsage).toHaveBeenCalledWith('createVM', {
     success: true,
     type: 'qcow2',
     provider: 'applehv',
@@ -98,7 +100,7 @@ test('Test creating Mac VM with MacadamHandler', async () => {
 });
 
 test('Test creating Windows VM with MacadamHandler', async () => {
-  const macadamVm = new MacadamHandler(); // This must come first
+  const macadamVm = new MacadamHandler(TELEMETRY_LOGGER_MOCK); // This must come first
   const macadamInstance = (macadam.Macadam as Mock).mock.results[0].value;
   macadamInstance.createVm.mockResolvedValue({ stdout: '', stderr: '' });
 
@@ -119,7 +121,7 @@ test('Test creating Windows VM with MacadamHandler', async () => {
   const callOptions = macadamInstance.createVm.mock.calls[0][0];
   expect(callOptions.imagePath).not.toContain('~/');
   expect(callOptions.sshIdentityPath).not.toContain('~/');
-  expect(mocks.logUsageMock).toHaveBeenCalledWith('createVM', {
+  expect(TELEMETRY_LOGGER_MOCK.logUsage).toHaveBeenCalledWith('createVM', {
     success: true,
     type: 'wsl2',
     provider: 'hyperv',
@@ -127,7 +129,7 @@ test('Test creating Windows VM with MacadamHandler', async () => {
 });
 
 test('Test creating Linux VM with MacadamHandler', async () => {
-  const macadamVm = new MacadamHandler(); // This must come first
+  const macadamVm = new MacadamHandler(TELEMETRY_LOGGER_MOCK); // This must come first
   const macadamInstance = (macadam.Macadam as Mock).mock.results[0].value;
   macadamInstance.createVm.mockResolvedValue({ stdout: '', stderr: '' });
 
@@ -148,7 +150,7 @@ test('Test creating Linux VM with MacadamHandler', async () => {
   const callOptions = macadamInstance.createVm.mock.calls[0][0];
   expect(callOptions.imagePath).not.toContain('~/');
   expect(callOptions.sshIdentityPath).not.toContain('~/');
-  expect(mocks.logUsageMock).toHaveBeenCalledWith('createVM', {
+  expect(TELEMETRY_LOGGER_MOCK.logUsage).toHaveBeenCalledWith('createVM', {
     success: true,
     type: 'raw',
     provider: undefined,
@@ -156,7 +158,7 @@ test('Test creating Linux VM with MacadamHandler', async () => {
 });
 
 test('Test listing VMs with MacadamHandler', async () => {
-  const macadamVm = new MacadamHandler(); // This must come first
+  const macadamVm = new MacadamHandler(TELEMETRY_LOGGER_MOCK); // This must come first
   const macadamInstance = (macadam.Macadam as Mock).mock.results[0].value;
   macadamInstance.listVms.mockResolvedValue([{ name: 'test-vm' }]);
 
