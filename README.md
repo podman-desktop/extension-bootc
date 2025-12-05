@@ -16,6 +16,7 @@ Easily go from container to VM / ISO-on-a-USB / RAW image!
 - [Advanced Usage](#advanced-usage)
 - [Preferences](#preferences)
 - [Known Issues](#known-issues)
+- [Offline / Airplane Mode](#offline--airplane-mode)
 - [Contributing](#contributing)
 
 ## Technology
@@ -255,6 +256,77 @@ Follow the below steps for the solution:
 2. `chmod +x gvproxy-linux-amd64`
 3. `sudo mkdir /usr/libexec/podman`
 4. `sudo mv gvproxy-linux-amd64 /usr/libexec/podman/gvproxy`
+
+## Offline / airplane mode
+
+Planning to build disk images on an airplane, train, or somewhere with slow/no internet? You can pre-download all the required container images needed to run the bootc extension beforehand.
+
+**Note:** ISO builds (`anaconda-iso`) will **not** work offline as they pull RPMs during the build process. Use `qcow2`, `raw`, `vmdk`, `vhd`, or other formats for offline builds.
+
+### Pre-pulling the bootc-image-builder (BIB) images
+
+The extension uses `bootc-image-builder` to create disk images. Pull the appropriate builder for your base image:
+
+```sh
+# CentOS builder (default)
+podman pull quay.io/centos-bootc/bootc-image-builder:sha256-c2d6830647c095e29c8cabd1ef6ae0e903e77675b953655428ac5cef147541a0
+
+# RHEL 9 builder (requires Red Hat subscription)
+podman pull registry.redhat.io/rhel9/bootc-image-builder:9.7
+
+# RHEL 10 builder (requires Red Hat subscription)
+podman pull registry.redhat.io/rhel10/bootc-image-builder:10.1
+```
+
+### Pre-pulling example images
+
+The extension dashboard shows example images you can use. You can pre-pull these as well:
+
+```sh
+# Apache httpd web server
+podman pull registry.gitlab.com/fedora/bootc/examples/httpd:latest
+
+# Tailscale VPN
+podman pull registry.gitlab.com/fedora/bootc/examples/tailscale:latest
+
+# Podman systemd (container managed by systemd)
+podman pull registry.gitlab.com/fedora/bootc/examples/app-podman-systemd:latest
+
+# QEMU guest agent
+podman pull registry.gitlab.com/fedora/bootc/examples/qemu-guest-agent:latest
+
+# WiFi modules
+podman pull registry.gitlab.com/fedora/bootc/examples/wifi:latest
+
+# Kernel module management
+podman pull registry.gitlab.com/fedora/bootc/examples/kernel-module:latest
+```
+
+### Pre-pulling base bootc images
+
+You can also pre-pull the base image(s) you plan to build your own Containerfile's offline.
+
+```sh
+# CentOS
+podman pull quay.io/centos-bootc/centos-bootc:stream9
+podman pull quay.io/centos-bootc/centos-bootc:stream10
+
+# Fedora
+podman pull quay.io/fedora/fedora-bootc:42
+podman pull quay.io/fedora/fedora-bootc:43
+podman pull quay.io/fedora/fedora-bootc:44
+
+# RHEL (requires Red Hat subscription)
+podman pull registry.redhat.io/rhel9/rhel-bootc:latest
+podman pull registry.redhat.io/rhel10/rhel-bootc:latest
+```
+
+### Example workflow for offline use
+
+1. While online, pull the builder and base images you need
+2. Build your bootc container image from your Containerfile
+3. Go offline
+4. Use the extension to build disk images (qcow2, raw, vmdk, etc.)
 
 ## Contributing
 
