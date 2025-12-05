@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2023-2024 Red Hat, Inc.
+# Copyright (C) 2023-2025 Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,37 +23,111 @@ on:
       - 'main'
 
 jobs:
-  build:
-    runs-on: ubuntu-22.04
+  check-builder-changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      builder_required: ${{ steps.check.outputs.builder_required }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 2 # Ensure we have at least one previous commit for diff check
+
+      - name: Check for builder-related changes
+        id: check
+        run: |
+          if git diff --name-only HEAD^ HEAD | grep -E '^(package.json|pnpm-lock.yaml|build/Containerfile.builder|.github/workflows/build-next.yaml)$'; then
+            echo "builder_required=true" >> $GITHUB_OUTPUT
+          else
+            echo "builder_required=false" >> $GITHUB_OUTPUT
+          fi
+
+  builder-image:
+    needs: check-builder-changes
+    if: needs.check-builder-changes.outputs.builder_required == 'true'
+    name: Build and publish builder OCI images only if pnpm-lock.yaml or package.json changes
+    runs-on: ubuntu-24.04
+
     steps:
       - uses: actions/checkout@v6
-
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
         with:
-          run_install: false
+          fetch-depth: 0
 
-      - uses: actions/setup-node@v6
+      - name: build builder image
+        id: builder-image
+        uses: redhat-actions/buildah-build@v2
         with:
-          node-version: 22
-          cache: 'pnpm'
+          image: extension-bootc-builder
+          tags: next ${{ github.sha }}
+          platforms: linux/amd64, linux/arm64
+          containerfiles: |
+            build/Containerfile.builder
+          context: .
+          oci: true
 
-      - name: Execute pnpm
-        run: pnpm install
+      - name: Log in to ghcr.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
 
-      - name: Run Build
-        run: pnpm build
+      - name: publish builder to ghcr.io
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.builder-image.outputs.image }}
+          tags: ${{ steps.builder-image.outputs.tags }}
+          registry: ghcr.io/${{ github.repository_owner }}
 
-      - name: Login to ghcr.io
-        run: podman login --username ${{ github.repository_owner }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-name: ghcr.io/${{ github.repository_owner }}/extension-bootc-builder
+          subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
+          push-to-registry: true
 
-      - name: Publish Image
-        id: publish-image
-        run: |
-          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/podman-desktop-extension-bootc
-          IMAGE_NIGHTLY=${IMAGE_NAME}:nightly
-          IMAGE_SHA=${IMAGE_NAME}:${GITHUB_SHA}
-          podman build -t $IMAGE_NIGHTLY .
-          podman push $IMAGE_NIGHTLY
-          podman tag $IMAGE_NIGHTLY $IMAGE_SHA
-          podman push $IMAGE_SHA
+  extension-image:
+    name: Build and publish extension OCI image
+    if: always()
+    runs-on: ubuntu-24.04
+    needs: builder-image
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: build extension image
+        id: extension-image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: extension-bootc
+          tags: next ${{ github.sha }}
+          archs: amd64, arm64
+          containerfiles: |
+            build/Containerfile
+          context: .
+          oci: true
+
+      - name: Log in to ghcr.io
+        uses: redhat-actions/podman-login@v1
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+
+      - name: publish extension to ghcr.io
+        id: push-to-ghcr
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.extension-image.outputs.image }}
+          tags: ${{ steps.extension-image.outputs.tags }}
+          registry: ghcr.io/${{ github.repository_owner }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-name: ghcr.io/${{ github.repository_owner }}/extension-bootc
+          subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
+          push-to-registry: true
