@@ -272,8 +272,8 @@ importers:
         specifier: ^11.0.13
         version: 11.0.13
       humanize-duration:
-        specifier: ^3.33.1
-        version: 3.33.1
+        specifier: ^3.33.2
+        version: 3.33.2
       jsdom:
         specifier: ^27.2.0
         version: 27.2.0
@@ -2349,8 +2349,8 @@ packages:
     resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
     engines: {node: '>= 14'}
 
-  humanize-duration@3.33.1:
-    resolution: {integrity: sha512-hwzSCymnRdFx9YdRkQQ0OYequXiVAV6ZGQA2uzocwB0F4309Ke6pO8dg0P8LHhRQJyVjGteRTAA/zNfEcpXn8A==}
+  humanize-duration@3.33.2:
+    resolution: {integrity: sha512-K7Ny/ULO1hDm2nnhvAY+SJV1skxFb61fd073SG1IWJl+D44ULrruCuTyjHKjBVVcSuTlnY99DKtgEG39CM5QOQ==}
 
   husky@9.1.7:
     resolution: {integrity: sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA==}
@@ -4326,7 +4326,7 @@ snapshots:
       '@fortawesome/free-brands-svg-icons': 7.1.0
       '@fortawesome/free-regular-svg-icons': 7.1.0
       '@fortawesome/free-solid-svg-icons': 7.1.0
-      humanize-duration: 3.33.1
+      humanize-duration: 3.33.2
       moment: 2.30.1
       svelte: 5.45.5
       svelte-fa: 4.0.4(svelte@5.45.5)
@@ -5933,7 +5933,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  humanize-duration@3.33.1: {}
+  humanize-duration@3.33.2: {}
 
   husky@9.1.7: {}
 
