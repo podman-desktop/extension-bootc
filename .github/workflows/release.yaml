@@ -31,7 +31,7 @@ env:
   GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
 jobs:
-  build:
+  tag:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v6
