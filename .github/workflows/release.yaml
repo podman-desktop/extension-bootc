@@ -17,6 +17,14 @@
 
 name: release
 
+permissions:
+  contents: write
+  packages: write
+  attestations: write
+  id-token: write
+  pull-requests: write
+  repository-projects: write
+
 on:
   workflow_dispatch:
     inputs:
