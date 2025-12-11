@@ -41,6 +41,10 @@ env:
 jobs:
   tag:
     runs-on: ubuntu-22.04
+    outputs:
+      githubTag: ${{ steps.TAG_UTIL.outputs.githubTag }}
+      bootcExtensionVersion: ${{ steps.TAG_UTIL.outputs.bootcExtensionVersion }}
+      releaseId: ${{ steps.create_release.outputs.id }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -167,6 +171,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          ref: ${{ needs.tag.outputs.githubTag }}
           fetch-depth: 0
 
       - name: Install qemu dependency
