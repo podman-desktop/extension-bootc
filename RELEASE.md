@@ -15,7 +15,7 @@ In the below example, we will pretend that we're upgrading from `1.1.0` to `1.2.
 1. Enter the name of the release. Example: `1.2.0` (DO NOT use the v prefix like v1.2.0)
 1. Specify the branch to use for the new release. It's main for all major releases. For a bugfix release, you'll select a different branch.
 1. Click on the `Run workflow` button.
-1. Note: `Run workflow` takes approximately 2-3 minutes.
+1. Note: `Run workflow` takes approximately 20-30 minutes since we build and install the dependencies from scratch, go grab a coffee!
 1. Make sure that all tasks for the respective release milestone are completed / updated, then close it. https://github.com/podman-desktop/podman-desktop-extension-bootc/milestones
 1. If not already created, click on `New Milestone` and create a new milestone for the NEXT release.
 1. Check that https://github.com/podman-desktop/podman-desktop-extension-bootc/actions/workflows/release.yaml has been completed.
