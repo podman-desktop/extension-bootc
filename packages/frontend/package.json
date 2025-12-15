@@ -40,7 +40,7 @@
     "@types/node": "^25",
     "@typescript-eslint/eslint-plugin": "^8.49.0",
     "@typescript-eslint/parser": "^8.49.0",
-    "autoprefixer": "^10.4.22",
+    "autoprefixer": "^10.4.23",
     "filesize": "^11.0.13",
     "humanize-duration": "^3.33.2",
     "jsdom": "^27.3.0",
