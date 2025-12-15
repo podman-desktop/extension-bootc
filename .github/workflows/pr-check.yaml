@@ -141,12 +141,21 @@ jobs:
         working-directory: ./podman-desktop-extension-bootc
         run: pnpm install --no-frozen-lockfile
 
-      - name: Build bootc extension from container file
+      - name: build extension image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: extension-bootc
+          tags: local_bootc_image
+          archs: amd64, arm64
+          containerfiles: |
+            podman-desktop-extension-bootc/build/Containerfile
+          context: ./podman-desktop-extension-bootc
+          oci: true
+
+      - name: export bootc extension
         working-directory: ./podman-desktop-extension-bootc
         run: |
-          pnpm build
-          podman build -t local_bootc_image ./
-          CONTAINER_ID=$(podman create localhost/local_bootc_image --entrypoint "")
+          CONTAINER_ID=$(podman create localhost/extension-bootc:local_bootc_image --entrypoint "")
           podman export $CONTAINER_ID > /tmp/local_bootc_extension.tar
           mkdir -p tests/playwright/tests/output/bootc-tests-pd/plugins
           tar -xf /tmp/local_bootc_extension.tar -C tests/playwright/tests/output/bootc-tests-pd/plugins/
