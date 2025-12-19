@@ -206,7 +206,7 @@ async function createVM(): Promise<void> {
               aria-label="ssh-username" />
           </div>
           <div class="pb-4">
-            <label for="ssh-private-key" class="block mb-2 font-semibold">SSH private key filepath (ex. ~/.ssh/id_rsa)</label>
+            <label for="ssh-private-key" class="block mb-2 font-semibold">SSH private key filepath (ex. ~/.ssh/id_ed25519)</label>
             <div class="flex flex-row space-x-3">
               <Input
                 name="ssh-private-key"
