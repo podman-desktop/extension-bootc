@@ -15,7 +15,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-FROM registry.access.redhat.com/ubi10/nodejs-22-minimal:10.1-1764649415
+FROM registry.access.redhat.com/ubi10/nodejs-24-minimal:10.1-1766060610
 
 # change home directory to be at /opt/app-root
 ENV HOME=/opt/app-root
