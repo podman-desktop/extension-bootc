@@ -191,7 +191,7 @@ RUN echo "root:root" | chpasswd
 
 ## Advanced usage
 
-![](/docs/img/balena_etcher.png)
+![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/balena_etcher.png)
 
 ### Booting the image
 
