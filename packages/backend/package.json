@@ -29,8 +29,8 @@
         "bootc.macadam.ssh.private.key": {
           "type": "string",
           "format": "file",
-          "default": "~/.ssh/id_rsa",
-          "description": "Default SSH private key for the Virtual Machine testing via Macadam (Default is ~/.ssh/id_rsa)"
+          "default": "~/.ssh/id_ed25519",
+          "description": "Default SSH private key for the Virtual Machine testing via Macadam (Default is ~/.ssh/id_ed25519)"
         },
         "bootc.builder": {
           "type": "string",

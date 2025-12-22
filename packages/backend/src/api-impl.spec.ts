@@ -125,7 +125,7 @@ test('createVM should call the extension api', async () => {
 
   const options = {
     imagePath: '~/foobar',
-    sshIdentityPath: '~/foobar/id_rsa',
+    sshIdentityPath: '~/foobar/id_ed25519',
     username: 'foobar',
   } as macadam.CreateVmOptions;
 

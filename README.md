@@ -187,6 +187,14 @@ RUN echo "root:root" | chpasswd
 
 > You can test the image locally on both macOS and Linux using the "Create VM" button on the "Disk Images" page. Windows support is upcoming.
 
+**SSH requirements:** The VM creation feature only supports **ed25519** SSH keys. Ensure you have an ed25519 key pair generated (default location: `~/.ssh/id_ed25519`). To generate one:
+
+```sh
+ssh-keygen -t ed25519
+```
+
+Your public key information (ex. `ssh-ed25519 AAABBBCCC...`) from `~/.ssh/id_ed25519.pub` must be added to your bootc image during the build process for SSH access to work.
+
 ![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/vm.gif)
 
 ## Advanced usage
