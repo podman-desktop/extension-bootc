@@ -301,6 +301,10 @@ podman pull registry.redhat.io/rhel10/rhel-bootc:latest
 
 ## Known issues
 
+### (Windows only) Unable to use Hyper-V provider
+
+Building with a Hyper-V Podman Machine is currently [not supported](https://github.com/podman-desktop/extension-bootc/issues/1963). The Podman Machine must be [setup using a WSL2 provider](https://podman-desktop.io/docs/installation/windows-install#use-wsl2-as-machine-provider).
+
 ### (macOS only) Unable to build cross-arch images
 
 This is a [known upstream issue](https://github.com/osbuild/bootc-image-builder/issues?q=is%3Aissue+state%3Aopen+cross-arch) caused by limitations in `podman machine` and [Rosetta 2](https://support.apple.com/en-us/102527) compatibility.
