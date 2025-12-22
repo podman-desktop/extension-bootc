@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@crc-org/macadam.js": "0.2.0-202510011253-9f21470",
-    "svelte-check": "^4.3.4",
+    "svelte-check": "^4.3.5",
     "svelte-preprocess": "^6.0.3",
     "tinro": "^0.6.12"
   },
