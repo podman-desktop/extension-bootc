@@ -15,8 +15,8 @@ Easily go from container to VM / ISO-on-a-USB / RAW image!
 - [Usage](#usage)
 - [Advanced Usage](#advanced-usage)
 - [Preferences](#preferences)
-- [Known Issues](#known-issues)
 - [Offline / Airplane Mode](#offline--airplane-mode)
+- [Known Issues](#known-issues)
 - [Contributing](#contributing)
 
 ## Technology
@@ -228,43 +228,6 @@ Preferences such as the default `bootc-builder-image` as well as timeouts can be
 
 ![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/preferences.png)
 
-## Known issues
-
-**(macOS only) Unable to build cross-arch images:**
-
-This is a [known upstream issue](https://github.com/osbuild/bootc-image-builder/issues?q=is%3Aissue+state%3Aopen+cross-arch) caused by limitations in `podman machine` and [Rosetta 2](https://support.apple.com/en-us/102527) compatibility.
-
-_There is currently no workaround for macOS users._
-
-If you need to build images for a different architecture (ex. AMD64), follow these steps:
-
-1. **Build the image** for the target architecture: `podman build --platform linux/amd64 -t quay.io/username/my-bootc-image .`
-2. **Push the image** to a registry: `podman push quay.io/username/my-bootc-image`
-3. **Switch to a different machine** that matches the target architecture (ex. AMD64).
-4. **Pull the image** on that machine: `podman pull quay.io/username/my-bootc-image`
-5. **Build as usual** with the bootc extension.
-
-Alternatively, you can also _export_ and _import_ the image between machines using [our managing images tutorial](https://podman-desktop.io/tutorial/managing-your-application-resources#managing-images).
-
-**(Linux only) Unable to create virtual machine:**
-
-When creating a virtual machine on Linux, you may encounter a "macadam binary is missing" or "gvproxy binary is missing" message. This is because the binaries required have to be installed manually.
-
-Follow the below steps for the solution:
-
-**macadam binary:**
-
-1. Download the [macadam binary](https://github.com/crc-org/macadam/releases)
-2. `chmod +x macadam-linux-amd64`
-3. `sudo mv macadam-linux-amd64 /usr/local/bin/macadam`
-
-**gvproxy binary:**
-
-1. Download the [gvproxy binary](https://github.com/containers/gvisor-tap-vsock/releases)
-2. `chmod +x gvproxy-linux-amd64`
-3. `sudo mkdir /usr/libexec/podman`
-4. `sudo mv gvproxy-linux-amd64 /usr/libexec/podman/gvproxy`
-
 ## Offline / airplane mode
 
 Planning to build disk images on an airplane, train, or somewhere with slow/no internet? You can pre-download all the required container images needed to run the bootc extension beforehand.
@@ -335,6 +298,43 @@ podman pull registry.redhat.io/rhel10/rhel-bootc:latest
 2. Build your bootc container image from your Containerfile
 3. Go offline
 4. Use the extension to build disk images (qcow2, raw, vmdk, etc.)
+
+## Known issues
+
+### (macOS only) Unable to build cross-arch images
+
+This is a [known upstream issue](https://github.com/osbuild/bootc-image-builder/issues?q=is%3Aissue+state%3Aopen+cross-arch) caused by limitations in `podman machine` and [Rosetta 2](https://support.apple.com/en-us/102527) compatibility.
+
+_There is currently no workaround for macOS users._
+
+If you need to build images for a different architecture (ex. AMD64), follow these steps:
+
+1. **Build the image** for the target architecture: `podman build --platform linux/amd64 -t quay.io/username/my-bootc-image .`
+2. **Push the image** to a registry: `podman push quay.io/username/my-bootc-image`
+3. **Switch to a different machine** that matches the target architecture (ex. AMD64).
+4. **Pull the image** on that machine: `podman pull quay.io/username/my-bootc-image`
+5. **Build as usual** with the bootc extension.
+
+Alternatively, you can also _export_ and _import_ the image between machines using [our managing images tutorial](https://podman-desktop.io/tutorial/managing-your-application-resources#managing-images).
+
+### (Linux only) Unable to test virtual machine:
+
+When testing a virtual machine on Linux through the bootc extension, you may encounter a "macadam binary is missing" or "gvproxy binary is missing" message. This is because the binaries required have to be installed manually.
+
+Follow the below steps for the solution:
+
+**macadam binary:**
+
+1. Download the [macadam binary](https://github.com/crc-org/macadam/releases)
+2. `chmod +x macadam-linux-amd64`
+3. `sudo mv macadam-linux-amd64 /usr/local/bin/macadam`
+
+**gvproxy binary:**
+
+1. Download the [gvproxy binary](https://github.com/containers/gvisor-tap-vsock/releases)
+2. `chmod +x gvproxy-linux-amd64`
+3. `sudo mkdir /usr/libexec/podman`
+4. `sudo mv gvproxy-linux-amd64 /usr/libexec/podman/gvproxy`
 
 ## Contributing
 
