@@ -21,6 +21,11 @@ import { MacadamHandler } from './macadam';
 import * as macadam from '@crc-org/macadam.js';
 import * as extensionApi from '@podman-desktop/api';
 
+// Mock ensureMacadamInitialized from extension.ts
+vi.mock('./extension', () => ({
+  ensureMacadamInitialized: vi.fn().mockResolvedValue(undefined),
+}));
+
 const TELEMETRY_LOGGER_MOCK: extensionApi.TelemetryLogger = {
   logUsage: vi.fn(),
 } as unknown as extensionApi.TelemetryLogger;
