@@ -43,7 +43,7 @@
     "autoprefixer": "^10.4.23",
     "filesize": "^11.0.13",
     "humanize-duration": "^3.33.2",
-    "jsdom": "^27.3.0",
+    "jsdom": "^27.4.0",
     "moment": "^2.30.1",
     "prettier": "^3.7.4",
     "prettier-plugin-svelte": "^3.4.1",
