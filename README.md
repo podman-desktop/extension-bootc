@@ -158,7 +158,7 @@ This extension can be installed through the **Extensions** section of Podman Des
 A version of the extension using the latest commit changes can be installed via the **Install custom...** button with the following link:
 
 ```
-ghcr.io/containers/podman-desktop-extension-bootc:nightly
+ghcr.io/podman-desktop/extension-bootc:next
 ```
 
 ## Usage

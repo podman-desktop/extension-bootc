@@ -99,7 +99,7 @@ test.describe('BootC Extension', () => {
     test.setTimeout(200_000);
 
     const extensionsPage = await navigationBar.openExtensions();
-    await extensionsPage.installExtensionFromOCIImage('ghcr.io/podman-desktop/podman-desktop-extension-bootc:nightly');
+    await extensionsPage.installExtensionFromOCIImage('ghcr.io/podman-desktop/extension-bootc:next');
 
     await playExpect
       .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30_000 })
