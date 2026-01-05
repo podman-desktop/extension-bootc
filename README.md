@@ -1,6 +1,6 @@
 # BootC (Bootable Container) Extension for Podman Desktop
 
-![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/banner.png)
+![](https://raw.githubusercontent.com/podman-desktop/extension-bootc/main/docs/img/banner.png)
 
 Want to create a bootable operating system from a Containerfile? Download this extension!
 
@@ -85,7 +85,7 @@ All of our maintained example images are on the [gitlab.com/fedora/bootc/example
 
 You can also pull our example image based on the [`httpd`](https://gitlab.com/bootc-org/examples/-/tree/main/httpd) example:
 
-![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/clicking_pull.gif)
+![](https://raw.githubusercontent.com/podman-desktop/extension-bootc/main/docs/img/clicking_pull.gif)
 
 ## Use Case
 
@@ -133,7 +133,7 @@ podman machine start
 
 Or set when initially creating a Podman Machine via Podman Desktop:
 
-![rootful setup](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/rootful_setup.png)
+![rootful setup](https://raw.githubusercontent.com/podman-desktop/extension-bootc/main/docs/img/rootful_setup.png)
 
 ### Escalated Privileges (Linux)
 
@@ -151,7 +151,7 @@ This extension can be installed through the **Extensions** section of Podman Des
 2. Click on the **Catalog** tab.
 3. Install the extension.
 
-![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/catalog_install.gif)
+![](https://raw.githubusercontent.com/podman-desktop/extension-bootc/main/docs/img/catalog_install.gif)
 
 ### Nightly version
 
@@ -175,13 +175,13 @@ FROM quay.io/centos-bootc/centos-bootc:stream10
 RUN echo "root:root" | chpasswd
 ```
 
-![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/build_image.gif)
+![](https://raw.githubusercontent.com/podman-desktop/extension-bootc/main/docs/img/build_image.gif)
 
 2. **Build the disk image:**
 
 > Build the disk image, this takes approximately 2-5 minutes depending on the performance of your machine.
 
-![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/bootc_building.gif)
+![](https://raw.githubusercontent.com/podman-desktop/extension-bootc/main/docs/img/bootc_building.gif)
 
 3. **Testing the image locally (macOS and Linux):**
 
@@ -195,11 +195,11 @@ ssh-keygen -t ed25519
 
 Your public key information (ex. `ssh-ed25519 AAABBBCCC...`) from `~/.ssh/id_ed25519.pub` must be added to your bootc image during the build process for SSH access to work.
 
-![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/vm.gif)
+![](https://raw.githubusercontent.com/podman-desktop/extension-bootc/main/docs/img/vm.gif)
 
 ## Advanced usage
 
-![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/balena_etcher.png)
+![](https://raw.githubusercontent.com/podman-desktop/extension-bootc/main/docs/img/balena_etcher.png)
 
 ### Booting the image
 
@@ -226,7 +226,7 @@ See [bootc-dev.github.io/bootc](https://bootc-dev.github.io/bootc) for more info
 
 Preferences such as the default `bootc-builder-image` as well as timeouts can be adjusted within the **Preferences** section of Podman Desktop.
 
-![](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/preferences.png)
+![](https://raw.githubusercontent.com/podman-desktop/extension-bootc/main/docs/img/preferences.png)
 
 ## Offline / airplane mode
 
