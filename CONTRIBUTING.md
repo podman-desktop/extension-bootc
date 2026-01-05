@@ -18,7 +18,7 @@ Workflow for developing:
 pnpm watch
 
 # In a separate terminal in the Podman Desktop folder:
-pnpm watch --extension-folder ../podman-desktop-extension-bootc/packages/backend
+pnpm watch --extension-folder ../extension-bootc/packages/backend
 ```
 
 Workflow for testing and validation checking before PR submission:

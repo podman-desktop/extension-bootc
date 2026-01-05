@@ -10,19 +10,19 @@ In the below example, we will pretend that we're upgrading from `1.1.0` to `1.2.
 
 ## Releasing on GitHub
 
-1. Go to https://github.com/podman-desktop/podman-desktop-extension-bootc/actions/workflows/release.yaml.
+1. Go to https://github.com/podman-desktop/extension-bootc/actions/workflows/release.yaml.
 1. Click on the top right drop-down menu `Run workflow`.
 1. Enter the name of the release. Example: `1.2.0` (DO NOT use the v prefix like v1.2.0)
 1. Specify the branch to use for the new release. It's main for all major releases. For a bugfix release, you'll select a different branch.
 1. Click on the `Run workflow` button.
 1. Note: `Run workflow` takes approximately 20-30 minutes since we build and install the dependencies from scratch, go grab a coffee!
-1. Make sure that all tasks for the respective release milestone are completed / updated, then close it. https://github.com/podman-desktop/podman-desktop-extension-bootc/milestones
+1. Make sure that all tasks for the respective release milestone are completed / updated, then close it. https://github.com/podman-desktop/extension-bootc/milestones
 1. If not already created, click on `New Milestone` and create a new milestone for the NEXT release.
-1. Check that https://github.com/podman-desktop/podman-desktop-extension-bootc/actions/workflows/release.yaml has been completed.
+1. Check that https://github.com/podman-desktop/extension-bootc/actions/workflows/release.yaml has been completed.
 1. Ensure the image has been successfully published to https://github.com/podman-desktop/extension-bootc/pkgs/container/extension-bootc
 1. There should be an automated PR that has been created. The title looks like `chore: 📢 Bump version to 1.3.0`. Rerun workflow manually if some of e2e tests are failing.
 1. Wait for the PR above to be approved and merged before continuing with the steps.
-1. Edit the new release https://github.com/podman-desktop/podman-desktop-extension-bootc/releases/edit/v1.2.0.
+1. Edit the new release https://github.com/podman-desktop/extension-bootc/releases/edit/v1.2.0.
 1. Select previous tag (v1.1.0) and click on `Generate release notes` and then click on `Update release`.
 
 ## Release testing
