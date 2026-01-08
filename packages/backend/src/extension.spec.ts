@@ -18,7 +18,7 @@
 
 import { afterEach, beforeEach, expect, test, vi, describe } from 'vitest';
 import * as podmanDesktopApi from '@podman-desktop/api';
-import { activate, deactivate, openBuildPage } from './extension';
+import { activate, deactivate, openBuildPage, getJSONMachineListByProvider } from './extension';
 import * as fs from 'node:fs';
 import os from 'node:os';
 
@@ -30,6 +30,10 @@ const mocks = vi.hoisted(() => ({
   logErrorMock: vi.fn(),
   consoleLogMock: vi.fn(),
   consoleWarnMock: vi.fn(),
+  consoleErrorMock: vi.fn(),
+  macadamInitMock: vi.fn(),
+  macadamListVmsMock: vi.fn(),
+  areBinariesAvailableMock: vi.fn(),
 }));
 
 vi.mock('../package.json', () => ({
@@ -47,6 +51,9 @@ vi.mock('@podman-desktop/api', async () => {
           logUsage: mocks.logUsageMock,
           logError: mocks.logErrorMock,
         }) as unknown as podmanDesktopApi.TelemetryLogger,
+      isMac: false,
+      isWindows: false,
+      isLinux: false,
     },
     commands: {
       registerCommand: vi.fn(),
@@ -86,14 +93,21 @@ vi.mock('@podman-desktop/api', async () => {
   };
 });
 
-vi.mock(import('@crc-org/macadam.js'), () => ({
-  Macadam: vi.fn(),
+vi.mock('@crc-org/macadam.js', () => ({
+  Macadam: vi.fn(
+    class {
+      init = mocks.macadamInitMock;
+      listVms = mocks.macadamListVmsMock;
+      areBinariesAvailable = mocks.areBinariesAvailableMock;
+    },
+  ),
 }));
 
 beforeEach(() => {
   vi.clearAllMocks();
   console.log = mocks.consoleLogMock;
   console.warn = mocks.consoleWarnMock;
+  console.error = mocks.consoleErrorMock;
 });
 
 afterEach(() => {
@@ -107,10 +121,65 @@ const fakeContext = {
   storagePath: os.tmpdir(),
 } as unknown as podmanDesktopApi.ExtensionContext;
 
-test('check activate', async () => {
-  vi.spyOn(fs.promises, 'readFile').mockImplementation(() => {
-    return Promise.resolve('<html></html>');
+describe('test ensureMacadamInitialized doesnt double init', () => {
+  beforeEach(() => {
+    vi.spyOn(fs.promises, 'readFile').mockResolvedValue('<html></html>');
+    (podmanDesktopApi.version as string) = '1.8.0';
   });
+
+  test('should propagate init error when lazy initializing via getJSONMachineListByProvider', async () => {
+    vi.mocked(podmanDesktopApi.env).isMac = true;
+    vi.mocked(podmanDesktopApi.env).isWindows = false;
+    mocks.areBinariesAvailableMock.mockReturnValue(false);
+    mocks.macadamInitMock.mockRejectedValue(new Error('Init failed'));
+
+    await activate(fakeContext);
+
+    const result = await getJSONMachineListByProvider('applehv');
+    expect(result.error).toContain('Init failed');
+    expect(mocks.macadamListVmsMock).not.toHaveBeenCalled();
+  });
+
+  test('should lazily initialize macadam when listing VMs and binary was not installed at activation', async () => {
+    vi.mocked(podmanDesktopApi.env).isMac = true;
+    vi.mocked(podmanDesktopApi.env).isWindows = false;
+    mocks.areBinariesAvailableMock.mockReturnValue(false);
+    mocks.macadamInitMock.mockResolvedValue(undefined);
+    mocks.macadamListVmsMock.mockResolvedValue([]);
+
+    // First activate without binary existing
+    await activate(fakeContext);
+    expect(mocks.macadamInitMock).not.toHaveBeenCalled();
+
+    // trigger getJSONMachineListByProvider which would call init / list since the binary did not exist at activation
+    await getJSONMachineListByProvider('applehv');
+
+    // Make sure that init and listVms were called (meaning init was triggered and is going to install)
+    expect(mocks.macadamInitMock).toHaveBeenCalled();
+    expect(mocks.macadamListVmsMock).toHaveBeenCalled();
+  });
+
+  test('should not re-initialize macadam if already initialized', async () => {
+    vi.mocked(podmanDesktopApi.env).isMac = true;
+    vi.mocked(podmanDesktopApi.env).isWindows = false;
+    mocks.areBinariesAvailableMock.mockReturnValue(true);
+    mocks.macadamInitMock.mockResolvedValue(undefined);
+    mocks.macadamListVmsMock.mockResolvedValue([]);
+
+    // Activate with binary existing (will call init)
+    await activate(fakeContext);
+    expect(mocks.macadamInitMock).toHaveBeenCalledTimes(1);
+
+    // Run getJSONMachineListByProvider again!
+    await getJSONMachineListByProvider('applehv');
+
+    // Should NOT re-call init since we already activated it before, so we stick to 1
+    expect(mocks.macadamInitMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+test('check activate', async () => {
+  vi.spyOn(fs.promises, 'readFile').mockResolvedValue('<html></html>');
   await activate(fakeContext);
 
   expect(mocks.consoleLogMock).toBeCalledWith('starting bootc extension');
@@ -193,4 +262,76 @@ test('check command triggers webview and redirects', async () => {
 
   expect(podmanDesktopApi.navigation.navigateToWebview).toHaveBeenCalled();
   expect(postMessageMock).toHaveBeenCalledWith({ body: 'build/latest', id: 'navigate-build' });
+});
+
+describe('lazy macadam initialization', () => {
+  beforeEach(() => {
+    vi.spyOn(fs.promises, 'readFile').mockResolvedValue('<html></html>');
+    (podmanDesktopApi.version as string) = '1.8.0';
+  });
+
+  test('macOs: should NOT initialize macadam on activate when binary does not exist', async () => {
+    vi.mocked(podmanDesktopApi.env).isMac = true;
+    vi.mocked(podmanDesktopApi.env).isWindows = false;
+    mocks.areBinariesAvailableMock.mockReturnValue(false);
+
+    await activate(fakeContext);
+
+    expect(mocks.macadamInitMock).not.toHaveBeenCalled();
+  });
+
+  test('macOS: should initialize macadam on activate when binary exists', async () => {
+    vi.mocked(podmanDesktopApi.env).isMac = true;
+    vi.mocked(podmanDesktopApi.env).isWindows = false;
+    mocks.areBinariesAvailableMock.mockReturnValue(true);
+    mocks.macadamInitMock.mockResolvedValue(undefined);
+
+    await activate(fakeContext);
+
+    expect(mocks.macadamInitMock).toHaveBeenCalled();
+  });
+
+  test('linux: should NOT initialize macadam on activate when binary does not exist', async () => {
+    vi.mocked(podmanDesktopApi.env).isMac = false;
+    vi.mocked(podmanDesktopApi.env).isWindows = false;
+    vi.mocked(podmanDesktopApi.env).isLinux = true;
+    mocks.areBinariesAvailableMock.mockReturnValue(false);
+
+    await activate(fakeContext);
+
+    expect(mocks.macadamInitMock).not.toHaveBeenCalled();
+  });
+
+  test('linux: should initialize macadam on activate when binary exists', async () => {
+    vi.mocked(podmanDesktopApi.env).isMac = false;
+    vi.mocked(podmanDesktopApi.env).isWindows = false;
+    vi.mocked(podmanDesktopApi.env).isLinux = true;
+    mocks.areBinariesAvailableMock.mockReturnValue(true);
+    mocks.macadamInitMock.mockResolvedValue(undefined);
+
+    await activate(fakeContext);
+
+    expect(mocks.macadamInitMock).toHaveBeenCalled();
+  });
+
+  test('windows: should skip macadam initialization on activate, since macadam isnt added yet', async () => {
+    vi.mocked(podmanDesktopApi.env).isMac = false;
+    vi.mocked(podmanDesktopApi.env).isWindows = true;
+    vi.mocked(podmanDesktopApi.env).isLinux = false;
+
+    await activate(fakeContext);
+
+    expect(mocks.macadamInitMock).not.toHaveBeenCalled();
+  });
+
+  test('mac: should handle macadam init error gracefully during activate', async () => {
+    vi.mocked(podmanDesktopApi.env).isMac = true;
+    vi.mocked(podmanDesktopApi.env).isWindows = false;
+    mocks.areBinariesAvailableMock.mockReturnValue(true);
+    mocks.macadamInitMock.mockRejectedValue(new Error('Init failed'));
+
+    await activate(fakeContext);
+
+    expect(mocks.consoleErrorMock).toHaveBeenCalledWith('Error initializing macadam', expect.any(Error));
+  });
 });

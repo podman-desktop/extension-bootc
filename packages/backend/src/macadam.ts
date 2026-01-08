@@ -20,6 +20,7 @@ import type { CreateVmOptions, VmDetails } from '@crc-org/macadam.js';
 import { macadamName } from './constants';
 import * as extensionApi from '@podman-desktop/api';
 import { isWSLEnabled } from './macadam/win/utils';
+import { ensureMacadamInitialized } from './extension';
 
 interface StderrError extends Error {
   stderr?: string;
@@ -65,6 +66,11 @@ export class MacadamHandler {
           await this.macadam.createVm(options);
           telemetryData.success = true;
           progress.report({ increment: 100 });
+
+          // Trigger the extension.ts monitoring loop now that macadam is initialized
+          // and a VM has been created. This ensures the new VM appears in the Resources list after creation.
+          // Creating a VM is the area where macadam is first initialized and the "install macadam" sudo prompt pops up.
+          await ensureMacadamInitialized();
         },
       )
       .catch((e: unknown) => {
