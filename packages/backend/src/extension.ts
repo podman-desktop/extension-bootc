@@ -20,6 +20,7 @@ import type { ExtensionContext } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import { History } from './history';
 import fs from 'node:fs';
+import { EventEmitter } from 'node:events';
 import { RpcExtension } from '/@shared/src/messages/MessageProxy';
 import { BootcApiImpl } from './api-impl';
 import { HistoryNotifier } from './history/historyNotifier';
@@ -46,6 +47,12 @@ const currentConnections = new Map<string, extensionApi.Disposable>();
 
 let wslAndHypervEnabledContextValue = false;
 const WSL_HYPERV_ENABLED_KEY = 'macadam.wslHypervEnabled';
+
+let macadamInitialized = false;
+
+// Event emitter for macadam lifecycle events - separates initialization from monitoring
+const macadamEvents = new EventEmitter();
+const MACADAM_INITIALIZED_EVENT = 'initialized';
 
 const listeners = new Set<StatusHandler>();
 
@@ -178,17 +185,29 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
 
   if (!isWindows()) {
     macadam = new macadamJSPackage.Macadam(macadamName);
-    try {
-      await macadam.init();
-    } catch (error) {
-      console.error('Error initializing macadam', error);
-    }
 
     const provider = await createProvider(extensionContext);
 
-    monitorMachines(provider, extensionContext).catch((error: unknown) => {
-      console.error('Error while monitoring machines', error);
+    // Register listener to start monitoring when macadam is initialized
+    macadamEvents.on(MACADAM_INITIALIZED_EVENT, () => {
+      monitorMachines(provider, extensionContext).catch((error: unknown) => {
+        console.error('Error while monitoring machines', error);
+      });
     });
+
+    // Only initialize and start monitoring if macadam binary is already installed.
+    // This avoids prompting for sudo on extension activation (macOS).
+    // If not installed, init() will be called lazily when user performs a VM operation.
+    if (macadam.areBinariesAvailable()) {
+      try {
+        await macadam.init();
+        macadamInitialized = true;
+      } catch (error) {
+        console.error('Error initializing macadam', error);
+      }
+
+      macadamEvents.emit(MACADAM_INITIALIZED_EVENT);
+    }
   }
 }
 
@@ -232,6 +251,27 @@ export async function openBuildPage(
 
 export async function getConfigurationValue<T>(property: string): Promise<T | undefined> {
   return extensionApi.configuration.getConfiguration('bootc').get<T>(property);
+}
+
+// Ensures macadam is initialized before VM operations.
+// This allows deferring the sudo prompt until the user actually tries to use VM features,
+// rather than prompting on extension activation.
+// Exported so MacadamHandler can trigger monitoring after VM creation.
+export async function ensureMacadamInitialized(): Promise<void> {
+  if (macadamInitialized) {
+    return;
+  }
+
+  try {
+    await macadam.init();
+    macadamInitialized = true;
+
+    // Emit initialized event to trigger monitoring
+    macadamEvents.emit(MACADAM_INITIALIZED_EVENT);
+  } catch (error) {
+    console.error('Error initializing macadam', error);
+    throw error;
+  }
 }
 
 async function getJSONMachineList(): Promise<MachineJSONListOutput> {
@@ -284,6 +324,7 @@ export async function getJSONMachineListByProvider(vmProvider?: string): Promise
   let stdout: macadamJSPackage.VmDetails[] = [];
   let stderr = '';
   try {
+    await ensureMacadamInitialized();
     stdout = await macadam.listVms({ containerProvider: verifyContainerProivder(vmProvider ?? '') });
   } catch (err: unknown) {
     stderr = `${err}`;
@@ -305,6 +346,7 @@ async function startMachine(
   const startTime = performance.now();
 
   try {
+    await ensureMacadamInitialized();
     await macadam.startVm({
       name: machineInfo.name,
       containerProvider: verifyContainerProivder(machineInfo.vmType),
@@ -334,6 +376,7 @@ async function stopMachine(
   const telemetryRecords: Record<string, unknown> = {};
   telemetryRecords.provider = 'macadam';
   try {
+    await ensureMacadamInitialized();
     await macadam.stopVm({
       name: machineInfo.name,
       containerProvider: verifyContainerProivder(machineInfo.vmType),
@@ -365,6 +408,7 @@ async function registerProviderFor(
       await stopMachine(provider, machineInfo, context, logger);
     },
     delete: async (logger): Promise<void> => {
+      await ensureMacadamInitialized();
       await macadam.removeVm({
         name: machineInfo.name,
         containerProvider: verifyContainerProivder(machineInfo.vmType),

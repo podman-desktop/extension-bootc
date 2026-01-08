@@ -197,6 +197,12 @@ Your public key information (ex. `ssh-ed25519 AAABBBCCC...`) from `~/.ssh/id_ed2
 
 ![](https://raw.githubusercontent.com/podman-desktop/extension-bootc/main/docs/img/vm.gif)
 
+> **Note (macOS and Linux):** When performing virtual machine operations (create, start, stop, delete) for the first time, you will be prompted for your password to install the [macadam](https://github.com/crc-org/macadam) binary. This is a one-time installation that enables VM management. On macOS, the binary is installed to `/opt/macadam/bin/macadam`. On Linux, the binary will be installed automatically, but if issues occur it can be [installed manually](#linux-only-unable-to-create-virtual-machine).
+
+![Escalated privileges prompt](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/escalated_privileges.png)
+
+> **Note (Windows):** Windows support is currently _not supported_ due to Hyper-V limitations (must run as a privileged user), WSL2 support is _not supported_ due to Windows using a custom kernel for Virtual Machine usage which is incompatible with bootc-based images.
+
 ## Advanced usage
 
 ![](https://raw.githubusercontent.com/podman-desktop/extension-bootc/main/docs/img/balena_etcher.png)
