@@ -3,10 +3,8 @@ import { DetailsPage, Button } from '@podman-desktop/ui-svelte';
 import MarkdownRenderer from '/@/lib/markdown/MarkdownRenderer.svelte';
 import ExampleDetailsLayout from './ExampleDetailsLayout.svelte';
 import { router } from 'tinro';
-import { onMount } from 'svelte';
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { bootcClient } from '/@/api/client';
-import type { Example } from '/@shared/src/models/examples';
 import DiskImageIcon from '/@/lib/DiskImageIcon.svelte';
 
 interface Props {
@@ -14,29 +12,28 @@ interface Props {
 }
 let { id }: Props = $props();
 
-let example = $state<Example>();
-
-export function goToExamplesPage(): void {
-  router.goto('/examples');
-}
-async function openURL(): Promise<void> {
-  await bootcClient.openLink(example?.repository ?? '');
-}
-
-onMount(async () => {
+let examplePromise = $derived.by(async () => {
   // Get all the examples
   let examples = await bootcClient.getExamples();
 
   // Find the example with the given id
   const foundExample = examples.examples.find(example => example.id === id);
   if (foundExample) {
-    example = foundExample;
+    return foundExample;
   } else {
     console.error(`Example with id ${id} not found`);
   }
 });
+
+export function goToExamplesPage(): void {
+  router.goto('/examples');
+}
+async function openURL(): Promise<void> {
+  await bootcClient.openLink((await examplePromise)?.repository ?? '');
+}
 </script>
 
+{#await examplePromise then example}
 <DetailsPage
   title={example?.name ?? ''}
   breadcrumbLeftPart="Examples"
@@ -69,3 +66,4 @@ onMount(async () => {
     </div>
   {/snippet}
 </DetailsPage>
+{/await}

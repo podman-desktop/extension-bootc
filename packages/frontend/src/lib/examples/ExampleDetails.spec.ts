@@ -84,7 +84,7 @@ test('redirects to /examples when "Go back to Examples" is clicked', async () =>
   render(ExampleDetails, { id: 'example1' });
 
   // Find and click the breadcrumb link to go back
-  const breadcrumbLink = screen.getByText('Examples');
+  const breadcrumbLink = await screen.findByText('Examples');
   await fireEvent.click(breadcrumbLink);
 
   // Verify the router.goto method is called with the correct path
