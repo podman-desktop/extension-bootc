@@ -7,7 +7,7 @@ import type { Component } from 'svelte';
 // any other status will result in a standard outlined box
 interface Props {
   status?: string;
-  icon?: Component | string;
+  icon?: Component;
   size?: number;
 }
 let { status = '', icon, size = 20 }: Props = $props();
@@ -21,6 +21,8 @@ let solid = $derived(
     status === 'used' ||
     status === 'deleting',
 );
+
+let IconComponent = $derived(icon);
 </script>
 
 <div class="grid place-content-center" style="position:relative">
@@ -39,10 +41,8 @@ let solid = $derived(
     title={status}>
     {#if status === 'running' || status === 'creating' || status === 'deleting'}
       <Spinner size="1.4em" />
-    {:else if typeof icon === 'string'}
-      <span class={icon} aria-hidden="true"></span>
     {:else}
-      <icon size={size} solid={solid} ></icon>
+      <IconComponent {size} {solid} ></IconComponent>
     {/if}
   </div>
   {#if status === 'success'}
