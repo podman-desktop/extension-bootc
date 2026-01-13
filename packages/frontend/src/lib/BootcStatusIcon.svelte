@@ -41,7 +41,7 @@ let IconComponent = $derived(icon);
     title={status}>
     {#if status === 'running' || status === 'creating' || status === 'deleting'}
       <Spinner size="1.4em" />
-    {:else}
+    {:else if IconComponent}
       <IconComponent {size} {solid} ></IconComponent>
     {/if}
   </div>
