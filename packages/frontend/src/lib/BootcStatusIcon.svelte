@@ -5,18 +5,22 @@ import type { Component } from 'svelte';
 
 // status: one of running, success, error
 // any other status will result in a standard outlined box
-export let status = '';
-export let icon: Component | string | undefined = undefined;
-export let size = 20;
+interface Props {
+  status?: string;
+  icon?: Component | string;
+  size?: number;
+}
+let { status = '', icon, size = 20 }: Props = $props();
 
-$: solid =
+let solid = $derived(
   status === 'running' ||
-  status === 'success' ||
-  status === 'error' ||
-  status === 'lost' ||
-  status === 'creating' ||
-  status === 'used' ||
-  status === 'deleting';
+    status === 'success' ||
+    status === 'error' ||
+    status === 'lost' ||
+    status === 'creating' ||
+    status === 'used' ||
+    status === 'deleting',
+);
 </script>
 
 <div class="grid place-content-center" style="position:relative">
@@ -38,7 +42,7 @@ $: solid =
     {:else if typeof icon === 'string'}
       <span class={icon} aria-hidden="true"></span>
     {:else}
-      <svelte:component this={icon} size={size} solid={solid} />
+      <icon size={size} solid={solid} ></icon>
     {/if}
   </div>
   {#if status === 'success'}

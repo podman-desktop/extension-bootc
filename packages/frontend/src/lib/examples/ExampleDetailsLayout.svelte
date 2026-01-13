@@ -1,7 +1,16 @@
 <script lang="ts">
-export let detailsTitle: string;
-export let detailsLabel: string;
-let open: boolean = true;
+import type { Snippet } from 'svelte';
+
+interface Props {
+  detailsTitle: string;
+  detailsLabel: string;
+  header?: Snippet;
+  content?: Snippet;
+  details?: Snippet;
+}
+let { detailsTitle, detailsLabel, header, content, details }: Props = $props();
+
+let open: boolean = $state(true);
 
 const toggle = (): void => {
   open = !open;
@@ -9,10 +18,10 @@ const toggle = (): void => {
 </script>
 
 <div class="flex flex-col w-full overflow-y-auto">
-  <slot name="header" />
+  {@render header?.()}
   <div class="grid w-full lg:grid-cols-[1fr_auto] max-lg:grid-cols-[auto]">
     <div class="p-5 inline-grid">
-      <slot name="content" />
+      {@render content?.()}
     </div>
     <div class="inline-grid max-lg:order-first">
       <div class="max-lg:w-full max-lg:min-w-full" class:w-[375px]={open} class:min-w-[375px]={open}>
@@ -24,10 +33,10 @@ const toggle = (): void => {
           <div class="flex flex-col lg:px-4 space-y-4 mx-auto">
             <div class="w-full flex flex-row justify-between max-lg:hidden">
               <span>{detailsTitle}</span>
-              <button on:click={toggle} aria-label={`hide ${detailsLabel}`}
+              <button onclick={toggle} aria-label={`hide ${detailsLabel}`}
                 ><i class="fas fa-angle-right text-[var(--pd-content-card-icon)]"></i></button>
             </div>
-            <slot name="details" />
+            {@render details?.()}
           </div>
         </div>
         <div
@@ -35,7 +44,7 @@ const toggle = (): void => {
           class:block={!open}
           class="bg-[var(--pd-content-card-bg)] mt-5 p-4 rounded-md h-fit max-lg:hidden"
           aria-label={`toggle ${detailsLabel}`}>
-          <button on:click={toggle} aria-label={`show ${detailsLabel}`}
+          <button onclick={toggle} aria-label={`show ${detailsLabel}`}
             ><i class="fas fa-angle-left text-[var(--pd-content-card-icon)]"></i></button>
         </div>
       </div>

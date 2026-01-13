@@ -2,7 +2,10 @@
 import type { TinroRouteMeta } from 'tinro';
 import { SettingsNavItem } from '@podman-desktop/ui-svelte';
 
-export let meta: TinroRouteMeta;
+interface Props {
+  meta: TinroRouteMeta;
+}
+let { meta }: Props = $props();
 </script>
 
 <nav
