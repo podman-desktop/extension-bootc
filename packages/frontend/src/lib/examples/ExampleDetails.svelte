@@ -9,14 +9,18 @@ import { bootcClient } from '/@/api/client';
 import type { Example } from '/@shared/src/models/examples';
 import DiskImageIcon from '/@/lib/DiskImageIcon.svelte';
 
-export let id: string;
-let example: Example;
+interface Props {
+  id: string;
+}
+let { id }: Props = $props();
+
+let example = $state<Example>();
 
 export function goToExamplesPage(): void {
   router.goto('/examples');
 }
 async function openURL(): Promise<void> {
-  await bootcClient.openLink(example.repository);
+  await bootcClient.openLink(example?.repository ?? '');
 }
 
 onMount(async () => {
@@ -34,7 +38,7 @@ onMount(async () => {
 </script>
 
 <DetailsPage
-  title={example?.name}
+  title={example?.name ?? ''}
   breadcrumbLeftPart="Examples"
   breadcrumbRightPart={example?.name}
   onclose={goToExamplesPage}
@@ -45,10 +49,10 @@ onMount(async () => {
   {#snippet contentSnippet()}
     <div class="bg-[var(--pd-content-bg)] h-full overflow-y-auto">
       <ExampleDetailsLayout detailsTitle="Example details" detailsLabel="Example details">
-        <svelte:fragment slot="content">
+        {#snippet content()}
           <MarkdownRenderer source={example?.readme} />
-        </svelte:fragment>
-        <svelte:fragment slot="details">
+        {/snippet}
+        {#snippet details()}
           <div class="flex flex-col w-full space-y-4 rounded-md bg-[var(--pd-content-bg)] p-4">
             <div class="flex flex-col w-full space-y-2">
               <Button
@@ -60,7 +64,7 @@ onMount(async () => {
                 class="mr-2">Source Repository</Button>
             </div>
           </div>
-        </svelte:fragment>
+        {/snippet}
       </ExampleDetailsLayout>
     </div>
   {/snippet}
