@@ -117,8 +117,8 @@ importers:
   packages/backend:
     dependencies:
       '@crc-org/macadam.js':
-        specifier: 0.2.0-202601061512-0729168
-        version: 0.2.0-202601061512-0729168
+        specifier: 0.4.0-next.202601130801-a74070c
+        version: 0.4.0-next.202601130801-a74070c
       compare-versions:
         specifier: ^6.1.1
         version: 6.1.1
@@ -193,8 +193,8 @@ importers:
   packages/frontend:
     dependencies:
       '@crc-org/macadam.js':
-        specifier: 0.2.0-202601061512-0729168
-        version: 0.2.0-202601061512-0729168
+        specifier: 0.4.0-next.202601130801-a74070c
+        version: 0.4.0-next.202601130801-a74070c
       svelte-check:
         specifier: ^4.3.5
         version: 4.3.5(picomatch@4.0.3)(svelte@5.46.1)(typescript@5.9.3)
@@ -561,8 +561,8 @@ packages:
     resolution: {integrity: sha512-VmIFV/JkBRhDRRv7N5B7zEUkNZIx9Mp+8Pe65erz0rKycXLsi8Epcw0XJ+btSeRXgTzE7DyOyA9bkJ9mn/yqVQ==}
     engines: {node: '>=v18'}
 
-  '@crc-org/macadam.js@0.2.0-202601061512-0729168':
-    resolution: {integrity: sha512-ZXAip1GakSDuCm4wOMyloLrPGquGxls4G1TWB8TOgHNa/jZMNK0SjyGhgKHuWoyvvpi6d39Jrmsv9xA2DaMpHw==}
+  '@crc-org/macadam.js@0.4.0-next.202601130801-a74070c':
+    resolution: {integrity: sha512-YNDUMP3NRAlhWdtYFav2czBgAu1iBXiATbw1/jS9H4u+QWXGlFwS5qKHQO5qdYS1481G/a0X7377WX+2+Wd+QA==}
 
   '@csstools/color-helpers@5.1.0':
     resolution: {integrity: sha512-S11EXWJyy0Mz5SYvRmY8nJYTFFd1LCNV+7cXyAgQtOOuzb4EsgfqDufL+9esx72/eLhsRdGZwaldu/h+E4t4BA==}
@@ -4088,9 +4088,10 @@ snapshots:
       '@types/conventional-commits-parser': 5.0.2
       chalk: 5.6.2
 
-  '@crc-org/macadam.js@0.2.0-202601061512-0729168':
+  '@crc-org/macadam.js@0.4.0-next.202601130801-a74070c':
     dependencies:
       '@podman-desktop/api': 1.24.2
+      semver: 7.7.3
 
   '@csstools/color-helpers@5.1.0': {}
 

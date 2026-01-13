@@ -198,7 +198,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
     // Only initialize and start monitoring if macadam binary is already installed.
     // This avoids prompting for sudo on extension activation (macOS).
     // If not installed, init() will be called lazily when user performs a VM operation.
-    if (macadam.areBinariesAvailable()) {
+    if (await macadam.areBinariesAvailable()) {
       try {
         await macadam.init();
         macadamInitialized = true;
