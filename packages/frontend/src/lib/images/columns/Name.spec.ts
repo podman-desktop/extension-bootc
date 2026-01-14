@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,20 @@
 import '@testing-library/jest-dom/vitest';
 
 import { render, screen } from '@testing-library/svelte';
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 
 import Name from './Name.svelte';
 import type { ImageInfoUI } from '../ImageInfoUI';
+import userEvent from '@testing-library/user-event';
+import { bootcClient } from '/@/api/client';
+
+vi.mock('/@/api/client', async () => {
+  return {
+    bootcClient: {
+      openImage: vi.fn(),
+    },
+  };
+});
 
 const image: ImageInfoUI = {
   name: 'my-image',
@@ -47,4 +57,15 @@ test('Expect simple column styling', async () => {
   expect(tag).toBeInTheDocument();
   expect(tag).toHaveClass('text-[var(--pd-table-body-text)]');
   expect(tag).toHaveClass('font-extra-light');
+});
+
+test('Expect clicking on name goes to details', async () => {
+  render(Name, { object: image });
+
+  const name = screen.getByText(image.name);
+  expect(name).toBeInTheDocument();
+
+  await userEvent.click(name);
+
+  expect(bootcClient.openImage).toHaveBeenCalledWith(image.id, image.engineId, `${image.name}:${image.tag}`);
 });

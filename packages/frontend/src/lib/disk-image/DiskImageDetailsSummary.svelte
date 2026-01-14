@@ -4,11 +4,16 @@ import Title from '/@/lib/upstream/DetailsTitle.svelte';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import Cell from '/@/lib/upstream/DetailsCell.svelte';
 import Link from '../Link.svelte';
+import { gotoImage } from '/@/lib/navigation';
 
 interface Props {
   image?: BootcBuildInfo;
 }
 let { image }: Props = $props();
+
+async function openDetails(): Promise<void> {
+  await gotoImage(image?.imageId ?? '', image?.engineId ?? '', `${image?.image}:${image?.tag}`);
+}
 </script>
 
 <Table>
@@ -18,7 +23,7 @@ let { image }: Props = $props();
   {#if image}
     <tr>
       <Cell>Source image</Cell>
-      <Cell>{image.image}:{image.tag}</Cell>
+      <Cell><Link action={openDetails}>{image.image}:{image.tag}</Link></Cell>
     </tr>
     <tr>
       <Cell>Disk image type</Cell>

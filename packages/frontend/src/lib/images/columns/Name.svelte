@@ -1,10 +1,15 @@
 <script lang="ts">
 import type { Props } from './props';
+import { gotoImage } from '/@/lib/navigation';
 
 let { object }: Props = $props();
+
+async function openDetails(): Promise<void> {
+  await gotoImage(object.id, object.engineId, `${object.name}:${object.tag}`);
+}
 </script>
 
-<button class="flex flex-col max-w-full">
+<button class="hover:cursor-pointer flex flex-col max-w-full" onclick={openDetails}>
   <div class="flex flex-row gap-1 items-center max-w-full">
     <div class="text-[var(--pd-table-body-text-highlight)] overflow-hidden text-ellipsis">
       {object.name}

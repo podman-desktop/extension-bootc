@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ import { beforeEach, expect, test, vi } from 'vitest';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import DiskImageDetailsSummary from './DiskImageDetailsSummary.svelte';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
+import userEvent from '@testing-library/user-event';
+import { bootcClient } from '/@/api/client';
 
 const image: BootcBuildInfo = {
   id: 'id1',
@@ -43,6 +45,9 @@ vi.mock('/@/api/client', async () => {
         };
       },
     },
+    bootcClient: {
+      openImage: vi.fn(),
+    },
   };
 });
 
@@ -57,4 +62,15 @@ test('Expect to show image summary', async () => {
   expect(screen.getByText(image.image + ':' + image.tag)).toBeInTheDocument();
   expect(screen.getByText(image.type[0])).toBeInTheDocument();
   expect(screen.getByText(image.folder)).toBeInTheDocument();
+});
+
+test('Expect clicking on image goes to details', async () => {
+  render(DiskImageDetailsSummary, { image: image });
+
+  const imageComp = screen.getByText(image.image + ':' + image.tag);
+  expect(imageComp).toBeInTheDocument();
+
+  await userEvent.click(imageComp);
+
+  expect(bootcClient.openImage).toHaveBeenCalledWith(image.imageId, image.engineId, `${image.image}:${image.tag}`);
 });
