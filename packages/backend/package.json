@@ -7,7 +7,7 @@
   "publisher": "redhat",
   "license": "Apache-2.0",
   "engines": {
-    "podman-desktop": ">=1.18.0"
+    "podman-desktop": ">=1.25.0"
   },
   "main": "./dist/extension.js",
   "contributes": {
@@ -107,7 +107,7 @@
     "watch": "vite --mode development build -w"
   },
   "devDependencies": {
-    "@podman-desktop/api": "1.24.2",
+    "@podman-desktop/api": "1.25.0-next.202601141327-4eb342a",
     "@types/node": "^24",
     "@typescript-eslint/eslint-plugin": "^8.53.0",
     "@typescript-eslint/parser": "^8.53.0",

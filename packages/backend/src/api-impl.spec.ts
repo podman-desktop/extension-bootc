@@ -47,6 +47,7 @@ vi.mock(
       },
       navigation: {
         navigateToImage: vi.fn(),
+        navigateToImageBuild: vi.fn(),
       },
     }) as unknown as typeof podmanDesktopApi,
 );
@@ -181,7 +182,7 @@ test('selectVMImageFile should call the extension api', async () => {
   expect(podmanDesktopApi.window.showOpenDialog).toHaveBeenCalled();
 });
 
-test('openImage should find the image and navigate to it', async () => {
+test('openImage should navigate to it', async () => {
   const apiImpl = createAPI();
 
   await apiImpl.openImage('sha256:555', 'podman.Podman', 'foo:latest');
@@ -191,4 +192,12 @@ test('openImage should find the image and navigate to it', async () => {
     'podman.Podman',
     'foo:latest',
   );
+});
+
+test('openImageBuild should navigate to it', async () => {
+  const apiImpl = createAPI();
+
+  await apiImpl.openImageBuild();
+
+  expect(podmanDesktopApi.navigation.navigateToImageBuild).toHaveBeenCalledOnce();
 });

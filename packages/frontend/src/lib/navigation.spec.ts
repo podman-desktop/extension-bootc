@@ -27,6 +27,7 @@ import {
   goToDiskImages,
   gotoImage,
   gotoDiskImageBuild,
+  gotoImageBuild,
 } from './navigation';
 import { bootcClient } from '../api/client';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
@@ -36,6 +37,7 @@ vi.mock('/@/api/client', async () => {
     bootcClient: {
       telemetryLogUsage: vi.fn(),
       openImage: vi.fn(),
+      openImageBuild: vi.fn(),
     },
     rpcBrowser: {
       subscribe: (): Subscriber => {
@@ -76,6 +78,13 @@ test('Test gotoImage navigation', async () => {
   await gotoImage('a', 'podman.Podman', 'foo:latest');
 
   expect(bootcClient.openImage).toHaveBeenCalledExactlyOnceWith('a', 'podman.Podman', 'foo:latest');
+});
+
+test('Test gotoImageBuild navigation', async () => {
+  await gotoImageBuild();
+
+  expect(bootcClient.openImageBuild).toHaveBeenCalledOnce();
+  expect(bootcClient.telemetryLogUsage).toHaveBeenCalledWith('nav-image-build');
 });
 
 test('Test gotoDiskImageBuild navigation', async () => {

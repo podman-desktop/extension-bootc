@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import type { ImageInfo } from '@podman-desktop/api';
 import ImagesList from './ImagesList.svelte';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 import { bootcClient } from '/@/api/client';
+import userEvent from '@testing-library/user-event';
 
 vi.mock('/@/api/client', async () => {
   return {
@@ -32,6 +33,8 @@ vi.mock('/@/api/client', async () => {
       listBootcImages: vi.fn(),
       listContainers: vi.fn(),
       deleteImage: vi.fn(),
+      openImageBuild: vi.fn(),
+      telemetryLogUsage: vi.fn(),
     },
     rpcBrowser: {
       subscribe: (): Subscriber => {
@@ -105,4 +108,15 @@ test('Expect filter empty screen', async () => {
 
   const filterButton = screen.getByRole('button', { name: 'Clear filter' });
   expect(filterButton).toBeInTheDocument();
+});
+
+test('Test clicking on build button', async () => {
+  vi.mocked(bootcClient.listBootcImages).mockResolvedValue([]);
+  render(ImagesList);
+
+  const build = screen.getAllByRole('button', { name: 'Build' })[0];
+  expect(build).toBeInTheDocument();
+  await userEvent.click(build);
+
+  expect(bootcClient.openImageBuild).toHaveBeenCalled();
 });
