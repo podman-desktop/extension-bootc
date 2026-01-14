@@ -66,9 +66,9 @@ test('Test gotoBuild navigation', async () => {
 });
 
 test('Test gotoImage navigation', async () => {
-  await gotoImage('a', 'b');
+  await gotoImage('a', 'podman.Podman', 'foo:latest');
 
-  expect(bootcClient.openImage).toHaveBeenCalledWith('a', 'b');
+  expect(bootcClient.openImage).toHaveBeenCalledExactlyOnceWith('a', 'podman.Podman', 'foo:latest');
 });
 
 test('Test gotoImageBuild navigation', async () => {

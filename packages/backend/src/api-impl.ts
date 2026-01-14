@@ -350,15 +350,8 @@ export class BootcApiImpl implements BootcApi {
     return await podmanDesktopApi.navigation.navigateToResources();
   }
 
-  async openImage(id: string, tag: string): Promise<void> {
-    const fullTag = `${id}:${tag}`;
-    const images = await this.listBootcImages();
-    const image = images.find(image => image.RepoTags && image.RepoTags.length > 0 && image.RepoTags[0] === fullTag);
-    if (!image) {
-      throw new Error(`Image ${id}:${tag} could not be found.`);
-    }
-
-    return await podmanDesktopApi.navigation.navigateToImage(image.Id, image.engineId, fullTag);
+  async openImage(id: string, engineId: string, tag: string): Promise<void> {
+    return await podmanDesktopApi.navigation.navigateToImage(id, engineId, tag);
   }
 
   async generateUniqueBuildID(name: string): Promise<string> {

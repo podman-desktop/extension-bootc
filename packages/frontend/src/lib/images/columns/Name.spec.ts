@@ -67,5 +67,5 @@ test('Expect clicking on name goes to details', async () => {
 
   await userEvent.click(name);
 
-  expect(bootcClient.openImage).toHaveBeenCalledWith(image.name, image.tag);
+  expect(bootcClient.openImage).toHaveBeenCalledWith(image.id, image.engineId, `${image.name}:${image.tag}`);
 });

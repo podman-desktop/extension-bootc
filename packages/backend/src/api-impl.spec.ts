@@ -184,21 +184,11 @@ test('selectVMImageFile should call the extension api', async () => {
 test('openImage should find the image and navigate to it', async () => {
   const apiImpl = createAPI();
 
-  const id = 'my-image';
-  const tag = 'latest';
-  const engine = 'podman';
-  const fullTag = `${id}:${tag}`;
-  vi.spyOn(apiImpl, 'listBootcImages').mockResolvedValue([
-    { Id: id, engineId: engine, RepoTags: [fullTag] },
-  ] as podmanDesktopApi.ImageInfo[]);
+  await apiImpl.openImage('sha256:555', 'podman.Podman', 'foo:latest');
 
-  await apiImpl.openImage(id, tag);
-
-  expect(podmanDesktopApi.navigation.navigateToImage).toHaveBeenCalledWith(id, engine, fullTag);
-});
-
-test('openImage should find the image and navigate to it', async () => {
-  const apiImpl = createAPI();
-
-  await expect(apiImpl.openImage('a', 'b')).rejects.toThrowError('Image a:b could not be found.');
+  expect(podmanDesktopApi.navigation.navigateToImage).toHaveBeenCalledExactlyOnceWith(
+    'sha256:555',
+    'podman.Podman',
+    'foo:latest',
+  );
 });

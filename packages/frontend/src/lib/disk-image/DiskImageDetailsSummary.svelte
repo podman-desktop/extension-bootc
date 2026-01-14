@@ -12,7 +12,7 @@ interface Props {
 let { image }: Props = $props();
 
 async function openDetails(): Promise<void> {
-  await gotoImage(image?.image ?? '', image?.tag ?? '');
+  await gotoImage(image?.id ?? '', image?.engineId ?? '', `${image?.image}:${image?.tag}`);
 }
 </script>
 
