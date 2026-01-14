@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import { expect, test, vi } from 'vitest';
 import type { ImageInfoUI } from './ImageInfoUI';
 import ImageActions from './ImageActions.svelte';
 import userEvent from '@testing-library/user-event';
-import { gotoImageBuild } from '../navigation';
+import { gotoDiskImageBuild } from '../navigation';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 import { bootcClient } from '/@/api/client';
 
@@ -44,7 +44,7 @@ vi.mock('/@/api/client', async () => {
 
 vi.mock('../navigation', async () => {
   return {
-    gotoImageBuild: vi.fn(),
+    gotoDiskImageBuild: vi.fn(),
   };
 });
 
@@ -61,7 +61,7 @@ test('Expect Build action works', async () => {
 
   await userEvent.click(build);
 
-  expect(gotoImageBuild).toHaveBeenCalled();
+  expect(gotoDiskImageBuild).toHaveBeenCalled();
 });
 
 test('Expect Delete action works', async () => {
