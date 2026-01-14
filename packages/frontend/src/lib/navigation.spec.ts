@@ -20,7 +20,14 @@ import '@testing-library/jest-dom/vitest';
 import { router } from 'tinro';
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { gotoBuild, gotoCreateVM, gotoCreateVMForm, goToDiskImages, gotoImage, gotoImageBuild } from './navigation';
+import {
+  gotoBuild,
+  gotoCreateVM,
+  gotoCreateVMForm,
+  goToDiskImages,
+  gotoImage,
+  gotoDiskImageBuild,
+} from './navigation';
 import { bootcClient } from '../api/client';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
@@ -71,8 +78,8 @@ test('Test gotoImage navigation', async () => {
   expect(bootcClient.openImage).toHaveBeenCalledExactlyOnceWith('a', 'podman.Podman', 'foo:latest');
 });
 
-test('Test gotoImageBuild navigation', async () => {
-  await gotoImageBuild('name', 'tag');
+test('Test gotoDiskImageBuild navigation', async () => {
+  await gotoDiskImageBuild('name', 'tag');
 
   expect(router.goto).toHaveBeenCalledWith('/disk-images/build/name/tag');
   expect(bootcClient.telemetryLogUsage).toHaveBeenCalledWith('nav-build');

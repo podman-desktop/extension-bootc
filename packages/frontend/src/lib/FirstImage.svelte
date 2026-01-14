@@ -5,7 +5,7 @@ import { tick } from 'svelte';
 import { bootcClient } from '/@/api/client';
 import { Button } from '@podman-desktop/ui-svelte';
 import { imageInfo } from '../stores/imageInfo';
-import { gotoImageBuild } from './navigation';
+import { gotoDiskImageBuild } from './navigation';
 
 let pullInProgress = $state(false);
 let displayDisclaimer = $state(false);
@@ -17,7 +17,7 @@ async function gotoBuild(): Promise<void> {
   // Split the image name to get the image name and tag and go to build page
   // this will pre-select the image and tag in the build screen
   const [image, tag] = exampleImage.split(':');
-  await gotoImageBuild(image, tag);
+  await gotoDiskImageBuild(image, tag);
 }
 
 async function pullExampleImage(): Promise<void> {

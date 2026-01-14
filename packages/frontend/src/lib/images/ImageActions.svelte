@@ -2,7 +2,7 @@
 import ListItemButtonIcon from '/@/lib/upstream/ListItemButtonIcon.svelte';
 import type { ImageInfoUI } from './ImageInfoUI';
 import { faBuilding, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { gotoImageBuild } from '../navigation';
+import { gotoDiskImageBuild } from '../navigation';
 import { bootcClient } from '/@/api/client';
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
 let { object }: Props = $props();
 
 async function goToImageBuild(): Promise<void> {
-  await gotoImageBuild(object.name, object.tag);
+  await gotoDiskImageBuild(object.name, object.tag);
 }
 
 async function deleteImage(): Promise<void> {

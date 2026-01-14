@@ -31,7 +31,7 @@ export async function gotoImage(id: string, engineId: string, tag: string): Prom
   await bootcClient.openImage(id, engineId, tag);
 }
 
-export async function gotoImageBuild(name: string, tag: string): Promise<void> {
+export async function gotoDiskImageBuild(name: string, tag: string): Promise<void> {
   await bootcClient.telemetryLogUsage('nav-build');
   router.goto(`/disk-images/build/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`);
 }
