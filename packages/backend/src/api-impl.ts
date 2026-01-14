@@ -354,6 +354,10 @@ export class BootcApiImpl implements BootcApi {
     return await podmanDesktopApi.navigation.navigateToImage(id, engineId, tag);
   }
 
+  async openImageBuild(): Promise<void> {
+    return await podmanDesktopApi.navigation.navigateToImageBuild();
+  }
+
   async generateUniqueBuildID(name: string): Promise<string> {
     return this.history.getUnusedHistoryName(name);
   }

@@ -24,6 +24,7 @@ import { bootcClient } from '/@/api/client';
 import type { ContainerInfo } from '@podman-desktop/api';
 import type { Unsubscriber } from 'svelte/store';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { gotoImageBuild } from '/@/lib/navigation';
 
 interface Props {
   searchTerm?: string;
@@ -120,6 +121,10 @@ const row = new TableRow<ImageInfoUI>({
 </script>
 
 <NavPage bind:searchTerm={searchTerm} title="images">
+  {#snippet additionalActions()}
+    <Button on:click={gotoImageBuild} icon={BootcImageIcon} title="Build">Build</Button>
+  {/snippet}
+
   {#snippet bottomAdditionalActions()}
     {#if selectedItemsNumber > 0}
      <Button

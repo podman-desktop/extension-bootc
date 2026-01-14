@@ -49,6 +49,7 @@ export abstract class BootcApi {
   abstract openLink(link: string): Promise<void>;
   abstract openResources(): Promise<void>;
   abstract openImage(id: string, engineId: string, tag: string): Promise<void>;
+  abstract openImageBuild(): Promise<void>;
   abstract isLinux(): Promise<boolean>;
   abstract isMac(): Promise<boolean>;
   abstract isWindows(): Promise<boolean>;
