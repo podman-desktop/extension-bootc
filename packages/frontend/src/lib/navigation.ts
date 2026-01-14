@@ -27,8 +27,8 @@ export async function gotoBuild(): Promise<void> {
   router.goto('/disk-images/build');
 }
 
-export async function gotoImage(name: string, tag: string): Promise<void> {
-  await bootcClient.openImage(name, tag);
+export async function gotoImage(id: string, engineId: string, tag: string): Promise<void> {
+  await bootcClient.openImage(id, engineId, tag);
 }
 
 export async function gotoImageBuild(name: string, tag: string): Promise<void> {

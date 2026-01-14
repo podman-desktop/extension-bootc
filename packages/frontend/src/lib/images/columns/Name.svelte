@@ -5,7 +5,7 @@ import { gotoImage } from '/@/lib/navigation';
 let { object }: Props = $props();
 
 async function openDetails(): Promise<void> {
-  await gotoImage(object.name, object.tag);
+  await gotoImage(object.id, object.engineId, `${object.name}:${object.tag}`);
 }
 </script>
 
