@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2025 Red Hat, Inc.
+ * Copyright (C) 2025-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import '@testing-library/jest-dom/vitest';
 import { router } from 'tinro';
 
 import { beforeEach, expect, test, vi } from 'vitest';
-import { gotoBuild, gotoCreateVM, gotoCreateVMForm, goToDiskImages, gotoImageBuild } from './navigation';
+import { gotoBuild, gotoCreateVM, gotoCreateVMForm, goToDiskImages, gotoImage, gotoImageBuild } from './navigation';
 import { bootcClient } from '../api/client';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
@@ -28,6 +28,7 @@ vi.mock('/@/api/client', async () => {
   return {
     bootcClient: {
       telemetryLogUsage: vi.fn(),
+      openImage: vi.fn(),
     },
     rpcBrowser: {
       subscribe: (): Subscriber => {
@@ -62,6 +63,12 @@ test('Test gotoBuild navigation', async () => {
 
   expect(router.goto).toHaveBeenCalledWith('/disk-images/build');
   expect(bootcClient.telemetryLogUsage).toHaveBeenCalledWith('nav-build');
+});
+
+test('Test gotoImage navigation', async () => {
+  await gotoImage('a', 'b');
+
+  expect(bootcClient.openImage).toHaveBeenCalledWith('a', 'b');
 });
 
 test('Test gotoImageBuild navigation', async () => {

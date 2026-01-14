@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -348,6 +348,17 @@ export class BootcApiImpl implements BootcApi {
 
   async openResources(): Promise<void> {
     return await podmanDesktopApi.navigation.navigateToResources();
+  }
+
+  async openImage(id: string, tag: string): Promise<void> {
+    const fullTag = `${id}:${tag}`;
+    const images = await this.listBootcImages();
+    const image = images.find(image => image.RepoTags && image.RepoTags.length > 0 && image.RepoTags[0] === fullTag);
+    if (!image) {
+      throw new Error(`Image ${id}:${tag} could not be found.`);
+    }
+
+    return await podmanDesktopApi.navigation.navigateToImage(image.Id, image.engineId, fullTag);
   }
 
   async generateUniqueBuildID(name: string): Promise<string> {

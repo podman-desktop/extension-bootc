@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,9 @@ vi.mock(
       env: {
         openExternal: vi.fn(),
         createTelemetryLogger: vi.fn(),
+      },
+      navigation: {
+        navigateToImage: vi.fn(),
       },
     }) as unknown as typeof podmanDesktopApi,
 );
@@ -176,4 +179,26 @@ test('selectVMImageFile should call the extension api', async () => {
   await apiImpl.selectVMImageFile();
 
   expect(podmanDesktopApi.window.showOpenDialog).toHaveBeenCalled();
+});
+
+test('openImage should find the image and navigate to it', async () => {
+  const apiImpl = createAPI();
+
+  const id = 'my-image';
+  const tag = 'latest';
+  const engine = 'podman';
+  const fullTag = `${id}:${tag}`;
+  vi.spyOn(apiImpl, 'listBootcImages').mockResolvedValue([
+    { Id: id, engineId: engine, RepoTags: [fullTag] },
+  ] as podmanDesktopApi.ImageInfo[]);
+
+  await apiImpl.openImage(id, tag);
+
+  expect(podmanDesktopApi.navigation.navigateToImage).toHaveBeenCalledWith(id, engine, fullTag);
+});
+
+test('openImage should find the image and navigate to it', async () => {
+  const apiImpl = createAPI();
+
+  await expect(apiImpl.openImage('a', 'b')).rejects.toThrowError('Image a:b could not be found.');
 });

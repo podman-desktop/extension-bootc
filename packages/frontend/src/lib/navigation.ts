@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,10 @@ export function goToDiskImages(): void {
 export async function gotoBuild(): Promise<void> {
   await bootcClient.telemetryLogUsage('nav-build');
   router.goto('/disk-images/build');
+}
+
+export async function gotoImage(name: string, tag: string): Promise<void> {
+  await bootcClient.openImage(name, tag);
 }
 
 export async function gotoImageBuild(name: string, tag: string): Promise<void> {
