@@ -355,7 +355,13 @@ export class BootcApiImpl implements BootcApi {
   }
 
   async openImageBuild(): Promise<void> {
-    return await podmanDesktopApi.navigation.navigateToImageBuild();
+    try {
+      return await podmanDesktopApi.navigation.navigateToImageBuild();
+    } catch (err) {
+      // navigateToImageBuild was added in PD 1.25
+      console.error('Build page navigation failed, going to Images instead', err);
+      return await podmanDesktopApi.navigation.navigateToImages();
+    }
   }
 
   async generateUniqueBuildID(name: string): Promise<string> {
