@@ -34,6 +34,7 @@ const mocks = vi.hoisted(() => ({
   macadamInitMock: vi.fn(),
   macadamListVmsMock: vi.fn(),
   areBinariesAvailableMock: vi.fn(),
+  ensureBinariesUpToDateMock: vi.fn(),
 }));
 
 vi.mock('../package.json', () => ({
@@ -99,6 +100,7 @@ vi.mock('@crc-org/macadam.js', () => ({
       init = mocks.macadamInitMock;
       listVms = mocks.macadamListVmsMock;
       areBinariesAvailable = mocks.areBinariesAvailableMock;
+      ensureBinariesUpToDate = mocks.ensureBinariesUpToDateMock;
     },
   ),
 }));
@@ -130,7 +132,7 @@ describe('test ensureMacadamInitialized doesnt double init', () => {
   test('should propagate init error when lazy initializing via getJSONMachineListByProvider', async () => {
     vi.mocked(podmanDesktopApi.env).isMac = true;
     vi.mocked(podmanDesktopApi.env).isWindows = false;
-    mocks.areBinariesAvailableMock.mockResolvedValue(false);
+    mocks.areBinariesAvailableMock.mockReturnValue(false);
     mocks.macadamInitMock.mockRejectedValue(new Error('Init failed'));
 
     await activate(fakeContext);
@@ -143,7 +145,7 @@ describe('test ensureMacadamInitialized doesnt double init', () => {
   test('should lazily initialize macadam when listing VMs and binary was not installed at activation', async () => {
     vi.mocked(podmanDesktopApi.env).isMac = true;
     vi.mocked(podmanDesktopApi.env).isWindows = false;
-    mocks.areBinariesAvailableMock.mockResolvedValue(false);
+    mocks.areBinariesAvailableMock.mockReturnValue(false);
     mocks.macadamInitMock.mockResolvedValue(undefined);
     mocks.macadamListVmsMock.mockResolvedValue([]);
 
@@ -162,7 +164,7 @@ describe('test ensureMacadamInitialized doesnt double init', () => {
   test('should not re-initialize macadam if already initialized', async () => {
     vi.mocked(podmanDesktopApi.env).isMac = true;
     vi.mocked(podmanDesktopApi.env).isWindows = false;
-    mocks.areBinariesAvailableMock.mockResolvedValue(true);
+    mocks.areBinariesAvailableMock.mockReturnValue(true);
     mocks.macadamInitMock.mockResolvedValue(undefined);
     mocks.macadamListVmsMock.mockResolvedValue([]);
 
@@ -273,45 +275,49 @@ describe('lazy macadam initialization', () => {
   test('macOs: should NOT initialize macadam on activate when binary does not exist', async () => {
     vi.mocked(podmanDesktopApi.env).isMac = true;
     vi.mocked(podmanDesktopApi.env).isWindows = false;
-    mocks.areBinariesAvailableMock.mockResolvedValue(false);
+    mocks.areBinariesAvailableMock.mockReturnValue(false);
 
     await activate(fakeContext);
 
     expect(mocks.macadamInitMock).not.toHaveBeenCalled();
+    expect(mocks.ensureBinariesUpToDateMock).not.toHaveBeenCalled();
   });
 
   test('macOS: should initialize macadam on activate when binary exists', async () => {
     vi.mocked(podmanDesktopApi.env).isMac = true;
     vi.mocked(podmanDesktopApi.env).isWindows = false;
-    mocks.areBinariesAvailableMock.mockResolvedValue(true);
+    mocks.areBinariesAvailableMock.mockReturnValue(true);
     mocks.macadamInitMock.mockResolvedValue(undefined);
 
     await activate(fakeContext);
 
     expect(mocks.macadamInitMock).toHaveBeenCalled();
+    expect(mocks.ensureBinariesUpToDateMock).not.toHaveBeenCalled();
   });
 
   test('linux: should NOT initialize macadam on activate when binary does not exist', async () => {
     vi.mocked(podmanDesktopApi.env).isMac = false;
     vi.mocked(podmanDesktopApi.env).isWindows = false;
     vi.mocked(podmanDesktopApi.env).isLinux = true;
-    mocks.areBinariesAvailableMock.mockResolvedValue(false);
+    mocks.areBinariesAvailableMock.mockReturnValue(false);
 
     await activate(fakeContext);
 
     expect(mocks.macadamInitMock).not.toHaveBeenCalled();
+    expect(mocks.ensureBinariesUpToDateMock).not.toHaveBeenCalled();
   });
 
   test('linux: should initialize macadam on activate when binary exists', async () => {
     vi.mocked(podmanDesktopApi.env).isMac = false;
     vi.mocked(podmanDesktopApi.env).isWindows = false;
     vi.mocked(podmanDesktopApi.env).isLinux = true;
-    mocks.areBinariesAvailableMock.mockResolvedValue(true);
+    mocks.areBinariesAvailableMock.mockReturnValue(true);
     mocks.macadamInitMock.mockResolvedValue(undefined);
 
     await activate(fakeContext);
 
     expect(mocks.macadamInitMock).toHaveBeenCalled();
+    expect(mocks.ensureBinariesUpToDateMock).not.toHaveBeenCalled();
   });
 
   test('windows: should skip macadam initialization on activate, since macadam isnt added yet', async () => {
@@ -322,16 +328,18 @@ describe('lazy macadam initialization', () => {
     await activate(fakeContext);
 
     expect(mocks.macadamInitMock).not.toHaveBeenCalled();
+    expect(mocks.ensureBinariesUpToDateMock).not.toHaveBeenCalled();
   });
 
   test('mac: should handle macadam init error gracefully during activate', async () => {
     vi.mocked(podmanDesktopApi.env).isMac = true;
     vi.mocked(podmanDesktopApi.env).isWindows = false;
-    mocks.areBinariesAvailableMock.mockResolvedValue(true);
+    mocks.areBinariesAvailableMock.mockReturnValue(true);
     mocks.macadamInitMock.mockRejectedValue(new Error('Init failed'));
 
     await activate(fakeContext);
 
     expect(mocks.consoleErrorMock).toHaveBeenCalledWith('Error initializing macadam', expect.any(Error));
+    expect(mocks.ensureBinariesUpToDateMock).not.toHaveBeenCalled();
   });
 });
