@@ -23,9 +23,9 @@ ENV HOME=/opt/app-root
 # copy the application files to the /opt/app-root/extension-source directory
 WORKDIR /opt/app-root/extension-source
 RUN mkdir -p /opt/app-root/extension-source
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc /opt/app-root/extension-source/
-COPY packages/backend/package.json /opt/app-root/extension-source/packages/backend/package.json
-COPY packages/frontend/package.json /opt/app-root/extension-source/packages/frontend/package.json
+COPY --chown=1001:0 package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc /opt/app-root/extension-source/
+COPY --chown=1001:0 packages/backend/package.json /opt/app-root/extension-source/packages/backend/package.json
+COPY --chown=1001:0 packages/frontend/package.json /opt/app-root/extension-source/packages/frontend/package.json
 
 RUN npm install --global pnpm@10 && \
     pnpm --frozen-lockfile install
