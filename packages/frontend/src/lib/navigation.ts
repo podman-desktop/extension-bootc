@@ -28,6 +28,7 @@ export async function gotoBuild(): Promise<void> {
 }
 
 export async function gotoImage(id: string, engineId: string, tag: string): Promise<void> {
+  await bootcClient.telemetryLogUsage('nav-image');
   await bootcClient.openImage(id, engineId, tag);
 }
 

@@ -30,6 +30,7 @@ vi.mock('/@/api/client', async () => {
   return {
     bootcClient: {
       openImage: vi.fn(),
+      telemetryLogUsage: vi.fn(),
     },
   };
 });
