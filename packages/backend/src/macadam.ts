@@ -70,7 +70,7 @@ export class MacadamHandler {
           // Trigger the extension.ts monitoring loop now that macadam is initialized
           // and a VM has been created. This ensures the new VM appears in the Resources list after creation.
           // Creating a VM is the area where macadam is first initialized and the "install macadam" sudo prompt pops up.
-          await ensureMacadamInitialized();
+          await ensureMacadamInitialized(true);
         },
       )
       .catch((e: unknown) => {

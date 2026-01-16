@@ -257,12 +257,20 @@ export async function getConfigurationValue<T>(property: string): Promise<T | un
 // This allows deferring the sudo prompt until the user actually tries to use VM features,
 // rather than prompting on extension activation.
 // Exported so MacadamHandler can trigger monitoring after VM creation.
-export async function ensureMacadamInitialized(): Promise<void> {
-  await macadam.ensureBinariesUpToDate();
-
+// if you pass param checkForUpdates, it will ensure any updates are applied (ex. we want the most up to date when doing actions)
+export async function ensureMacadamInitialized(checkForUpdates = false): Promise<void> {
+  // If already initialized, optionally check for updates
+  // this helps us in scenarios we don't care if we are on an old version (we are doing the machine json list calls),
+  // but for operations like start/stop/create we want to ensure we have the latest binary
   if (macadamInitialized) {
+    if (checkForUpdates) {
+      await macadam.ensureBinariesUpToDate();
+    }
     return;
   }
+
+  // need to install/update binary (the method is an all-in-one anyways) and init
+  await macadam.ensureBinariesUpToDate();
 
   try {
     await macadam.init();
@@ -348,7 +356,7 @@ async function startMachine(
   const startTime = performance.now();
 
   try {
-    await ensureMacadamInitialized();
+    await ensureMacadamInitialized(true);
     await macadam.startVm({
       name: machineInfo.name,
       containerProvider: verifyContainerProivder(machineInfo.vmType),
@@ -378,7 +386,7 @@ async function stopMachine(
   const telemetryRecords: Record<string, unknown> = {};
   telemetryRecords.provider = 'macadam';
   try {
-    await ensureMacadamInitialized();
+    await ensureMacadamInitialized(true);
     await macadam.stopVm({
       name: machineInfo.name,
       containerProvider: verifyContainerProivder(machineInfo.vmType),
@@ -410,7 +418,7 @@ async function registerProviderFor(
       await stopMachine(provider, machineInfo, context, logger);
     },
     delete: async (logger): Promise<void> => {
-      await ensureMacadamInitialized();
+      await ensureMacadamInitialized(true);
       await macadam.removeVm({
         name: machineInfo.name,
         containerProvider: verifyContainerProivder(machineInfo.vmType),
