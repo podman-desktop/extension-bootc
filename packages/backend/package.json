@@ -109,8 +109,8 @@
   "devDependencies": {
     "@podman-desktop/api": "1.25.0-next.202601161727-def4326",
     "@types/node": "^24",
-    "@typescript-eslint/eslint-plugin": "^8.53.0",
-    "@typescript-eslint/parser": "^8.53.0",
+    "@typescript-eslint/eslint-plugin": "^8.53.1",
+    "@typescript-eslint/parser": "^8.53.1",
     "@types/ssh2": "^1.15.5",
     "@xterm/addon-attach": "^0.12.0",
     "@xterm/addon-fit": "^0.11.0",
