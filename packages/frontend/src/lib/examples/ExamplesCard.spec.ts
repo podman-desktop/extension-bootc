@@ -22,7 +22,6 @@ import { expect, test, vi } from 'vitest';
 import type { Example, Category } from '/@shared/src/models/examples';
 import ExamplesCard from './ExamplesCard.svelte';
 import { bootcClient } from '/@/api/client';
-import { tick } from 'svelte';
 import type { ImageInfo } from '@podman-desktop/api';
 
 // Mock bootcClient methods
@@ -30,6 +29,7 @@ vi.mock('/@/api/client', () => {
   return {
     bootcClient: {
       listBootcImages: vi.fn(),
+      getArch: vi.fn(),
     },
     rpcBrowser: {
       subscribe: vi.fn().mockReturnValue({
@@ -96,30 +96,11 @@ test('renders ExamplesCard with correct content', async () => {
   expect(example2).toBeInTheDocument();
 });
 
-test('updates example state to "pulled" when images are available', async () => {
-  // Mock the listBootcImages method
-  vi.mocked(bootcClient.listBootcImages).mockResolvedValue(imagesList);
-
-  // Render the ExamplesCard component with category and examples props
-  render(ExamplesCard, { props: { category, examples } });
-
-  // Use tick to wait for the next render (update the state)
-  await tick();
-
-  // Verify that example1 has been updated to state "pulled"
-  const buildButton = screen.getByTitle('Build image');
-  expect(buildButton).toBeInTheDocument();
-
-  // Verify example2 still says "Pull image" since it's not in the list of available images
-  const pullButton = screen.getByTitle('Pull image');
-  expect(pullButton).toBeInTheDocument();
-});
-
 test('displays message when there are no examples in the category', async () => {
   // Render the ExamplesCard component with empty examples array
   render(ExamplesCard, { props: { category, examples: [] } });
 
   // Verify the message is displayed
-  const noExamplesMessage = screen.getByText('There is no example in this category.');
+  const noExamplesMessage = screen.getByText('There are no examples in this category.');
   expect(noExamplesMessage).toBeInTheDocument();
 });

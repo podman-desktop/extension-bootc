@@ -17,5 +17,8 @@ let { category, examples }: Props = $props();
         <ExampleCard {example} />
       {/each}
     </div>
+    {#if examples.length == 0}
+      There are no examples in this category.
+    {/if}
   </div>
 </Card>
