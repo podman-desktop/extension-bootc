@@ -7,7 +7,7 @@
   "publisher": "redhat",
   "license": "Apache-2.0",
   "engines": {
-    "podman-desktop": ">=1.25.0"
+    "podman-desktop": ">=1.18.0"
   },
   "main": "./dist/extension.js",
   "contributes": {
