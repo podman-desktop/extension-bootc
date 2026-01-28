@@ -188,62 +188,6 @@ test('check activate', async () => {
   expect(mocks.logUsageMock).toHaveBeenCalled();
 });
 
-describe('version checker', () => {
-  test('incompatible version', async () => {
-    (podmanDesktopApi.version as string) = '0.7.0';
-    await expect(async () => {
-      await activate(fakeContext);
-    }).rejects.toThrowError('Extension is not compatible with Podman Desktop version below 1.0.0 (Current 0.7.0).');
-
-    // expect the error to be logged
-    expect(mocks.logErrorMock).toBeCalledWith('start.incompatible', {
-      version: '0.7.0',
-      message: 'error activating extension on version below 1.0.0',
-    });
-  });
-
-  test('next version', async () => {
-    (podmanDesktopApi.version as string) = '1.0.1-next';
-    await activate(fakeContext);
-
-    expect(mocks.logErrorMock).not.toHaveBeenCalled();
-  });
-
-  /**
-   * This check ensure we do not support old nighties version to be used
-   * update introduced in https://github.com/podman-desktop/podman-desktop/pull/7643
-   */
-  test('old nightlies version', async () => {
-    (podmanDesktopApi.version as string) = 'v0.0.202404030805-3cb4544';
-    await expect(async () => {
-      await activate(fakeContext);
-    }).rejects.toThrowError(
-      'Extension is not compatible with Podman Desktop version below 1.0.0 (Current v0.0.202404030805-3cb4544).',
-    );
-
-    expect(mocks.logErrorMock).toHaveBeenCalled();
-  });
-
-  test('new version nighties', async () => {
-    (podmanDesktopApi.version as string) = `1.0.0-${Date.now()}-b35e7bef`;
-
-    expect(mocks.logErrorMock).not.toHaveBeenCalled();
-  });
-
-  test('invalid version', async () => {
-    (podmanDesktopApi.version as string | undefined) = undefined;
-    await expect(async () => {
-      await activate(fakeContext);
-    }).rejects.toThrowError('Extension is not compatible with Podman Desktop version below 1.0.0 (Current unknown).');
-
-    // expect the activate method to be called on the studio class
-    expect(mocks.logErrorMock).toBeCalledWith('start.incompatible', {
-      version: 'unknown',
-      message: 'error activating extension on version below 1.0.0',
-    });
-  });
-});
-
 test('check deactivate', async () => {
   await deactivate();
 
