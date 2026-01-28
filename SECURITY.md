@@ -1,3 +1,3 @@
-## Security and Disclosure Information Policy for the Podman Desktop Extension BootC Project
+## Security and Disclosure Information Policy
 
-The Podman Desktop Extension BootC Project follows the [Security and Disclosure Information Policy](https://github.com/containers/common/blob/main/SECURITY.md) for the Containers Projects.
+This project follows the Podman Desktop [Security and Disclosure Information Policy](https://github.com/podman-desktop/podman-desktop/blob/main/SECURITY.md).

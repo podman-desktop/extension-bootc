@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  * SPDX-License-Identifier: Apache-2.0
- l***********************************************************************/
+ ***********************************************************************/
 
 import type { BootcBuildInfo, BuildType } from './models/bootc';
 import type { ImageInfo, ImageInspectInfo, ManifestInspectInfo, ContainerInfo } from '@podman-desktop/api';
