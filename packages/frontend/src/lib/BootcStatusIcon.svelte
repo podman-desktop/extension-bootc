@@ -27,11 +27,12 @@ let IconComponent = $derived(icon);
 
 <div class="grid place-content-center" style="position:relative">
   <div
-    class="grid place-content-center rounded-sm aspect-square text-xs"
+    class="grid place-content-center rounded-sm aspect-square"
     class:bg-[var(--pd-status-running)]={status === 'success' || status === 'used'}
     class:bg-[var(--pd-status-created)]={status === 'running'}
     class:bg-[var(--pd-status-terminated)]={status === 'error'}
     class:bg-[var(--pd-status-degraded)]={status === 'lost'}
+    class:border-2={!solid && status !== 'deleting'}
     class:p-0.5={!solid}
     class:p-1={solid}
     class:border-[var(--pd-status-not-running)]={!solid}

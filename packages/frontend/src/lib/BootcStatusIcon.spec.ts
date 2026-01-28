@@ -30,6 +30,7 @@ test('Expect running status to display correct background color', async () => {
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveAttribute('title', status);
   expect(icon).toHaveClass('bg-[var(--pd-status-created)]');
+  expect(icon).not.toHaveClass('text-xs');
 });
 
 test('Expect success status to display green background', async () => {
@@ -74,4 +75,14 @@ test('Expect used status to display green background', async () => {
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveAttribute('title', status);
   expect(icon).toHaveClass('bg-[var(--pd-status-running)]');
+});
+
+test('Expect unused status to display correct border', async () => {
+  const status = 'unused';
+  render(BootcStatusIcon, { status });
+  const icon = screen.getByRole('status');
+  expect(icon).toBeInTheDocument();
+  expect(icon).toHaveAttribute('title', status);
+  expect(icon).toHaveClass('border-2');
+  expect(icon).toHaveClass('border-[var(--pd-status-not-running)]');
 });
