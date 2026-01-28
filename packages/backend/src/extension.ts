@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,6 @@ import { RpcExtension } from '/@shared/src/messages/MessageProxy';
 import { BootcApiImpl } from './api-impl';
 import { HistoryNotifier } from './history/historyNotifier';
 import { Messages } from '/@shared/src/messages/Messages';
-import { satisfies, minVersion, coerce } from 'semver';
-import { engines } from '../package.json';
 import * as macadamJSPackage from '@crc-org/macadam.js';
 import { isHyperVEnabled, isWSLEnabled } from './macadam/win/utils';
 import { getErrorMessage, verifyContainerProivder } from './macadam/utils';
@@ -99,19 +97,6 @@ export const macadamMachinesStatuses = new Map<string, extensionApi.ProviderConn
 
 export async function activate(extensionContext: ExtensionContext): Promise<void> {
   console.log('starting bootc extension');
-
-  // Ensure version is above the minimum Podman Desktop version required
-  const version = extensionApi.version ?? 'unknown';
-  if (!checkVersion(version)) {
-    const min = minVersion(engines['podman-desktop']);
-    telemetryLogger.logError('start.incompatible', {
-      version: version,
-      message: `error activating extension on version below ${min?.version}`,
-    });
-    throw new Error(
-      `Extension is not compatible with Podman Desktop version below ${min?.version} (Current ${version}).`,
-    );
-  }
 
   telemetryLogger.logUsage('start');
 
@@ -209,19 +194,6 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
       macadamEvents.emit(MACADAM_INITIALIZED_EVENT);
     }
   }
-}
-
-function checkVersion(version: string): boolean {
-  if (!version) {
-    return false;
-  }
-
-  const current = coerce(version);
-  if (!current) {
-    return false;
-  }
-
-  return satisfies(current, engines['podman-desktop']);
 }
 
 export async function openBuildPage(
