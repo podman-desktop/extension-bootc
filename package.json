@@ -47,7 +47,7 @@
     "@biomejs/biome": "^2.3.13",
     "@commitlint/cli": "^20.4.0",
     "@commitlint/config-conventional": "^20.4.0",
-    "@eslint/compat": "^2.0.1",
+    "@eslint/compat": "^2.0.2",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
     "@vitest/coverage-v8": "^4.0.10",
