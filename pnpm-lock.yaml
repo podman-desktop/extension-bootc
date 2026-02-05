@@ -117,8 +117,8 @@ importers:
   packages/backend:
     dependencies:
       '@crc-org/macadam.js':
-        specifier: 0.5.0
-        version: 0.5.0
+        specifier: 0.6.0
+        version: 0.6.0
       compare-versions:
         specifier: ^6.1.1
         version: 6.1.1
@@ -563,6 +563,9 @@ packages:
 
   '@crc-org/macadam.js@0.5.0':
     resolution: {integrity: sha512-WBnReMQDkDJskNktER63+OYTBfWjdvT6+ZVUKdqRbUZrFqHjUPjtyEdrdc0yUV5JsqtUyQMMRuKhisiODO3x/g==}
+
+  '@crc-org/macadam.js@0.6.0':
+    resolution: {integrity: sha512-Gkj5JBQ18MG8Mp6Bl8pgkjjLjQh+D602/+RTJgl/+PmIXqhnY5Moy917iFnm8mcfhjMe7MuWcOT2TFYHJc62dA==}
 
   '@csstools/color-helpers@5.1.0':
     resolution: {integrity: sha512-S11EXWJyy0Mz5SYvRmY8nJYTFFd1LCNV+7cXyAgQtOOuzb4EsgfqDufL+9esx72/eLhsRdGZwaldu/h+E4t4BA==}
@@ -4026,6 +4029,11 @@ snapshots:
       picocolors: 1.1.1
 
   '@crc-org/macadam.js@0.5.0':
+    dependencies:
+      '@podman-desktop/api': 1.25.1
+      semver: 7.7.3
+
+  '@crc-org/macadam.js@0.6.0':
     dependencies:
       '@podman-desktop/api': 1.25.1
       semver: 7.7.3
