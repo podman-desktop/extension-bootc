@@ -118,8 +118,11 @@ export async function buildDiskImage(build: BootcBuildInfo, history: History, ov
 
   // remove paths, user info, and other potentially identifiable info
   const buildInfo = structuredClone(build);
+  buildInfo.image = 'image';
   if (buildInfo.buildConfig) {
-    buildInfo.buildConfig.user = undefined;
+    if (buildInfo.buildConfig.user) {
+      buildInfo.buildConfig.user = [];
+    }
     buildInfo.buildConfig.anacondaIsoInstallerKickstartFilePath = undefined;
     buildInfo.buildConfig.filesystem = undefined;
   }
@@ -127,6 +130,9 @@ export async function buildDiskImage(build: BootcBuildInfo, history: History, ov
   buildInfo.awsAmiName = undefined;
   if (buildInfo.buildConfigFilePath) {
     buildInfo.buildConfigFilePath = 'user-path';
+  }
+  if (buildInfo.chown) {
+    buildInfo.chown = 'chown';
   }
   buildInfo.folder = 'folder';
   telemetryData.build = buildInfo;
