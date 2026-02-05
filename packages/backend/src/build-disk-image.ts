@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024-2025 Red Hat, Inc.
+ * Copyright (C) 2024-2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,7 +115,21 @@ export async function buildDiskImage(build: BootcBuildInfo, history: History, ov
 
   // Store the build information for telemetry
   const telemetryData: Record<string, unknown> = {};
-  telemetryData.build = build;
+
+  // remove paths, user info, and other potentially identifiable info
+  const buildInfo = structuredClone(build);
+  if (buildInfo.buildConfig) {
+    buildInfo.buildConfig.user = undefined;
+    buildInfo.buildConfig.anacondaIsoInstallerKickstartFilePath = undefined;
+    buildInfo.buildConfig.filesystem = undefined;
+  }
+  buildInfo.awsBucket = undefined;
+  buildInfo.awsAmiName = undefined;
+  if (buildInfo.buildConfigFilePath) {
+    buildInfo.buildConfigFilePath = 'user-path';
+  }
+  buildInfo.folder = 'folder';
+  telemetryData.build = buildInfo;
 
   // Kick off task using withProgress to build in the background
   let errorMessage: string;
