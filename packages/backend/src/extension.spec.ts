@@ -37,15 +37,8 @@ const mocks = vi.hoisted(() => ({
   ensureBinariesUpToDateMock: vi.fn(),
 }));
 
-vi.mock('../package.json', () => ({
-  engines: {
-    'podman-desktop': '>=1.0.0',
-  },
-}));
-
 vi.mock('@podman-desktop/api', async () => {
   return {
-    version: '1.8.0',
     env: {
       createTelemetryLogger: (): podmanDesktopApi.TelemetryLogger =>
         ({
