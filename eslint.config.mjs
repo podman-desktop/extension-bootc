@@ -33,6 +33,7 @@ import etc from 'eslint-plugin-etc';
 import svelte from 'eslint-plugin-svelte';
 import redundantUndefined from 'eslint-plugin-redundant-undefined';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
+import podmanDesktopLinter from '@podman-desktop/eslint-plugin';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -63,6 +64,7 @@ export default [
   js.configs.recommended,
   ...typescriptLint.configs.recommended,
   sonarjs.configs.recommended,
+  podmanDesktopLinter.configs.recommended,
   ...svelte.configs['flat/recommended'],
   ...fixupConfigRules(
     compat.extends('plugin:import/recommended', 'plugin:import/typescript', 'plugin:etc/recommended'),

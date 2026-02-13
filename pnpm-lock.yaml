@@ -38,6 +38,9 @@ importers:
       '@eslint/js':
         specifier: ^9.39.2
         version: 9.39.2
+      '@podman-desktop/eslint-plugin':
+        specifier: ^0.2.0
+        version: 0.2.0(eslint@9.39.2(jiti@2.6.1))
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.55.0
         version: 8.55.0(@typescript-eslint/parser@8.55.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
@@ -922,6 +925,12 @@ packages:
 
   '@podman-desktop/api@1.25.1':
     resolution: {integrity: sha512-OTsf2q0g5GavfalYFpOtyn8QVVkLKKJOH1zMabqcIK7yTpu093FRCQY/hBdUYx25UyEXhtX4v7QAP0+lc9B+jw==}
+
+  '@podman-desktop/eslint-plugin@0.2.0':
+    resolution: {integrity: sha512-Svp+48+1ddO4j3w0FMCwiU0ooorGMZHaqgEZkqOCKvdpvoLfJ44yXoSHuJYSnxGQNZsQjxNN7MCbd0hGNSkGPw==}
+    engines: {node: '>=24 <25'}
+    peerDependencies:
+      eslint: '>=9.0.0'
 
   '@podman-desktop/tests-playwright@1.25.1':
     resolution: {integrity: sha512-Jn3QPkVraSZ6etiuZEaCGYss9EzA7SjPKz8xGG9wEVQDBZsq3KlQeRPalzcd1lAj1o6+LAKNsV67bqp6OqftBg==}
@@ -4300,6 +4309,10 @@ snapshots:
       playwright: 1.58.2
 
   '@podman-desktop/api@1.25.1': {}
+
+  '@podman-desktop/eslint-plugin@0.2.0(eslint@9.39.2(jiti@2.6.1))':
+    dependencies:
+      eslint: 9.39.2(jiti@2.6.1)
 
   '@podman-desktop/tests-playwright@1.25.1': {}
 
