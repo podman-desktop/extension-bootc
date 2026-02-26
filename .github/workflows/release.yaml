@@ -156,7 +156,7 @@ jobs:
           registry: ghcr.io/${{ github.repository_owner }}
 
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-name: ghcr.io/${{ github.repository_owner }}/extension-bootc-builder
           subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
@@ -207,7 +207,7 @@ jobs:
           registry: ghcr.io/${{ github.repository_owner }}
 
       - name: Generate artifact attestation
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-name: ghcr.io/${{ github.repository_owner }}/extension-bootc
           subject-digest: ${{ steps.push-to-ghcr.outputs.digest }}
