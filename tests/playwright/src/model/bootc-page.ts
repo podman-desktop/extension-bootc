@@ -92,21 +92,24 @@ export class BootcPage {
     }
 
     await playExpect(this.heading).toBeVisible({ timeout: 10_000 });
-    await this.imageSelect.selectOption({ label: imageName });
-
     await this.webview.waitForTimeout(5_000);
+
+    await this.imageSelect.selectOption({ label: imageName });
+    await Promise.race([
+      playExpect(this.amd64Button).toBeEnabled({ timeout: 30_000 }),
+      playExpect(this.arm64Button).toBeEnabled({ timeout: 30_000 }),
+    ]);
+
     await playExpect(this.outputFolderPath).toBeVisible({ timeout: 10_000 });
     await this.outputFolderPath.scrollIntoViewIfNeeded();
 
     await this.outputFolderPath.clear();
     await playExpect(this.outputFolderPath).toHaveValue('');
 
-    await this.outputFolderPath.pressSequentially(pathToStore, { delay: 5 });
+    await this.outputFolderPath.fill(pathToStore);
     await playExpect(this.outputFolderPath).toHaveValue(pathToStore);
 
     await this.uncheckedAllCheckboxes();
-    await this.webview.waitForTimeout(10_000);
-
     switch (type.toLocaleLowerCase()) {
       case 'raw':
         await this.checkCheckbox(this.rawCheckbox);
