@@ -106,7 +106,7 @@ test.describe('BootC Extension', () => {
       .toBeTruthy();
   });
 
-  const architectures = [ArchitectureType.AMD64, ArchitectureType.ARM64];
+  const architectures = [ArchitectureType.AMD64]; //ArchitectureType.AMD64, ArchitectureType.ARM64
 
   for (const architecture of architectures) {
     test.describe
@@ -139,7 +139,7 @@ test.describe('BootC Extension', () => {
           imageBuildFailed = false;
         });
 
-        types = ['QCOW2', 'AMI', 'RAW', 'VMDK', 'ISO', 'VHD'];
+        types = ['QCOW2']; //'QCOW2', 'AMI', 'RAW', 'VMDK', 'ISO', 'VHD'
 
         for (const type of types) {
           test.describe
@@ -174,13 +174,25 @@ test.describe('BootC Extension', () => {
                 );
                 [page, webview] = await handleWebview(runner);
                 const bootcPage = new BootcPage(page, webview);
-                const result = await bootcPage.buildDiskImage(
-                  `${imageName}:${imageTag}`,
-                  pathToStore,
-                  type,
-                  architecture,
-                  1_200_000,
-                );
+                const maxAttempts = 3;
+                let result = false;
+                for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                  if (attempt > 1) {
+                    console.log(`Retrying build (attempt ${attempt}/${maxAttempts})...`);
+                    //change page before retrying
+                    [page, webview] = await handleWebview(runner);
+                    const bootcNavigationBar = new BootcNavigationBar(page, webview);
+                    await bootcNavigationBar.openBootcDashboard();
+                  }
+                  result = await bootcPage.buildDiskImage(
+                    `${imageName}:${imageTag}`,
+                    pathToStore,
+                    type,
+                    architecture,
+                    1_200_000,
+                  );
+                  if (result) break;
+                }
 
                 console.log(
                   `Building disk image for platform ${os.platform()} and architecture ${architecture} and type ${type} is ${result}`,

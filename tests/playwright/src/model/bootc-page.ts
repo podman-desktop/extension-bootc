@@ -146,11 +146,20 @@ export class BootcPage {
         throw new Error(`Unknown architecture: ${architecture}`);
     }
 
-    await this.buildButton.scrollIntoViewIfNeeded();
-    await playExpect(this.buildButton).toBeEnabled({ timeout: 15_000 });
+    const errTimeoutLocator = this.webview.getByText('Error: Timeout', { exact: true });
+
+    try {
+      // sometimes not enabled due to github.com/podman-desktop/extension-bootc/issues/1701, workaround
+      await this.buildButton.scrollIntoViewIfNeeded();
+      await playExpect(this.buildButton).toBeEnabled({ timeout: 15_000 });
+    } catch {
+      await errTimeoutLocator.scrollIntoViewIfNeeded();
+      await playExpect(errTimeoutLocator).toBeVisible({ timeout: 10_000 });
+      return false;
+    }
+
     await this.buildButton.click();
 
-    const errTimeoutLocator = this.webview.getByText('Error: Timeout', { exact: true });
     const detailsPage = new BootcImageDetailsPage(this.page, this.webview, imageName);
     await playExpect(detailsPage.heading.or(errTimeoutLocator).first()).toBeVisible({ timeout: 120_000 });
 
@@ -161,7 +170,7 @@ export class BootcPage {
     await waitUntil(async () => await this.refreshPageWhileInCreatingState(), { timeout: 120_000, diff: 1_000 });
     await this.waitUntilCurrentBuildIsFinished(timeout);
     if ((await this.getCurrentStatusOfLatestEntry()) === 'error') {
-      console.log('Error building image! Retuning false.');
+      console.log('Error building image! Returning false.');
       return false;
     }
 
