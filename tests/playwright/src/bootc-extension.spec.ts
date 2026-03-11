@@ -28,6 +28,7 @@ import {
   RunnerOptions,
   ArchitectureType,
   PreferencesPage,
+  StatusBar,
 } from '@podman-desktop/tests-playwright';
 import * as path from 'node:path';
 import * as os from 'node:os';
@@ -342,6 +343,19 @@ test.describe('BootC Extension', () => {
                       pathToStore,
                       type,
                     );
+
+                    if (!result) {
+                      const statusBar = new StatusBar(page);
+                      const tasksPage = await statusBar.openTasksPage();
+                      await playExpect(tasksPage.heading).toBeVisible();
+                      const failureFullText = await tasksPage.getStatusForLatestTask();
+
+                      if (failureFullText.includes('Can also be that registry requires authentication')) {
+                        console.log('Could not pull rhel image from registry, skipping test');
+                        test.skip();
+                        return;
+                      }
+                    }
                     playExpect(result).toBeTruthy();
                   });
                 });
