@@ -350,7 +350,7 @@ test.describe('BootC Extension', () => {
                       await playExpect(tasksPage.heading).toBeVisible();
                       const failureFullText = await tasksPage.getStatusForLatestTask();
 
-                      if (failureFullText.includes('Can also be that registry requires authentication')) {
+                      if (failureFullText.includes('Can also be that the registry requires authentication')) {
                         console.log('Could not pull rhel image from registry, skipping test');
                         test.skip();
                         return;
