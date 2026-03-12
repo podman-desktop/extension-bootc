@@ -43,6 +43,8 @@ jobs:
   e2e-tests:
     name: Run E2E tests
     runs-on: ubuntu-24.04
+    env:
+      CI: true
     steps:
       - uses: actions/checkout@v6
         if: github.event_name == 'workflow_dispatch'
