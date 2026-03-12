@@ -53,7 +53,7 @@ on:
         type: string
         required: true
       env_vars:
-        default: 'TEST_PODMAN_MACHINE=true,ELECTRON_ENABLE_INSPECT=true'
+        default: 'CI=true,TEST_PODMAN_MACHINE=true,ELECTRON_ENABLE_INSPECT=true'
         description: 'Env. Variables passed into target machine, ie: VAR1=xxx,VAR2=true...'
         type: string
         required: true
@@ -107,7 +107,7 @@ jobs:
           DEFAULT_PODMAN_DESKTOP_REPO_ARGS: 'REPO=podman-desktop,FORK=podman-desktop,BRANCH=main'
           DEFAULT_NPM_TARGET: 'test:e2e'
           DEFAULT_PODMAN_PROVIDER: 'wsl'
-          DEFAULT_ENV_VARS: 'TEST_PODMAN_MACHINE=true,ELECTRON_ENABLE_INSPECT=true'
+          DEFAULT_ENV_VARS: 'CI=true,TEST_PODMAN_MACHINE=true,ELECTRON_ENABLE_INSPECT=true'
           DEFAULT_PODMAN_OPTIONS: 'INIT=1,START=1,ROOTFUL=1,NETWORKING=0'
           DEFAULT_EXT_TESTS_OPTIONS: 'EXT_RUN_TESTS_FROM_EXTENSION=1,EXT_RUN_TESTS_AS_ADMIN=0'
           DEFAULT_EXT_REPO_OPTIONS: 'REPO=extension-bootc,FORK=podman-desktop,BRANCH=main'
