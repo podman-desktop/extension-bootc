@@ -85,9 +85,12 @@ async function readMachineConfig(machineConfigDir: string, currentMachine: strin
 }
 
 // Check if the current podman machine is rootful
-export async function isPodmanMachineRootful(connection: extensionApi.ContainerProviderConnection): Promise<boolean> {
+export async function isPodmanMachineRootful(
+  connection: extensionApi.ContainerProviderConnection,
+  existingMachineInfo?: unknown,
+): Promise<boolean> {
   try {
-    const machineInfo = await getMachineInfo(connection);
+    const machineInfo = existingMachineInfo ?? (await getMachineInfo(connection));
     const machineConfig = await readMachineConfig(machineInfo.Host.MachineConfigDir, getPodmanMachineName(connection));
 
     // If you are on Podman Machine 4.9.0 with applehv activated, the rootful key will be located
@@ -113,9 +116,12 @@ export async function isPodmanMachineRootful(connection: extensionApi.ContainerP
 }
 
 // Check if the current podman machine is v5 or above
-export async function isPodmanV5Machine(connection: extensionApi.ContainerProviderConnection): Promise<boolean> {
+export async function isPodmanV5Machine(
+  connection: extensionApi.ContainerProviderConnection,
+  existingMachineInfo?: unknown,
+): Promise<boolean> {
   try {
-    const machineInfo = await getMachineInfo(connection);
+    const machineInfo = existingMachineInfo ?? (await getMachineInfo(connection));
 
     const ver = machineInfo.Version.Version;
     // Attempt to parse the version, handling undefined if it fails
@@ -137,12 +143,15 @@ export async function isPodmanV5Machine(connection: extensionApi.ContainerProvid
 export async function checkPrereqs(connection: extensionApi.ContainerProviderConnection): Promise<string | undefined> {
   // Podman Machine checks are applicable to non-Linux platforms only
   if (!isLinux()) {
-    const isPodmanV5 = await isPodmanV5Machine(connection);
+    // Get machine info once and pass to both checks to avoid duplicate podman CLI calls
+    const machineInfo = await getMachineInfo(connection);
+
+    const isPodmanV5 = await isPodmanV5Machine(connection, machineInfo);
     if (!isPodmanV5) {
       return 'Podman v5.0 or higher is required to build disk images.';
     }
 
-    const isRootful = await isPodmanMachineRootful(connection);
+    const isRootful = await isPodmanMachineRootful(connection, machineInfo);
     if (!isRootful) {
       return 'The podman machine is not set as rootful. Please recreate the podman machine with rootful privileges set and try again.';
     }
