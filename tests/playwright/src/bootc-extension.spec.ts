@@ -246,6 +246,7 @@ test.describe('BootC Extension', () => {
                   example.imageName,
                   pathToStore,
                   type,
+                  1_200_000,
                 );
                 playExpect(result).toBeTruthy();
               });
@@ -281,7 +282,7 @@ test.describe('BootC Extension', () => {
 
           const pathToStore = path.resolve(__dirname, '..', 'tests', 'output', 'images', `demoImage-${type}`);
 
-          const result = await bootcDashboardPage.buildDemoImage(pathToStore, type);
+          const result = await bootcDashboardPage.buildDemoImage(pathToStore, type, 1_200_000);
           playExpect(result).toBeTruthy();
         });
       }
@@ -342,6 +343,7 @@ test.describe('BootC Extension', () => {
                       example.imageName,
                       pathToStore,
                       type,
+                      1_200_000,
                     );
 
                     if (!result) {
