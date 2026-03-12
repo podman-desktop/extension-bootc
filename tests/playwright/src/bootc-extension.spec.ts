@@ -29,6 +29,7 @@ import {
   ArchitectureType,
   PreferencesPage,
   StatusBar,
+  isCI,
 } from '@podman-desktop/tests-playwright';
 import * as path from 'node:path';
 import * as os from 'node:os';
@@ -367,6 +368,7 @@ test.describe('BootC Extension', () => {
     });
 
   test('Remove bootc extension through Settings', async ({ navigationBar }) => {
+    test.skip(!!isCI && !!isWindows, 'Skipping test in CI on Windows');
     await ensureBootcIsRemoved(navigationBar);
   });
 });
