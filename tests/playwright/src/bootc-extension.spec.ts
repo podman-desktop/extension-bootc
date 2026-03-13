@@ -367,7 +367,11 @@ test.describe('BootC Extension', () => {
     });
 
   test('Remove bootc extension through Settings', async ({ navigationBar }) => {
-    test.skip(!!isWindows, 'Skipping test in CI on Windows');
+    if (isWindows) {
+      console.log('Skipping test in CI on Windows');
+      test.skip();
+      return;
+    }
     await ensureBootcIsRemoved(navigationBar);
   });
 });
