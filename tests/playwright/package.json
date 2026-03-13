@@ -11,7 +11,7 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@playwright/test": "1.58.2",
-    "@podman-desktop/tests-playwright": "1.25.1",
+    "@podman-desktop/tests-playwright": "1.26.0-next.202603131336-9008e42",
     "@types/node": "^24",
     "typescript": "^5.9.3",
     "xvfb-maybe": "^0.2.1"
