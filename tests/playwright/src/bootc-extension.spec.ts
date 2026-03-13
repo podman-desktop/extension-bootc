@@ -29,6 +29,8 @@ import {
   ArchitectureType,
   PreferencesPage,
   StatusBar,
+  isCI,
+  resetPodmanMachinesFromCLI,
 } from '@podman-desktop/tests-playwright';
 import * as path from 'node:path';
 import * as os from 'node:os';
@@ -73,6 +75,11 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
 test.afterAll(async ({ runner, page }) => {
   test.setTimeout(180_000);
   try {
+    if (!!isWindows && !!isCI) {
+      console.log('Resetting Podman machines from CLI to avoid conflicts in cicd on windows');
+      await resetPodmanMachinesFromCLI();
+    }
+
     await deleteImage(page, imageName);
   } catch (error) {
     console.log(`Error deleting image: ${error}`);
@@ -367,11 +374,6 @@ test.describe('BootC Extension', () => {
     });
 
   test('Remove bootc extension through Settings', async ({ navigationBar }) => {
-    if (isWindows) {
-      console.log('Skipping test in CI on Windows');
-      test.skip();
-      return;
-    }
     await ensureBootcIsRemoved(navigationBar);
   });
 });
