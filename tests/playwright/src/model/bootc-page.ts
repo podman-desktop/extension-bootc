@@ -44,6 +44,7 @@ export class BootcPage {
   readonly bootcListPage: Locator;
   readonly bootcBuildDiskPage: Locator;
   readonly getTypeOfLatestBuildImage: Locator;
+  readonly overwriteCheckbox: Locator;
 
   constructor(page: Page, webview: Page) {
     this.page = page;
@@ -67,6 +68,7 @@ export class BootcPage {
     this.latestBuiltImage = this.rowGroup.getByRole('row').first();
     this.getCurrentStatusOfLatestBuildImage = this.latestBuiltImage.getByRole('status');
     this.getTypeOfLatestBuildImage = this.latestBuiltImage.getByRole('cell').nth(4);
+    this.overwriteCheckbox = webview.getByLabel('overwrite-checkbox');
   }
 
   async buildDiskImage(
@@ -147,6 +149,10 @@ export class BootcPage {
         break;
       default:
         throw new Error(`Unknown architecture: ${architecture}`);
+    }
+
+    if (await this.overwriteCheckbox.isVisible()) {
+      await this.checkCheckbox(this.overwriteCheckbox);
     }
 
     await this.buildButton.scrollIntoViewIfNeeded();
