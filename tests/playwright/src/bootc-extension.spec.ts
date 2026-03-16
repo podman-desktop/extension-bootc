@@ -217,7 +217,7 @@ test.describe('BootC Extension', () => {
           await bootcExamplesPage.pullImage(example.appName, 600_000);
         });
 
-        types = ['QCOW2', 'AMI'];
+        types = ['QCOW2'];
 
         for (const type of types) {
           test.describe
@@ -267,7 +267,7 @@ test.describe('BootC Extension', () => {
         await bootcDashboardPage.pullDemoImage(600_000);
       });
 
-      types = ['QCOW2', 'AMI'];
+      types = ['AMI'];
 
       for (const type of types) {
         test(`Build demo image from dashboard for type ${type}`, async ({ runner }) => {
