@@ -151,7 +151,7 @@ export class BootcPage {
         throw new Error(`Unknown architecture: ${architecture}`);
     }
 
-    // Only visible when building on a folder that has a disk image alreadyç
+    // Only visible when building on a folder that has a disk image already
     if (await this.overwriteBuildCheckbox.isVisible()) {
       await this.checkCheckbox(this.overwriteBuildCheckbox);
     }
