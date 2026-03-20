@@ -56,6 +56,13 @@ let bootcAvailableImages: ImageInfo[] = [];
 let buildErrorMessage = '';
 let errorFormValidation: string | undefined = undefined;
 
+// Cache the prereqs result so we don't call podman CLI on every form change
+let cachedPrereqs: string | undefined = undefined;
+let prereqsChecked = false;
+
+// Debounce timer for reactive validation
+let validateDebounceTimer: ReturnType<typeof setTimeout> | undefined;
+
 // Specific to root filesystem selection
 // SPECIFICALLY fedora, where we **need** to select the filesystem, as it is not auto-selected.
 // this boolean will be set to true if the selected image is Fedora and shown as a warning to the user.
@@ -154,18 +161,21 @@ async function fillChownOption(): Promise<void> {
 }
 
 async function validate(): Promise<void> {
-  let prereqs;
-  // Wrapped around a try / catch so we do not have any unhandled promise rejections
-  try {
-    prereqs = await bootcClient.checkPrereqs();
-  } catch (err: unknown) {
-    errorFormValidation = String(err);
-    existingBuild = false;
-    return;
+  // Use cached prereqs result to avoid repeated podman CLI calls on every form change.
+  // Prereqs (podman version, rootful status) don't change during a session.
+  if (!prereqsChecked) {
+    try {
+      cachedPrereqs = await bootcClient.checkPrereqs();
+    } catch (err: unknown) {
+      errorFormValidation = String(err);
+      existingBuild = false;
+      return;
+    }
+    prereqsChecked = true;
   }
 
-  if (prereqs) {
-    errorFormValidation = prereqs;
+  if (cachedPrereqs) {
+    errorFormValidation = cachedPrereqs;
     existingBuild = false;
     return;
   }
@@ -428,11 +438,17 @@ onMount(async () => {
   // filter to images that have a repo tag here, to avoid doing it everywhere
   bootcAvailableImages = images.filter(image => image.RepoTags && image.RepoTags.length > 0);
 
-  // On mount do prerequisite check to see if podman machine is running correctly and then return the error message.
+  // Check prereqs once on mount and cache the result for all future validate() calls.
   try {
-    await bootcClient.checkPrereqs();
+    cachedPrereqs = await bootcClient.checkPrereqs();
+    prereqsChecked = true;
   } catch (err: unknown) {
     buildErrorMessage = String(err);
+    return;
+  }
+
+  if (cachedPrereqs) {
+    buildErrorMessage = cachedPrereqs;
     return;
   }
 
@@ -532,8 +548,14 @@ async function updateBuildType(type: BuildType, selected: boolean): Promise<void
 }
 
 // validate every time a selection changes in the form or available architectures
+// debounced to avoid spamming API calls (e.g. when typing in the build folder path)
 $: if (selectedImage || buildFolder || buildArch || overwrite) {
-  validate().catch((e: unknown) => console.error('error validating on change', e));
+  if (validateDebounceTimer) {
+    clearTimeout(validateDebounceTimer);
+  }
+  validateDebounceTimer = setTimeout(() => {
+    validate().catch((e: unknown) => console.error('error validating on change', e));
+  }, 500);
 }
 
 // Each time an image is selected, we need to update the available architectures
