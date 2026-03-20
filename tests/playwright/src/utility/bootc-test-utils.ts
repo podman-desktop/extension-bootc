@@ -38,6 +38,7 @@ export function stripImageTag(imageReference: string): string {
 }
 
 export async function ensureBootcIsRemoved(navigationBar: NavigationBar): Promise<void> {
+  console.log('Ensuring BootC extension is removed');
   let extensionsPage = await navigationBar.openExtensions();
   if (!(await extensionsPage.extensionIsInstalled(extensionLabel))) return;
 
@@ -48,6 +49,7 @@ export async function ensureBootcIsRemoved(navigationBar: NavigationBar): Promis
   await playExpect
     .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30000 })
     .toBeFalsy();
+  console.log('BootC extension removed');
 }
 
 export async function changeToRHELBuilderInPreferences(navigationBar: NavigationBar): Promise<void> {
