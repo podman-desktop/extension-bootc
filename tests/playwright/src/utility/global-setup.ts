@@ -1,5 +1,5 @@
 /**********************************************************************
- * Copyright (C) 2024 Red Hat, Inc.
+ * Copyright (C) 2026 Red Hat, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,17 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-import { defineConfig, devices } from '@playwright/test';
+import { readdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { initExtensionLifecycle } from './extension-lifecycle.js';
 
-export default defineConfig({
-  globalSetup: './src/utility/global-setup.ts',
-  outputDir: './output/',
-  workers: 1,
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-  reporter: [
-    ['list'],
-    ['./src/utility/extension-reporter.ts'],
-    ['junit', { outputFile: './tests/output/junit-results.xml' }],
-    ['json', { outputFile: './tests/output/json-results.json' }],
-    ['html', { open: 'never', outputFolder: './tests/output/html-results/' }],
-  ],
-
-  projects: [
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-      },
-    },
-  ],
-});
+export default function globalSetup(): void {
+  const srcDir = join(__dirname, '..');
+  const specFiles = readdirSync(srcDir).filter(f => f.endsWith('.spec.ts'));
+  console.log(`[globalSetup] Found ${specFiles.length} spec files — extension will be removed after the last one`);
+  initExtensionLifecycle(specFiles.length);
+}
