@@ -18,7 +18,7 @@
 
 import type { Page } from '@playwright/test';
 import type { Runner } from '@podman-desktop/tests-playwright';
-import { NavigationBar, expect as playExpect, PreferencesPage } from '@podman-desktop/tests-playwright';
+import { NavigationBar, expect as playExpect, PreferencesPage, test } from '@podman-desktop/tests-playwright';
 import { existsSync, mkdirSync, readdirSync, renameSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -136,6 +136,11 @@ export async function installBootcExtensionIfNeeded(navigationBar: NavigationBar
  * absent (e.g. the Electron process was force-killed and `saveVideoAs` failed),
  * raw recordings are moved into a `backups/` subfolder under the videos directory
  * so they survive into the CI artifact instead of being lost.
+ *
+ * **Important:** `runner.close()` deletes the named video when the test passed
+ * (via `removeTracesOnFinished`), so the named-video check alone would produce a
+ * false-positive save-failure. This function reads `test.info().status` directly
+ * to distinguish intentional cleanup from a genuine save failure.
  */
 export function cleanupRawVideoFiles(outputFolder: string, expectedVideoName?: string): void {
   if (!existsSync(outputFolder)) return;
@@ -159,7 +164,10 @@ export function cleanupRawVideoFiles(outputFolder: string, expectedVideoName?: s
     }
   }
 
-  const saveFailure = !!expectedVideoName && !videoDirs.some(dir => existsSync(join(dir, `${expectedVideoName}.webm`)));
+  const namedVideoMissing =
+    !!expectedVideoName && !videoDirs.some(dir => existsSync(join(dir, `${expectedVideoName}.webm`)));
+  const testPassed = test?.info()?.status === 'passed';
+  const saveFailure = namedVideoMissing && !testPassed;
 
   if (saveFailure) {
     console.log(`Named video '${expectedVideoName}.webm' not found — moving raw recordings to backups/`);
