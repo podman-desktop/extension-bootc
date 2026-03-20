@@ -44,6 +44,7 @@ export class BootcPage {
   readonly bootcListPage: Locator;
   readonly bootcBuildDiskPage: Locator;
   readonly getTypeOfLatestBuildImage: Locator;
+  readonly overwriteBuildCheckbox: Locator;
 
   constructor(page: Page, webview: Page) {
     this.page = page;
@@ -67,6 +68,7 @@ export class BootcPage {
     this.latestBuiltImage = this.rowGroup.getByRole('row').first();
     this.getCurrentStatusOfLatestBuildImage = this.latestBuiltImage.getByRole('status');
     this.getTypeOfLatestBuildImage = this.latestBuiltImage.getByRole('cell').nth(4);
+    this.overwriteBuildCheckbox = webview.getByLabel('overwrite-checkbox');
   }
 
   async buildDiskImage(
@@ -149,6 +151,12 @@ export class BootcPage {
         throw new Error(`Unknown architecture: ${architecture}`);
     }
 
+    // Only visible when building on a folder that has a disk image already
+    if (await this.overwriteBuildCheckbox.isVisible()) {
+      await playExpect(this.overwriteBuildCheckbox).toBeEnabled();
+      await this.checkCheckbox(this.overwriteBuildCheckbox);
+    }
+
     await this.buildButton.scrollIntoViewIfNeeded();
     await playExpect(this.buildButton).toBeEnabled({ timeout: 15_000 });
     await this.buildButton.click();
@@ -164,7 +172,7 @@ export class BootcPage {
     await waitUntil(async () => await this.refreshPageWhileInCreatingState(), { timeout: 120_000, diff: 1_000 });
     await this.waitUntilCurrentBuildIsFinished(timeout);
     if ((await this.getCurrentStatusOfLatestEntry()) === 'error') {
-      console.log('Error building image! Retuning false.');
+      console.log('Error building image! Returning false.');
       return false;
     }
 
