@@ -68,7 +68,7 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
 });
 
 test.afterAll(async ({ runner, page }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(300_000);
   try {
     await deleteImage(page, imageName);
   } catch (error) {
@@ -76,7 +76,7 @@ test.afterAll(async ({ runner, page }) => {
   } finally {
     await removeFolderIfExists('tests/output/images');
     await runner.close(120_000);
-    cleanupRawVideoFiles('tests/output');
+    cleanupRawVideoFiles('tests/output', 'bootc-architecture-builds');
   }
 });
 

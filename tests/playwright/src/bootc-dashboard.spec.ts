@@ -58,12 +58,12 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
 });
 
 test.afterAll(async ({ runner }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(300_000);
   try {
     await removeFolderIfExists('tests/output/images');
   } finally {
     await runner.close(120_000);
-    cleanupRawVideoFiles('tests/output');
+    cleanupRawVideoFiles('tests/output', 'bootc-dashboard');
   }
 });
 
