@@ -130,6 +130,10 @@ test.describe('BootC Architecture Builds', () => {
                   isMac && architecture === ArchitectureType.AMD64,
                   'Building amd64 bootable images is not supported on macOS',
                 );
+                test.skip(
+                  isWindows && architecture === ArchitectureType.ARM64,
+                  'Building arm64 bootable images is not supported on Windows',
+                );
                 test.setTimeout(1_250_000);
 
                 if (imageBuildFailed) {
@@ -170,13 +174,7 @@ test.describe('BootC Architecture Builds', () => {
                   `Building disk image for platform ${process.platform} and architecture ${architecture} and type ${type} is ${result}`,
                 );
 
-                if (isWindows && architecture === ArchitectureType.ARM64) {
-                  console.log('Expected to fail on Windows for ARM64');
-                  playExpect(result).toBeFalsy();
-                } else {
-                  console.log('Expected to pass on Linux, Windows and macOS');
-                  playExpect(result).toBeTruthy();
-                }
+                playExpect(result).toBeTruthy();
               });
             });
         }
