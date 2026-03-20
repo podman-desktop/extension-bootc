@@ -107,23 +107,17 @@ export async function installBootcExtensionIfNeeded(navigationBar: NavigationBar
   const extensionsPage = await navigationBar.openExtensions();
   const extensionInstalled = await extensionsPage.extensionIsInstalled(extensionLabel);
 
-  if (skipInstallation) {
+  if (skipInstallation || extensionInstalled) {
     await playExpect
       .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30_000 })
       .toBeTruthy();
     return;
   }
 
-  if (extensionInstalled) {
-    console.log('Extension found already installed, trying to remove!');
-    await ensureBootcIsRemoved(navigationBar);
-  }
-
-  const extPage = await navigationBar.openExtensions();
-  await extPage.installExtensionFromOCIImage('ghcr.io/podman-desktop/extension-bootc:next');
+  await extensionsPage.installExtensionFromOCIImage('ghcr.io/podman-desktop/extension-bootc:next');
 
   await playExpect
-    .poll(async () => await extPage.extensionIsInstalled(extensionLabel), { timeout: 30_000 })
+    .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30_000 })
     .toBeTruthy();
 }
 

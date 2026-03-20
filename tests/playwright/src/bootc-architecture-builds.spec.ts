@@ -25,9 +25,11 @@ import {
   expect as playExpect,
   RunnerOptions,
   ArchitectureType,
+  isLinux,
+  isMac,
+  isWindows,
 } from '@podman-desktop/tests-playwright';
 import * as path from 'node:path';
-import * as os from 'node:os';
 import { BootcPage } from './model/bootc-page';
 import { fileURLToPath } from 'node:url';
 import {
@@ -37,13 +39,11 @@ import {
   handleWebview,
   installBootcExtensionIfNeeded,
   cleanupRawVideoFiles,
-} from './bootc-test-utils';
+} from './utility/bootc-test-utils';
+import { markTestFileComplete } from './utility/extension-lifecycle';
 
 let page: Page;
 let webview: Page;
-const isLinux = os.platform() === 'linux';
-const isMac = os.platform() === 'darwin';
-const isWindows = os.platform() === 'win32';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const containerFilePath = path.resolve(__dirname, '..', 'resources', 'bootable-containerfile');
@@ -167,7 +167,7 @@ test.describe('BootC Architecture Builds', () => {
                 );
 
                 console.log(
-                  `Building disk image for platform ${os.platform()} and architecture ${architecture} and type ${type} is ${result}`,
+                  `Building disk image for platform ${process.platform} and architecture ${architecture} and type ${type} is ${result}`,
                 );
 
                 if (isWindows && architecture === ArchitectureType.ARM64) {
@@ -184,6 +184,8 @@ test.describe('BootC Architecture Builds', () => {
   }
 
   test.afterAll(async ({ navigationBar }) => {
-    await removeBootcExtensionIfNeeded(navigationBar);
+    if (markTestFileComplete()) {
+      await removeBootcExtensionIfNeeded(navigationBar);
+    }
   });
 });

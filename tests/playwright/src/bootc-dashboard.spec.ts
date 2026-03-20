@@ -23,9 +23,9 @@ import {
   test,
   expect as playExpect,
   RunnerOptions,
+  isLinux,
 } from '@podman-desktop/tests-playwright';
 import * as path from 'node:path';
-import * as os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { BootcNavigationBar } from './model/bootc-navigationbar';
 import {
@@ -33,11 +33,11 @@ import {
   handleWebview,
   installBootcExtensionIfNeeded,
   cleanupRawVideoFiles,
-} from './bootc-test-utils';
+} from './utility/bootc-test-utils';
+import { markTestFileComplete } from './utility/extension-lifecycle';
 
 let page: Page;
 let webview: Page;
-const isLinux = os.platform() === 'linux';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -108,6 +108,8 @@ test.describe('BootC Dashboard', () => {
     });
 
   test.afterAll(async ({ navigationBar }) => {
-    await removeBootcExtensionIfNeeded(navigationBar);
+    if (markTestFileComplete()) {
+      await removeBootcExtensionIfNeeded(navigationBar);
+    }
   });
 });
