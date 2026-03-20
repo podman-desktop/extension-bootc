@@ -72,7 +72,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          path: podman-desktop-extension-bootc
+          path: extension-bootc
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -80,7 +80,7 @@ jobs:
       # Checkout podman desktop
       - uses: actions/checkout@v6
         with:
-          repository: containers/podman-desktop
+          repository: podman-desktop/podman-desktop
           ref: main
           path: podman-desktop
 
@@ -130,7 +130,7 @@ jobs:
         run: pnpm test:e2e:build
 
       - name: Ensure getting current HEAD version of the test framework
-        working-directory: ./podman-desktop-extension-bootc/tests/playwright
+        working-directory: ./extension-bootc/tests/playwright
         run: |
           # workaround for https://github.com/podman-desktop/extension-bootc/issues/712
           version=$(npm view @podman-desktop/tests-playwright@next version)
@@ -138,7 +138,7 @@ jobs:
           jq --arg version "$version" '.devDependencies."@podman-desktop/tests-playwright" = $version' package.json > package.json_tmp && mv package.json_tmp package.json
 
       - name: Execute pnpm in Bootc Extension
-        working-directory: ./podman-desktop-extension-bootc
+        working-directory: ./extension-bootc
         run: pnpm install --no-frozen-lockfile
 
       - name: build extension image
@@ -148,12 +148,12 @@ jobs:
           tags: local_bootc_image
           archs: amd64, arm64
           containerfiles: |
-            podman-desktop-extension-bootc/build/Containerfile
-          context: ./podman-desktop-extension-bootc
+            extension-bootc/build/Containerfile
+          context: ./extension-bootc
           oci: true
 
       - name: export bootc extension
-        working-directory: ./podman-desktop-extension-bootc
+        working-directory: ./extension-bootc
         run: |
           CONTAINER_ID=$(podman create localhost/extension-bootc:local_bootc_image --entrypoint "")
           podman export $CONTAINER_ID > /tmp/local_bootc_extension.tar
@@ -161,7 +161,7 @@ jobs:
           tar -xf /tmp/local_bootc_extension.tar -C tests/playwright/tests/output/bootc-tests-pd/plugins/
 
       - name: Run All E2E tests
-        working-directory: ./podman-desktop-extension-bootc
+        working-directory: ./extension-bootc
         env:
           PODMAN_DESKTOP_ARGS: ${{ github.workspace }}/podman-desktop
         run: pnpm test:e2e
