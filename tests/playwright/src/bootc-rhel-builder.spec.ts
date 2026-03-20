@@ -64,7 +64,7 @@ test.beforeAll(async ({ runner, welcomePage, page }) => {
 });
 
 test.afterAll(async ({ runner, page }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(320_000);
   try {
     for (const example of examples) {
       await deleteImage(page, stripImageTag(example.imageName));
@@ -73,8 +73,8 @@ test.afterAll(async ({ runner, page }) => {
     console.log(`Error deleting image: ${error}`);
   } finally {
     await removeFolderIfExists('tests/output/images');
-    await runner.close(120_000);
-    cleanupRawVideoFiles('tests/output');
+    await runner.close(200_000);
+    cleanupRawVideoFiles('tests/output', 'bootc-rhel-builder');
   }
 });
 
