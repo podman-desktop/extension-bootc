@@ -106,6 +106,7 @@ export async function removeBootcExtensionIfNeeded(navigationBar: NavigationBar)
 }
 
 export async function installBootcExtensionIfNeeded(navigationBar: NavigationBar): Promise<void> {
+  console.log('Installing BootC extension if needed');
   const extensionsPage = await navigationBar.openExtensions();
   const extensionInstalled = await extensionsPage.extensionIsInstalled(extensionLabel);
 
@@ -116,11 +117,13 @@ export async function installBootcExtensionIfNeeded(navigationBar: NavigationBar
     return;
   }
 
+  console.log('Installing BootC extension from OCIImage');
   await extensionsPage.installExtensionFromOCIImage('ghcr.io/podman-desktop/extension-bootc:next');
 
   await playExpect
     .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30_000 })
     .toBeTruthy();
+  console.log('BootC extension installed');
 }
 
 /**
