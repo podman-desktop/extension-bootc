@@ -166,8 +166,9 @@ export function cleanupRawVideoFiles(outputFolder: string, expectedVideoName?: s
 
   const namedVideoMissing =
     !!expectedVideoName && !videoDirs.some(dir => existsSync(join(dir, `${expectedVideoName}.webm`)));
-  const testPassed = test?.info()?.status === 'passed';
-  const saveFailure = namedVideoMissing && !testPassed;
+  const testStatus = test?.info()?.status;
+  const testPassedOrSkipped = testStatus === 'passed' || testStatus === 'skipped';
+  const saveFailure = namedVideoMissing && !testPassedOrSkipped;
 
   if (saveFailure) {
     console.log(`Named video '${expectedVideoName}.webm' not found — moving raw recordings to backups/`);
