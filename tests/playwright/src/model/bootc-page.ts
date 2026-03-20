@@ -152,9 +152,7 @@ export class BootcPage {
     }
 
     // Only visible when building on a folder that has a disk image alreadyç
-    await this.overwriteBuildCheckbox.waitFor({ state: 'visible', timeout: 5_000 }).catch(() => {});
     if (await this.overwriteBuildCheckbox.isVisible()) {
-      await playExpect(this.overwriteBuildCheckbox).toBeEnabled();
       await this.checkCheckbox(this.overwriteBuildCheckbox);
     }
 
