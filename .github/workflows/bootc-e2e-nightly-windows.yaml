@@ -80,7 +80,7 @@ on:
 
 jobs:
   windows:
-    timeout-minutes: 180
+    timeout-minutes: 240
     name: windows-${{ matrix.windows-version }}-${{ matrix.windows-featurepack }}
     runs-on: ubuntu-24.04
     strategy:
