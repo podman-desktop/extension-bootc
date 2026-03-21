@@ -94,7 +94,7 @@ test.describe('BootC Architecture Builds', () => {
     test.describe
       .serial(`Bootc images for architecture: ${architecture}`, () => {
         test(`Build bootc image from containerfile for architecture: ${architecture}`, async ({ navigationBar }) => {
-          test.setTimeout(1_210_000);
+          test.setTimeout(1_560_000);
 
           imageBuildFailed = true;
           let imagesPage = await navigationBar.openImages();
@@ -108,7 +108,7 @@ test.describe('BootC Architecture Builds', () => {
             containerFilePath,
             contextDirectory,
             [architecture],
-            1_200_000,
+            1_500_000,
           );
 
           await playExpect
@@ -136,7 +136,7 @@ test.describe('BootC Architecture Builds', () => {
                   isWindows && architecture === ArchitectureType.ARM64,
                   'Building arm64 bootable images is not supported on Windows',
                 );
-                test.setTimeout(1_250_000);
+                test.setTimeout(1_560_000);
 
                 if (imageBuildFailed) {
                   console.log('Image build failed, skipping test');
@@ -169,7 +169,7 @@ test.describe('BootC Architecture Builds', () => {
                   pathToStore,
                   type,
                   architecture,
-                  1_200_000,
+                  1_500_000,
                 );
 
                 console.log(

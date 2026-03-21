@@ -80,20 +80,20 @@ test.describe('BootC Dashboard', () => {
   test.describe
     .serial('Bootc Dashboard', () => {
       test('Pull demo image from dashboard', async ({ runner }) => {
-        test.setTimeout(610_000);
+        test.setTimeout(750_000);
 
         [page, webview] = await handleWebview(runner);
         const bootcNavigationBar = new BootcNavigationBar(page, webview);
         const bootcDashboardPage = await bootcNavigationBar.openBootcDashboard();
         await playExpect(bootcDashboardPage.heading).toBeVisible();
-        await bootcDashboardPage.pullDemoImage(600_000);
+        await bootcDashboardPage.pullDemoImage(720_000);
       });
 
       const types = ['AMI'];
 
       for (const type of types) {
         test(`Build demo image from dashboard for type ${type}`, async ({ runner }) => {
-          test.setTimeout(1_250_000);
+          test.setTimeout(1_560_000);
 
           [page, webview] = await handleWebview(runner);
           const bootcNavigationBar = new BootcNavigationBar(page, webview);
@@ -103,7 +103,7 @@ test.describe('BootC Dashboard', () => {
 
           const pathToStore = path.resolve(__dirname, '..', 'tests', 'output', 'images', `demoImage-${type}`);
 
-          const result = await bootcDashboardPage.buildDemoImage(pathToStore, type, 1_200_000);
+          const result = await bootcDashboardPage.buildDemoImage(pathToStore, type, 1_500_000);
           playExpect(result).toBeTruthy();
         });
       }

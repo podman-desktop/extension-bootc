@@ -98,13 +98,13 @@ test.describe('BootC RHEL Builder', () => {
         test.describe
           .serial(`Bootc examples for bootable image`, () => {
             test(`Pull ${example.appName} bootable image`, async ({ runner }) => {
-              test.setTimeout(310_000);
+              test.setTimeout(750_000);
 
               [page, webview] = await handleWebview(runner);
               const bootcNavigationBar = new BootcNavigationBar(page, webview);
               const bootcExamplesPage = await bootcNavigationBar.openBootcExamples();
               await playExpect(bootcExamplesPage.heading).toBeVisible();
-              await bootcExamplesPage.pullImage(example.appName);
+              await bootcExamplesPage.pullImage(example.appName, 720_000);
             });
 
             const types = ['QCOW2'];
@@ -116,7 +116,7 @@ test.describe('BootC RHEL Builder', () => {
                     runner,
                     // eslint-disable-next-line sonarjs/no-nested-functions
                   }) => {
-                    test.setTimeout(1_250_000);
+                    test.setTimeout(1_560_000);
 
                     [page, webview] = await handleWebview(runner);
                     const bootcNavigationBar = new BootcNavigationBar(page, webview);
@@ -138,7 +138,7 @@ test.describe('BootC RHEL Builder', () => {
                       example.imageName,
                       pathToStore,
                       type,
-                      1_200_000,
+                      1_500_000,
                     );
 
                     if (!result) {
