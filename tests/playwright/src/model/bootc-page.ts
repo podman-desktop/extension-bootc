@@ -151,10 +151,7 @@ export class BootcPage {
         throw new Error(`Unknown architecture: ${architecture}`);
     }
 
-    // Only visible when building on a folder that has a disk image already
-    if (await this.overwriteBuildCheckbox.isVisible()) {
-      await this.checkCheckbox(this.overwriteBuildCheckbox);
-    }
+    await this.checkCheckboxIfVisible(this.overwriteBuildCheckbox);
 
     await this.buildButton.scrollIntoViewIfNeeded();
     await playExpect(this.buildButton).toBeEnabled({ timeout: 15_000 });
@@ -201,6 +198,14 @@ export class BootcPage {
       await checkbox.uncheck();
     }
     await playExpect(checkbox).not.toBeChecked();
+  }
+
+  private async checkCheckboxIfVisible(checkbox: Locator, timeout = 2_000): Promise<void> {
+    const visible = await checkbox.waitFor({ state: 'visible', timeout }).then(
+      () => true,
+      () => false,
+    );
+    if (visible) await this.checkCheckbox(checkbox);
   }
 
   private async checkCheckbox(checkbox: Locator): Promise<void> {
