@@ -50,7 +50,10 @@ export function markTestFileComplete(fileId: string): boolean {
 
   if (!existsSync(COUNTER_FILE)) return true;
 
-  const remaining = parseInt(readFileSync(COUNTER_FILE, 'utf-8'), 10) - 1;
+  const previous = parseInt(readFileSync(COUNTER_FILE, 'utf-8'), 10);
+  const remaining = previous - 1;
+  console.log(`[markTestFileComplete] fileId='${fileId}' | previous=${previous} → remaining=${remaining}`);
+
   if (remaining <= 0) {
     unlinkSync(COUNTER_FILE);
     return true;
