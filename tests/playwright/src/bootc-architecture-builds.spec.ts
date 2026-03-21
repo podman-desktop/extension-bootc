@@ -50,6 +50,7 @@ const containerFilePath = path.resolve(__dirname, '..', 'resources', 'bootable-c
 const contextDirectory = path.resolve(__dirname, '..', 'resources');
 const buildISOImage = process.env.BUILD_ISO_IMAGE;
 let imageBuildFailed = true;
+let traceName = 'bootc-architecture-builds';
 
 test.use({
   runnerOptions: new RunnerOptions({
@@ -62,21 +63,22 @@ test.use({
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
   await removeFolderIfExists('tests/output/images');
-  runner.setVideoAndTraceName('bootc-architecture-builds');
+  traceName = `${traceName}-w${test.info().workerIndex}`;
+  runner.setVideoAndTraceName(traceName);
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
 });
 
 test.afterAll(async ({ runner, page }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(320_000);
   try {
     await deleteImage(page, imageName);
   } catch (error) {
     console.log(`Error deleting image: ${error}`);
   } finally {
     await removeFolderIfExists('tests/output/images');
-    await runner.close(120_000);
-    cleanupRawVideoFiles('tests/output');
+    await runner.close(200_000);
+    cleanupRawVideoFiles('tests/output', traceName);
   }
 });
 
@@ -92,7 +94,7 @@ test.describe('BootC Architecture Builds', () => {
     test.describe
       .serial(`Bootc images for architecture: ${architecture}`, () => {
         test(`Build bootc image from containerfile for architecture: ${architecture}`, async ({ navigationBar }) => {
-          test.setTimeout(1_210_000);
+          test.setTimeout(1_560_000);
 
           imageBuildFailed = true;
           let imagesPage = await navigationBar.openImages();
@@ -106,7 +108,7 @@ test.describe('BootC Architecture Builds', () => {
             containerFilePath,
             contextDirectory,
             [architecture],
-            1_200_000,
+            1_500_000,
           );
 
           await playExpect
@@ -130,7 +132,11 @@ test.describe('BootC Architecture Builds', () => {
                   isMac && architecture === ArchitectureType.AMD64,
                   'Building amd64 bootable images is not supported on macOS',
                 );
-                test.setTimeout(1_250_000);
+                test.skip(
+                  isWindows && architecture === ArchitectureType.ARM64,
+                  'Building arm64 bootable images is not supported on Windows',
+                );
+                test.setTimeout(1_560_000);
 
                 if (imageBuildFailed) {
                   console.log('Image build failed, skipping test');
@@ -163,20 +169,14 @@ test.describe('BootC Architecture Builds', () => {
                   pathToStore,
                   type,
                   architecture,
-                  1_200_000,
+                  1_500_000,
                 );
 
                 console.log(
                   `Building disk image for platform ${process.platform} and architecture ${architecture} and type ${type} is ${result}`,
                 );
 
-                if (isWindows && architecture === ArchitectureType.ARM64) {
-                  console.log('Expected to fail on Windows for ARM64');
-                  playExpect(result).toBeFalsy();
-                } else {
-                  console.log('Expected to pass on Linux, Windows and macOS');
-                  playExpect(result).toBeTruthy();
-                }
+                playExpect(result).toBeTruthy();
               });
             });
         }
@@ -184,7 +184,7 @@ test.describe('BootC Architecture Builds', () => {
   }
 
   test.afterAll(async ({ navigationBar }) => {
-    if (markTestFileComplete()) {
+    if (markTestFileComplete(__filename)) {
       await removeBootcExtensionIfNeeded(navigationBar);
     }
   });

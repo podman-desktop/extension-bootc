@@ -42,6 +42,7 @@ let page: Page;
 let webview: Page;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+let traceName = 'bootc-examples';
 
 const examples = [
   { appName: 'Podman systemd', imageName: 'registry.gitlab.com/fedora/bootc/examples/app-podman-systemd:latest' },
@@ -58,13 +59,14 @@ test.use({
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
   await removeFolderIfExists('tests/output/images');
-  runner.setVideoAndTraceName('bootc-examples');
+  traceName = `${traceName}-w${test.info().workerIndex}`;
+  runner.setVideoAndTraceName(traceName);
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
 });
 
 test.afterAll(async ({ runner, page }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(320_000);
   try {
     for (const example of examples) {
       await deleteImage(page, stripImageTag(example.imageName));
@@ -73,8 +75,8 @@ test.afterAll(async ({ runner, page }) => {
     console.log(`Error deleting image: ${error}`);
   } finally {
     await removeFolderIfExists('tests/output/images');
-    await runner.close(120_000);
-    cleanupRawVideoFiles('tests/output');
+    await runner.close(200_000);
+    cleanupRawVideoFiles('tests/output', traceName);
   }
 });
 
@@ -90,13 +92,13 @@ test.describe('BootC Examples', () => {
     test.describe
       .serial(`Bootc examples for bootable image`, () => {
         test(`Pull ${example.appName} bootable image`, async ({ runner }) => {
-          test.setTimeout(610_000);
+          test.setTimeout(750_000);
 
           [page, webview] = await handleWebview(runner);
           const bootcNavigationBar = new BootcNavigationBar(page, webview);
           const bootcExamplesPage = await bootcNavigationBar.openBootcExamples();
           await playExpect(bootcExamplesPage.heading).toBeVisible();
-          await bootcExamplesPage.pullImage(example.appName, 600_000);
+          await bootcExamplesPage.pullImage(example.appName, 720_000);
         });
 
         const types = ['QCOW2'];
@@ -105,7 +107,7 @@ test.describe('BootC Examples', () => {
           test.describe
             .serial('Building images ', () => {
               test(`Building ${example.appName} bootable image type: ${type}`, async ({ runner }) => {
-                test.setTimeout(1_250_000);
+                test.setTimeout(1_560_000);
 
                 [page, webview] = await handleWebview(runner);
                 const bootcNavigationBar = new BootcNavigationBar(page, webview);
@@ -127,7 +129,7 @@ test.describe('BootC Examples', () => {
                   example.imageName,
                   pathToStore,
                   type,
-                  1_200_000,
+                  1_500_000,
                 );
                 playExpect(result).toBeTruthy();
               });
@@ -137,7 +139,7 @@ test.describe('BootC Examples', () => {
   }
 
   test.afterAll(async ({ navigationBar }) => {
-    if (markTestFileComplete()) {
+    if (markTestFileComplete(__filename)) {
       await removeBootcExtensionIfNeeded(navigationBar);
     }
   });

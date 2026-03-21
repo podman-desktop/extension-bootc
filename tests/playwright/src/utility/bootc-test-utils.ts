@@ -18,8 +18,8 @@
 
 import type { Page } from '@playwright/test';
 import type { Runner } from '@podman-desktop/tests-playwright';
-import { NavigationBar, expect as playExpect, PreferencesPage } from '@podman-desktop/tests-playwright';
-import { existsSync, readdirSync, unlinkSync } from 'node:fs';
+import { NavigationBar, expect as playExpect, PreferencesPage, test } from '@podman-desktop/tests-playwright';
+import { existsSync, mkdirSync, readdirSync, renameSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const imageName = 'quay.io/centos-bootc/centos-bootc';
@@ -129,10 +129,20 @@ export async function installBootcExtensionIfNeeded(navigationBar: NavigationBar
 /**
  * Playwright generates raw video files with 32-char hex names (from createGuid()).
  * Runner.close() only saves/deletes the main page's recording — additional Electron
- * windows (e.g. webviews) leave orphaned raw files. This removes them while preserving
- * all properly named final videos from any spec file.
+ * windows (e.g. webviews) leave orphaned raw files.
+ *
+ * When {@link expectedVideoName} is provided and the corresponding named video
+ * (`<name>.webm`) exists, raw files are simply deleted. If the named video is
+ * absent (e.g. the Electron process was force-killed and `saveVideoAs` failed),
+ * raw recordings are moved into a `backups/` subfolder under the videos directory
+ * so they survive into the CI artifact instead of being lost.
+ *
+ * **Important:** `runner.close()` deletes the named video when the test passed
+ * (via `removeTracesOnFinished`), so the named-video check alone would produce a
+ * false-positive save-failure. This function reads `test.info().status` directly
+ * to distinguish intentional cleanup from a genuine save failure.
  */
-export function cleanupRawVideoFiles(outputFolder: string): void {
+export function cleanupRawVideoFiles(outputFolder: string, expectedVideoName?: string): void {
   if (!existsSync(outputFolder)) return;
 
   const RAW_VIDEO_PATTERN = /^[0-9a-f]{32,}\.webm$/;
@@ -154,13 +164,38 @@ export function cleanupRawVideoFiles(outputFolder: string): void {
     }
   }
 
+  const namedVideoMissing =
+    !!expectedVideoName && !videoDirs.some(dir => existsSync(join(dir, `${expectedVideoName}.webm`)));
+  const testStatus = test?.info()?.status;
+  const testPassedOrSkipped = testStatus === 'passed' || testStatus === 'skipped';
+  const saveFailure = namedVideoMissing && !testPassedOrSkipped;
+
+  if (saveFailure) {
+    console.log(`Named video '${expectedVideoName}.webm' not found — moving raw recordings to backups/`);
+  }
+
   for (const videosDir of videoDirs) {
     for (const file of readdirSync(videosDir)) {
-      if (RAW_VIDEO_PATTERN.test(file)) {
-        const filePath = join(videosDir, file);
-        console.log(`Removing raw video file: ${filePath}`);
+      if (!RAW_VIDEO_PATTERN.test(file)) continue;
+
+      const filePath = join(videosDir, file);
+
+      if (saveFailure) {
+        try {
+          const backupsDir = join(videosDir, 'backups');
+          if (!existsSync(backupsDir)) {
+            mkdirSync(backupsDir, { recursive: true });
+          }
+          const dest = join(backupsDir, file);
+          renameSync(filePath, dest);
+          console.log(`Moved raw video to backup: ${dest}`);
+        } catch (e) {
+          console.log(`Failed to move raw video file to backups: ${e}`);
+        }
+      } else {
         try {
           unlinkSync(filePath);
+          console.log(`Removed raw video file: ${filePath}`);
         } catch (e) {
           console.log(`Failed to remove raw video file: ${e}`);
         }

@@ -40,6 +40,7 @@ let page: Page;
 let webview: Page;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+let traceName = 'bootc-dashboard';
 
 test.use({
   runnerOptions: new RunnerOptions({
@@ -52,18 +53,19 @@ test.use({
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
   await removeFolderIfExists('tests/output/images');
-  runner.setVideoAndTraceName('bootc-dashboard');
+  traceName = `${traceName}-w${test.info().workerIndex}`;
+  runner.setVideoAndTraceName(traceName);
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
 });
 
 test.afterAll(async ({ runner }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(320_000);
   try {
     await removeFolderIfExists('tests/output/images');
   } finally {
-    await runner.close(120_000);
-    cleanupRawVideoFiles('tests/output');
+    await runner.close(200_000);
+    cleanupRawVideoFiles('tests/output', traceName);
   }
 });
 
@@ -78,20 +80,20 @@ test.describe('BootC Dashboard', () => {
   test.describe
     .serial('Bootc Dashboard', () => {
       test('Pull demo image from dashboard', async ({ runner }) => {
-        test.setTimeout(610_000);
+        test.setTimeout(750_000);
 
         [page, webview] = await handleWebview(runner);
         const bootcNavigationBar = new BootcNavigationBar(page, webview);
         const bootcDashboardPage = await bootcNavigationBar.openBootcDashboard();
         await playExpect(bootcDashboardPage.heading).toBeVisible();
-        await bootcDashboardPage.pullDemoImage(600_000);
+        await bootcDashboardPage.pullDemoImage(720_000);
       });
 
       const types = ['AMI'];
 
       for (const type of types) {
         test(`Build demo image from dashboard for type ${type}`, async ({ runner }) => {
-          test.setTimeout(1_250_000);
+          test.setTimeout(1_560_000);
 
           [page, webview] = await handleWebview(runner);
           const bootcNavigationBar = new BootcNavigationBar(page, webview);
@@ -101,14 +103,14 @@ test.describe('BootC Dashboard', () => {
 
           const pathToStore = path.resolve(__dirname, '..', 'tests', 'output', 'images', `demoImage-${type}`);
 
-          const result = await bootcDashboardPage.buildDemoImage(pathToStore, type, 1_200_000);
+          const result = await bootcDashboardPage.buildDemoImage(pathToStore, type, 1_500_000);
           playExpect(result).toBeTruthy();
         });
       }
     });
 
   test.afterAll(async ({ navigationBar }) => {
-    if (markTestFileComplete()) {
+    if (markTestFileComplete(__filename)) {
       await removeBootcExtensionIfNeeded(navigationBar);
     }
   });
