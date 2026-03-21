@@ -111,6 +111,10 @@ export class BootcPage {
     await this.outputFolderPath.fill(pathToStore);
     await playExpect(this.outputFolderPath).toHaveValue(pathToStore);
 
+    // The overwrite checkbox may be visible for the previous path value;
+    // wait for the UI to react to the new path before proceeding.
+    await this.overwriteBuildCheckbox.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
+
     await this.uncheckedAllCheckboxes();
     switch (type.toLocaleLowerCase()) {
       case 'raw':
