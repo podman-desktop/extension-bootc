@@ -57,7 +57,7 @@ class ExtensionLifecycleReporter implements Reporter {
       console.log(
         `[ExtensionLifecycleReporter] All tests skipped in ${this.currentFile} — decrementing lifecycle counter`,
       );
-      markTestFileComplete();
+      markTestFileComplete(this.currentFile);
     }
     this.currentFile = '';
   }

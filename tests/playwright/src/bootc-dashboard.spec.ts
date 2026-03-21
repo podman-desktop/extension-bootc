@@ -110,7 +110,7 @@ test.describe('BootC Dashboard', () => {
     });
 
   test.afterAll(async ({ navigationBar }) => {
-    if (markTestFileComplete()) {
+    if (markTestFileComplete(__filename)) {
       await removeBootcExtensionIfNeeded(navigationBar);
     }
   });

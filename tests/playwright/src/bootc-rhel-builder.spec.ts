@@ -162,7 +162,7 @@ test.describe('BootC RHEL Builder', () => {
     });
 
   test.afterAll(async ({ navigationBar }) => {
-    if (markTestFileComplete()) {
+    if (markTestFileComplete(__filename)) {
       await removeBootcExtensionIfNeeded(navigationBar);
     }
   });
