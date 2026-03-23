@@ -44,8 +44,6 @@ let page: Page;
 let webview: Page;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-let traceName = 'bootc-rhel-builder';
-
 const examples = [{ appName: 'WiFi', imageName: 'registry.gitlab.com/fedora/bootc/examples/wifi:latest' }];
 
 test.use({
@@ -59,8 +57,7 @@ test.use({
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
   await removeFolderIfExists('tests/output/images');
-  traceName = `${traceName}-w${test.info().workerIndex}`;
-  runner.setVideoAndTraceName(traceName);
+  runner.setVideoAndTraceName('bootc-rhel-builder');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
 });
@@ -74,9 +71,10 @@ test.afterAll(async ({ runner, page }) => {
   } catch (error) {
     console.log(`Error deleting image: ${error}`);
   } finally {
+    const videoAndTraceName = runner.getVideoAndTraceName();
     await removeFolderIfExists('tests/output/images');
     await runner.close(200_000);
-    cleanupRawVideoFiles('tests/output', traceName);
+    cleanupRawVideoFiles('tests/output', videoAndTraceName);
   }
 });
 
