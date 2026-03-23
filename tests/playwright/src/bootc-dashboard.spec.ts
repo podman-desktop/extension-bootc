@@ -40,8 +40,6 @@ let page: Page;
 let webview: Page;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-let traceName = 'bootc-dashboard';
-
 test.use({
   runnerOptions: new RunnerOptions({
     customFolder: 'bootc-tests-pd',
@@ -53,19 +51,19 @@ test.use({
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
   await removeFolderIfExists('tests/output/images');
-  traceName = `${traceName}-w${test.info().workerIndex}`;
-  runner.setVideoAndTraceName(traceName);
+  runner.setVideoAndTraceName('bootc-dashboard');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
 });
 
 test.afterAll(async ({ runner }) => {
   test.setTimeout(320_000);
+  const videoAndTraceName = runner.getVideoAndTraceName();
   try {
     await removeFolderIfExists('tests/output/images');
   } finally {
     await runner.close(200_000);
-    cleanupRawVideoFiles('tests/output', traceName);
+    cleanupRawVideoFiles('tests/output', videoAndTraceName);
   }
 });
 

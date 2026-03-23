@@ -132,10 +132,14 @@ export async function installBootcExtensionIfNeeded(navigationBar: NavigationBar
  * windows (e.g. webviews) leave orphaned raw files.
  *
  * When {@link expectedVideoName} is provided and the corresponding named video
- * (`<name>.webm`) exists, raw files are simply deleted. If the named video is
- * absent (e.g. the Electron process was force-killed and `saveVideoAs` failed),
- * raw recordings are moved into a `backups/` subfolder under the videos directory
- * so they survive into the CI artifact instead of being lost.
+ * (`<name>.webm`) exists, raw files are simply deleted. Callers should pass
+ * `runner.getVideoAndTraceName()` which includes the `_w<index>` worker suffix
+ * appended by the upstream Runner.
+ *
+ * If the named video is absent (e.g. the Electron process was force-killed and
+ * `saveVideoAs` failed), raw recordings are moved into a `backups/` subfolder
+ * under the videos directory so they survive into the CI artifact instead of
+ * being lost.
  *
  * **Important:** `runner.close()` deletes the named video when the test passed
  * (via `removeTracesOnFinished`), so the named-video check alone would produce a
@@ -144,7 +148,6 @@ export async function installBootcExtensionIfNeeded(navigationBar: NavigationBar
  */
 export function cleanupRawVideoFiles(outputFolder: string, expectedVideoName?: string): void {
   if (!existsSync(outputFolder)) return;
-
   const RAW_VIDEO_PATTERN = /^[0-9a-f]{32,}\.webm$/;
 
   const videoDirs: string[] = [];

@@ -50,8 +50,6 @@ const containerFilePath = path.resolve(__dirname, '..', 'resources', 'bootable-c
 const contextDirectory = path.resolve(__dirname, '..', 'resources');
 const buildISOImage = process.env.BUILD_ISO_IMAGE;
 let imageBuildFailed = true;
-let traceName = 'bootc-architecture-builds';
-
 test.use({
   runnerOptions: new RunnerOptions({
     customFolder: 'bootc-tests-pd',
@@ -63,8 +61,7 @@ test.use({
 
 test.beforeAll(async ({ runner, welcomePage, page }) => {
   await removeFolderIfExists('tests/output/images');
-  traceName = `${traceName}-w${test.info().workerIndex}`;
-  runner.setVideoAndTraceName(traceName);
+  runner.setVideoAndTraceName('bootc-architecture-builds');
   await welcomePage.handleWelcomePage(true);
   await waitForPodmanMachineStartup(page);
 });
@@ -76,9 +73,10 @@ test.afterAll(async ({ runner, page }) => {
   } catch (error) {
     console.log(`Error deleting image: ${error}`);
   } finally {
+    const videoAndTraceName = runner.getVideoAndTraceName();
     await removeFolderIfExists('tests/output/images');
     await runner.close(200_000);
-    cleanupRawVideoFiles('tests/output', traceName);
+    cleanupRawVideoFiles('tests/output', videoAndTraceName);
   }
 });
 
