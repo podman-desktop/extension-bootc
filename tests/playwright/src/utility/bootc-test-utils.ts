@@ -18,7 +18,13 @@
 
 import type { Page } from '@playwright/test';
 import type { Runner } from '@podman-desktop/tests-playwright';
-import { NavigationBar, expect as playExpect, PreferencesPage, test } from '@podman-desktop/tests-playwright';
+import {
+  NavigationBar,
+  expect as playExpect,
+  PreferencesPage,
+  test,
+  waitUntil,
+} from '@podman-desktop/tests-playwright';
 import { existsSync, mkdirSync, readdirSync, renameSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -86,8 +92,20 @@ export async function handleWebview(runner: Runner): Promise<[Page, Page]> {
 
   const webView = page.getByRole('document', { name: BOOTC_PAGE_BODY_LABEL });
   await playExpect(webView).toBeVisible();
-  await new Promise(resolve => setTimeout(resolve, 1_000));
-  const [mainPage, webViewPage] = runner.getElectronApp().windows();
+  let mainPage!: Page;
+  let webViewPage!: Page;
+  await waitUntil(
+    async () => {
+      const windows = runner.getElectronApp().windows();
+      if (windows.length >= 2) {
+        [mainPage, webViewPage] = windows;
+        return true;
+      }
+      return false;
+    },
+    { timeout: 10_000, diff: 500, message: 'Webview guest window did not appear in the Electron app' },
+  );
+
   await mainPage.evaluate(() => {
     const element = document.querySelector('webview');
     if (element) {
