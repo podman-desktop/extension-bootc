@@ -134,6 +134,10 @@ test.describe('BootC Architecture Builds', () => {
                   isWindows && architecture === ArchitectureType.ARM64,
                   'Building arm64 bootable images is not supported on Windows',
                 );
+                test.skip(
+                  isWindows && type === 'VMDK',
+                  'VMDK builds are too slow on Windows virtualized environments (Hyper-V/WSL2 I/O bottleneck)',
+                );
                 test.setTimeout(1_560_000);
 
                 if (imageBuildFailed) {
