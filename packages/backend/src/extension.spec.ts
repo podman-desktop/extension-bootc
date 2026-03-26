@@ -279,4 +279,50 @@ describe('lazy macadam initialization', () => {
     expect(mocks.consoleErrorMock).toHaveBeenCalledWith('Error initializing macadam', expect.any(Error));
     expect(mocks.ensureBinariesUpToDateMock).not.toHaveBeenCalled();
   });
+
+  test('mac: should not start monitoring loop when init fails during activate', async () => {
+    vi.mocked(podmanDesktopApi.env).isMac = true;
+    vi.mocked(podmanDesktopApi.env).isWindows = false;
+    mocks.areBinariesAvailableMock.mockReturnValue(true);
+    mocks.macadamInitMock.mockRejectedValue(new Error('spawn /usr/local/bin/macadam ENOENT'));
+    mocks.macadamListVmsMock.mockResolvedValue([]);
+
+    await activate(fakeContext);
+
+    // Wait a tick to allow any async event handlers to fire
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    // listVms should never be called since the monitoring loop should not have started
+    expect(mocks.macadamListVmsMock).not.toHaveBeenCalled();
+  });
+
+  test('linux: should handle macadam init error gracefully during activate', async () => {
+    vi.mocked(podmanDesktopApi.env).isMac = false;
+    vi.mocked(podmanDesktopApi.env).isWindows = false;
+    vi.mocked(podmanDesktopApi.env).isLinux = true;
+    mocks.areBinariesAvailableMock.mockReturnValue(true);
+    mocks.macadamInitMock.mockRejectedValue(new Error('Init failed'));
+
+    await activate(fakeContext);
+
+    expect(mocks.consoleErrorMock).toHaveBeenCalledWith('Error initializing macadam', expect.any(Error));
+    expect(mocks.ensureBinariesUpToDateMock).not.toHaveBeenCalled();
+  });
+
+  test('linux: should not start monitoring loop when init fails during activate', async () => {
+    vi.mocked(podmanDesktopApi.env).isMac = false;
+    vi.mocked(podmanDesktopApi.env).isWindows = false;
+    vi.mocked(podmanDesktopApi.env).isLinux = true;
+    mocks.areBinariesAvailableMock.mockReturnValue(true);
+    mocks.macadamInitMock.mockRejectedValue(new Error('spawn /usr/local/bin/macadam ENOENT'));
+    mocks.macadamListVmsMock.mockResolvedValue([]);
+
+    await activate(fakeContext);
+
+    // Wait a tick to allow any async event handlers to fire
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    // listVms should never be called since the monitoring loop should not have started
+    expect(mocks.macadamListVmsMock).not.toHaveBeenCalled();
+  });
 });

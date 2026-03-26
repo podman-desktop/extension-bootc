@@ -187,11 +187,10 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
       try {
         await macadam.init();
         macadamInitialized = true;
+        macadamEvents.emit(MACADAM_INITIALIZED_EVENT);
       } catch (error) {
         console.error('Error initializing macadam', error);
       }
-
-      macadamEvents.emit(MACADAM_INITIALIZED_EVENT);
     }
   }
 }
