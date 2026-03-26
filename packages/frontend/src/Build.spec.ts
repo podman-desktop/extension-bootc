@@ -243,20 +243,12 @@ test('Check that prereq validation works', async () => {
 
   render(Build);
 
-  // Wait until children length is 2 meaning it's fully rendered / propagated the changes
+  // When checkPrereqs returns an error on mount, the form shows a full-screen error
+  // and does not render the rest of the form
   await vi.waitFor(() => {
-    if (screen.getByLabelText('image-select')?.children.length !== 2) {
-      throw new Error();
-    }
+    const errorScreen = screen.getByText(prereq);
+    expect(errorScreen).toBeDefined();
   });
-
-  // select an option to trigger validation
-  const raw = screen.getByLabelText('raw-checkbox');
-  raw.click();
-
-  const validation = screen.getByRole('alert');
-  expect(validation).toBeDefined();
-  expect(validation.textContent).toEqual(prereq);
 });
 
 test('Check that overwriting an existing build works', async () => {
@@ -286,11 +278,13 @@ test('Check that overwriting an existing build works', async () => {
   expect(validation).toBeDefined();
   expect(validation.textContent).toEqual('Confirm overwriting existing build');
 
-  // select the checkbox and give it time to validate
+  // select the checkbox and give it time to validate (debounced at 500ms)
   await userEvent.click(overwrite2);
 
-  const validation2 = screen.queryByRole('alert');
-  expect(validation2).toBeNull();
+  await vi.waitFor(() => {
+    const validation2 = screen.queryByRole('alert');
+    expect(validation2).toBeNull();
+  });
 });
 
 const fakedImageInspect: ImageInspectInfo = {
@@ -852,10 +846,12 @@ test('confirm successful build goes to logs', async () => {
   expect(overwriteCheck).toBeDefined();
   await userEvent.click(overwriteCheck);
 
-  // confirm build button is enabled
+  // confirm build button is enabled (wait for debounced validation)
   const build = screen.getByText('Build');
   expect(build).toBeInTheDocument();
-  expect(build).toBeEnabled();
+  await vi.waitFor(() => {
+    expect(build).toBeEnabled();
+  });
 
   // check that clicking redirects to the build logs page
   expect(router.goto).not.toHaveBeenCalled();
