@@ -132,6 +132,7 @@
     "@crc-org/macadam.js": "0.6.0",
     "semver": "^7.7.4",
     "compare-versions": "^6.1.1",
-    "ssh2": "^1.16.0"
+    "ssh2": "^1.16.0",
+    "flatted": "^3.3.0"
   }
 }
