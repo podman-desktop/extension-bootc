@@ -1,0 +1,25 @@
+{
+  "name": "@podman-desktop/extension-bootc-shared",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "vite": "^5.0.0",
+    "vitest": "^1.0.0"
+  },
+  "overrides": {
+    "rollup": "^4.17.2"
+  }
+}
