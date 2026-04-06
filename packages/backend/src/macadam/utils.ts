@@ -25,7 +25,7 @@ export function getErrorMessage(err: unknown): string {
   return '';
 }
 
-export function verifyContainerProivder(containerProvider: string): 'wsl' | 'hyperv' | 'applehv' | undefined {
+export function verifyContainerProvider(containerProvider: string): 'wsl' | 'hyperv' | 'applehv' | undefined {
   if (containerProvider === 'wsl' || containerProvider === 'hyperv' || containerProvider === 'applehv') {
     return containerProvider;
   } else {
