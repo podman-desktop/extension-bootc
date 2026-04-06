@@ -48,3 +48,7 @@ updates:
         patterns:
           - '@vitest/*'
           - 'vitest'
+      minimatch:
+        applies-to: version-updates
+        patterns:
+          - 'minimatch'
