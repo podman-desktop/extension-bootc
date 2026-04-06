@@ -35,6 +35,9 @@
     "string-width": "^4.2.0",
     "wrap-ansi": "^7.0.0"
   },
+  "overrides": {
+    "ajv": ">=8.17.1"
+  },
   "lint-staged": {
     "*.{js,ts,tsx,svelte}": [
       "eslint --cache --fix",
