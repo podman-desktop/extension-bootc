@@ -15,10 +15,14 @@ import Dashboard from './lib/dashboard/Dashboard.svelte';
 import ExampleDetails from './lib/examples/ExampleDetails.svelte';
 import ImagesList from './lib/images/ImagesList.svelte';
 import CreateVM from './CreateVM.svelte';
+import SudoConfirmationDialog from './lib/SudoConfirmationDialog.svelte';
+import type { SudoConfirmationRequest } from '/@shared/src/models/SudoConfirmationRequest';
 
 router.mode.hash();
 
 let isMounted = $state(false);
+let sudoConfirmationRequest = $state<SudoConfirmationRequest | null>(null);
+let resolveSudoConfirmation: ((value: { confirmed: boolean }) => void) | null = null;
 
 onMount(() => {
   // Load router state on application startup
@@ -26,9 +30,21 @@ onMount(() => {
   router.goto(state.url);
   isMounted = true;
 
-  return rpcBrowser.subscribe(Messages.MSG_NAVIGATE_BUILD, (x: string) => {
+  const unsubNavigate = rpcBrowser.subscribe(Messages.MSG_NAVIGATE_BUILD, (x: string) => {
     router.goto(`/disk-images/build/${x}`);
   });
+
+  const unsubSudo = rpcBrowser.subscribe(Messages.MSG_SUDO_CONFIRMATION, (request: SudoConfirmationRequest) => {
+    sudoConfirmationRequest = request;
+    return new Promise<{ confirmed: boolean }>((resolve) => {
+      resolveSudoConfirmation = resolve;
+    });
+  });
+
+  return () => {
+    unsubNavigate();
+    unsubSudo();
+  };
 });
 </script>
 
@@ -71,4 +87,22 @@ onMount(() => {
       </Route>
     </div>
   </main>
+
+  {#if sudoConfirmationRequest}
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <SudoConfirmationDialog
+        bind:request={sudoConfirmationRequest}
+        on:confirm={() => {
+          resolveSudoConfirmation?.({ confirmed: true });
+          sudoConfirmationRequest = null;
+          resolveSudoConfirmation = null;
+        }}
+        on:cancel={() => {
+          resolveSudoConfirmation?.({ confirmed: false });
+          sudoConfirmationRequest = null;
+          resolveSudoConfirmation = null;
+        }}
+      />
+    </div>
+  {/if}
 </Route>
