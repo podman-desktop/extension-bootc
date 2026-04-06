@@ -32,6 +32,10 @@ import type { BootcBuildInfo, BuildConfig, BuildType } from '/@shared/src/models
 import type { History } from './history';
 import * as machineUtils from './machine-utils';
 import { getConfigurationValue, telemetryLogger } from './extension';
+
+export let logTelemetry = (eventName: string, data?: Record<string, unknown>): void => {
+  telemetryLogger.logUsage(eventName, data);
+};
 import { getContainerEngine } from './container-utils';
 
 export async function buildExists(folder: string, types: BuildType[]): Promise<boolean> {
