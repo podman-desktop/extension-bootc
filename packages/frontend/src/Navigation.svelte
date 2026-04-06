@@ -1,7 +1,7 @@
 <script lang="ts">
 import type { TinroRouteMeta } from 'tinro';
 import { SettingsNavItem } from '@podman-desktop/ui-svelte';
-import { faHouse, faBookOpen } from '@fortawesome/free-solid-svg-icons';
+import { faHouse, faBookOpen, faGear } from '@fortawesome/free-solid-svg-icons';
 import BootcImageIcon from './lib/BootcImageIcon.svelte';
 import bootcIcon from './lib/bootc-icon.png';
 import DiskImageIcon from './lib/DiskImageIcon.svelte';
@@ -31,6 +31,9 @@ let { meta }: Props = $props();
     <SettingsNavItem title="Disk Images" icon={DiskImageIcon} selected={meta.url.startsWith('/disk-image')} href="/disk-images" />
     <div class="pl-[1px]">
       <SettingsNavItem title="Examples" icon={faBookOpen} selected={meta.url.startsWith('/examples')} href="/examples" />
+    </div>
+    <div class="pl-[1px]">
+      <SettingsNavItem title="Preferences" icon={faGear} selected={meta.url.startsWith('/preferences')} href="/preferences" />
     </div>
   </div>
 </nav>
