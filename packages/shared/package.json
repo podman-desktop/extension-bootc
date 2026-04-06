@@ -1,0 +1,16 @@
+{
+  "name": "@podman-desktop/extension-bootc-shared",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "minimatch": "^9.0.3",
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.0"
+  }
+}
