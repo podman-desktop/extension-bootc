@@ -84,6 +84,7 @@
   },
   "pnpm": {
     "overrides": {
+      "minimatch": ">=9.0.5",
       "vite>esbuild": "^0.25.0"
     },
     "ignoredBuiltDependencies": [
