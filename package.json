@@ -33,7 +33,8 @@
   },
   "resolutions": {
     "string-width": "^4.2.0",
-    "wrap-ansi": "^7.0.0"
+    "wrap-ansi": "^7.0.0",
+    "minimatch": "^9.0.5"
   },
   "lint-staged": {
     "*.{js,ts,tsx,svelte}": [
@@ -84,7 +85,8 @@
   },
   "pnpm": {
     "overrides": {
-      "vite>esbuild": "^0.25.0"
+      "vite>esbuild": "^0.25.0",
+      "minimatch": "^9.0.5"
     },
     "ignoredBuiltDependencies": [
       "@biomejs/biome",
