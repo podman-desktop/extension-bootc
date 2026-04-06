@@ -84,7 +84,8 @@
   },
   "pnpm": {
     "overrides": {
-      "vite>esbuild": "^0.25.0"
+      "vite>esbuild": "^0.25.0",
+      "flatted": "^3.3.0"
     },
     "ignoredBuiltDependencies": [
       "@biomejs/biome",
