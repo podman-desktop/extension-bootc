@@ -34,6 +34,7 @@ export const extensionName = 'bootc';
 export const extensionLabel = 'redhat.bootc';
 export const extensionHeading = 'Bootable Container';
 export const skipInstallation = process.env.SKIP_INSTALLATION;
+const extensionURL = process.env.OCI_IMAGE ?? 'ghcr.io/podman-desktop/extension-bootc:next';
 
 export function stripImageTag(imageReference: string): string {
   const lastColon = imageReference.lastIndexOf(':');
@@ -135,8 +136,8 @@ export async function installBootcExtensionIfNeeded(navigationBar: NavigationBar
     return;
   }
 
-  console.log('Installing BootC extension from OCIImage');
-  await extensionsPage.installExtensionFromOCIImage('ghcr.io/podman-desktop/extension-bootc:next');
+  console.log('Installing BootC extension from OCI Image');
+  await extensionsPage.installExtensionFromOCIImage(extensionURL);
 
   await playExpect
     .poll(async () => await extensionsPage.extensionIsInstalled(extensionLabel), { timeout: 30_000 })
