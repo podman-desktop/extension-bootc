@@ -96,7 +96,7 @@ export async function handleWebview(runner: Runner): Promise<[Page, Page]> {
   let webViewPage!: Page;
   await waitUntil(
     async () => {
-      const windows = runner.getElectronApp().windows();
+      const windows = runner.getWindows();
       if (windows.length >= 2) {
         [mainPage, webViewPage] = windows;
         return true;
