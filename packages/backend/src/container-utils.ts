@@ -52,7 +52,9 @@ export async function inspectImage(engineId: string, image: string): Promise<ext
     return await extensionApi.containerEngine.getImageInspect(engineId, image);
   } catch (e) {
     console.error(e);
-    throw new Error('There was an error inspecting the image: ' + e);
+    throw new Error('There was an error inspecting the image: ' + e, {
+      cause: e,
+    });
   }
 }
 
@@ -63,7 +65,9 @@ export async function inspectManifest(engineId: string, image: string): Promise<
     return await extensionApi.containerEngine.inspectManifest(engineId, image);
   } catch (e) {
     console.error(e);
-    throw new Error('There was an error inspecting the manifest: ' + e);
+    throw new Error('There was an error inspecting the manifest: ' + e, {
+      cause: e,
+    });
   }
 }
 
@@ -87,7 +91,9 @@ export async function pullImage(connection: ContainerProviderConnection, image: 
   } catch (e) {
     console.error(e);
     telemetryData.error = e;
-    throw new Error('There was an error pulling the image: ' + e);
+    throw new Error('There was an error pulling the image: ' + e, {
+      cause: e,
+    });
   } finally {
     telemetryLogger.logUsage('pullImage', telemetryData);
   }
@@ -155,7 +161,9 @@ export async function createAndStartContainer(engineId: string, options: Contain
     return result.id;
   } catch (e) {
     console.error(e);
-    throw new Error('There was an error creating the container: ' + e);
+    throw new Error('There was an error creating the container: ' + e, {
+      cause: e,
+    });
   }
 }
 
@@ -244,7 +252,9 @@ export async function removeContainerIfExists(engineId: string, container: strin
     }
   } catch (e) {
     console.error(e);
-    throw new Error('There was an error removing the container: ' + e);
+    throw new Error('There was an error removing the container: ' + e, {
+      cause: e,
+    });
   }
 }
 
@@ -282,7 +292,9 @@ async function getVolumesMatchingContainer(engineId: string, container: string):
     return volumeNames;
   } catch (e) {
     console.error(e);
-    throw new Error('There was an error getting the volumes: ' + e);
+    throw new Error('There was an error getting the volumes: ' + e, {
+      cause: e,
+    });
   }
 }
 
@@ -321,7 +333,9 @@ export async function removeContainerAndVolumes(engineId: string, container: str
     }
   } catch (e) {
     console.error(e);
-    throw new Error('There was an error removing the container and volumes: ' + e);
+    throw new Error('There was an error removing the container and volumes: ' + e, {
+      cause: e,
+    });
   }
 }
 
