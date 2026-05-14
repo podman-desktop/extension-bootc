@@ -302,7 +302,9 @@ export class BootcApiImpl implements BootcApi {
     try {
       imageInspect = await podmanDesktopApi.containerEngine.getImageInspect(image.engineId, image.Id);
     } catch (err) {
-      throw new Error(`Error inspecting image: ${err}`);
+      throw new Error(`Error inspecting image: ${err}`, {
+        cause: err,
+      });
     }
     if (!imageInspect) {
       throw new Error('Unable to retrieve image inspect information');
@@ -317,7 +319,9 @@ export class BootcApiImpl implements BootcApi {
     try {
       manifestInspect = await podmanDesktopApi.containerEngine.inspectManifest(image.engineId, image.Id);
     } catch (err) {
-      throw new Error(`Error inspecting manifest: ${err}`);
+      throw new Error(`Error inspecting manifest: ${err}`, {
+        cause: err,
+      });
     }
     if (!manifestInspect) {
       throw new Error('Unable to retrieve manifest inspect information');
@@ -375,7 +379,9 @@ export class BootcApiImpl implements BootcApi {
     } catch (err) {
       await podmanDesktopApi.window.showErrorMessage(`Error pulling image: ${err}`);
       console.error('Error pulling image: ', err);
-      throw new Error(`Error pulling image: ${err}`);
+      throw new Error(`Error pulling image: ${err}`, {
+        cause: err,
+      });
     } finally {
       // Notify the frontend the images list may have changed
       await this.notify(Messages.MSG_IMAGE_UPDATE, {});

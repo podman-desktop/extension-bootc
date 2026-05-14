@@ -78,8 +78,6 @@ export class BootcPage {
     architecture: ArchitectureType,
     timeout = 600_000,
   ): Promise<boolean> {
-    let result = false;
-
     console.log(
       `Building disk image for ${imageName} in path ${pathToStore} with type ${type} and architecture ${architecture}`,
     );
@@ -177,7 +175,7 @@ export class BootcPage {
     }
 
     const dialogMessageLocator = this.page.getByLabel('Dialog Message');
-    result = (await dialogMessageLocator.innerText()).includes('Success!');
+    const result = (await dialogMessageLocator.innerText()).includes('Success!');
     const okButtonLocator = this.page.getByRole('button', { name: 'OK' });
     await playExpect(okButtonLocator).toBeEnabled();
     await okButtonLocator.click();
