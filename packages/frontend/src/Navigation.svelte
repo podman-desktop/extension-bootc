@@ -21,17 +21,11 @@ let { meta }: Props = $props();
       <p class="text-xl font-semibold text-[color:var(--pd-secondary-nav-header-text)] border-l-[4px] border-transparent">Bootable Containers</p>
     </a>
   </div>
-  <div class="h-full overflow-y-auto" style="margin-bottom:auto">
-    <!-- FontAwesome icons rendered via SettingsNavItem are slightly narrower than custom Svelte component icons
-         (which get wrapped in a <span> by the Icon component). The pl-[1px] compensates for this alignment difference. -->
-    <div class="pl-[1px]">
-      <SettingsNavItem title="Dashboard" icon={faHouse} selected={meta.url === '/'} href="/" />
-    </div>
+  <div class="h-full overflow-y-auto [&_svg]:w-[1.25em] [&_span[role=img]]:w-[1.25em]" style="margin-bottom:auto">
+    <SettingsNavItem title="Dashboard" icon={faHouse} selected={meta.url === '/'} href="/" />
     <SettingsNavItem title="Images" icon={BootcImageIcon} selected={meta.url.startsWith('/images')} href="/images" />
     <SettingsNavItem title="Disk Images" icon={DiskImageIcon} selected={meta.url.startsWith('/disk-image')} href="/disk-images" />
-    <div class="pl-[1px]">
-      <SettingsNavItem title="Examples" icon={faBookOpen} selected={meta.url.startsWith('/examples')} href="/examples" />
-    </div>
+    <SettingsNavItem title="Examples" icon={faBookOpen} selected={meta.url.startsWith('/examples')} href="/examples" />
   </div>
 </nav>
 
