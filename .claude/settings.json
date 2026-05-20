@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm exec biome format --write \"$CLAUDE_FILE_PATH\" 2>/dev/null; pnpm exec prettier --cache --write \"$CLAUDE_FILE_PATH\" 2>/dev/null; exit 0"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm exec eslint --cache --fix \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"$CLAUDE_TOOL_INPUT\" | grep -qE '(rm -rf|git push --force|git reset --hard|git checkout \\.)' && echo 'BLOCK: Destructive operation detected. Please confirm with the user first.' && exit 1 || exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}
