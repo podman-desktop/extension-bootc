@@ -46,6 +46,26 @@ pnpm svelte:check             # Svelte component validation
 pnpm format:fix && pnpm lint:fix && pnpm typecheck && pnpm test
 ```
 
+## Single-File Verification
+
+Lint, type-check, and test a single file without a full build:
+
+```sh
+# Lint single file
+npx eslint path/to/file.ts
+
+# Type-check single file
+npx tsc --noEmit path/to/file.ts
+
+# Type-check by package (when cross-package imports are involved)
+npx tsc --noEmit -p packages/backend/tsconfig.json
+npx tsc --noEmit -p packages/frontend/tsconfig.json
+npx tsc --noEmit -p packages/shared/tsconfig.json
+
+# Test single file
+pnpm vitest run path/to/file.spec.ts
+```
+
 ## Skills
 
 Task-specific guidance lives in `.agents/skills/`:
@@ -83,6 +103,14 @@ Frontend ↔ Backend via RPC MessageProxy over webview postMessage:
 
 Extension points (commands, menus, configuration, icons, views) are defined in
 `packages/backend/package.json` under `contributes`.
+
+## Pattern References
+
+- New backend API method: follow `packages/shared/src/BootcAPI.ts` (interface), `packages/backend/src/api-impl.ts` (implementation)
+- New Svelte page/component: follow `packages/frontend/src/Build.svelte` as reference
+- New unit test: follow `packages/backend/src/api-impl.spec.ts` (backend) or `packages/frontend/src/Build.spec.ts` (frontend)
+- New E2E test: follow `tests/playwright/src/bootc-extension.spec.ts`
+- New shared model: follow `packages/shared/src/models/bootc.ts`
 
 ## Coding Guidelines
 

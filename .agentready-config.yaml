@@ -1,0 +1,24 @@
+excluded_attributes:
+  # Not a REST API — this is a desktop extension using RPC over postMessage
+  - openapi_specs
+
+  # Not applicable to this project's language/stack
+  - container_setup
+  - dbt_project_config
+  - dbt_model_documentation
+  - dbt_data_tests
+  - dbt_project_structure
+
+  # pnpm monorepo with packages/*/src/ — tool only checks for root src/
+  - standard_layout
+
+  # AGENTS.md/CLAUDE.md and .agents/skills/ already provide AI context
+  - repomix_config
+
+  # Architecture is documented in AGENTS.md/CLAUDE.md under architecture section
+  - architecture_decisions
+
+  # Monorepo false positive — all packages have strict:true in their tsconfig.json already,
+  # but bug does not pick it up
+  # See: https://github.com/ambient-code/agentready/issues/431
+  - type_annotations

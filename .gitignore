@@ -8,3 +8,9 @@ output
 test-results
 yarn.lock
 .yarnrc
+*.swp
+*.swo
+*.tsbuildinfo
+.npm/
+.vscode/
+.agentready/
