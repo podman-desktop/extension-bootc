@@ -71,7 +71,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.0.7",
     "prettier": "^3.8.3",
-    "prettier-plugin-svelte": "^3.5.2",
+    "prettier-plugin-svelte": "^4.1.0",
     "svelte-check": "^4.4.8",
     "svelte-eslint-parser": "^1.7.0",
     "typescript": "5.9.3",
