@@ -73,7 +73,7 @@
     "prettier": "^3.8.3",
     "prettier-plugin-svelte": "^3.5.2",
     "svelte-check": "^4.4.8",
-    "svelte-eslint-parser": "^1.7.0",
+    "svelte-eslint-parser": "^1.7.1",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.60.0",
     "vite": "8.0.14",
