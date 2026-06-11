@@ -123,14 +123,14 @@
     "eslint-plugin-no-null": "^1.0.2",
     "eslint-plugin-redundant-undefined": "^1.0.0",
     "eslint-plugin-sonarjs": "^4.0.3",
-    "prettier": "^3.8.3",
+    "prettier": "^3.8.4",
     "typescript": "5.9.3",
     "vite": "8.0.16",
     "vitest": "^4.1.8"
   },
   "dependencies": {
     "@crc-org/macadam.js": "0.7.0",
-    "semver": "^7.8.3",
+    "semver": "^7.8.4",
     "compare-versions": "^6.1.1",
     "ssh2": "^1.16.0"
   }
