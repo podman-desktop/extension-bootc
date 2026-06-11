@@ -112,7 +112,7 @@ Compatible on Windows, macOS & Linux
 **Software:**
 
 - [Podman Desktop 1.10.0+](https://github.com/podman-desktop/podman-desktop)
-- [Podman 5.0.1+](https://github.com/containers/podman)
+- [Podman 5.0.1+](https://github.com/podman-container-tools/podman)
 
 ### Podman Machine (macOS / Windows)
 
