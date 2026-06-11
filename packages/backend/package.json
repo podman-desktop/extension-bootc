@@ -1,4 +1,5 @@
 {
+  "$schema": "https://www.schemastore.org/podman-desktop-extension-1.27.json",
   "name": "bootc",
   "displayName": "Bootable Container",
   "description": "Support for bootable OS containers (bootc) and generating disk images",
