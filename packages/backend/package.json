@@ -131,7 +131,7 @@
   },
   "dependencies": {
     "@crc-org/macadam.js": "0.7.0",
-    "semver": "^7.8.4",
+    "semver": "^7.8.5",
     "compare-versions": "^6.1.1",
     "ssh2": "^1.16.0"
   }
