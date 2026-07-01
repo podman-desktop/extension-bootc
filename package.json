@@ -76,7 +76,7 @@
     "svelte-eslint-parser": "^1.8.0",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.62.1",
-    "vite": "8.0.16",
+    "vite": "8.1.2",
     "vitest": "^4.1.9"
   },
   "dependencies": {
