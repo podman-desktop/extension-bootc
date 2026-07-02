@@ -41,7 +41,7 @@
     "@typescript-eslint/eslint-plugin": "^8.62.1",
     "@typescript-eslint/parser": "^8.62.1",
     "autoprefixer": "^10.5.2",
-    "filesize": "^11.0.17",
+    "filesize": "^11.0.19",
     "humanize-duration": "^3.34.0",
     "jsdom": "^29.1.1",
     "moment": "^2.30.1",
