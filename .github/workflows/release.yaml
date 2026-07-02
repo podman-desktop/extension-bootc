@@ -46,7 +46,7 @@ jobs:
       bootcExtensionVersion: ${{ steps.TAG_UTIL.outputs.bootcExtensionVersion }}
       releaseId: ${{ steps.create_release.outputs.id }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.inputs.branch }}
 
@@ -119,7 +119,7 @@ jobs:
     needs: tag
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.tag.outputs.githubTag }}
 
@@ -169,7 +169,7 @@ jobs:
     needs: [builder-image, tag]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.tag.outputs.githubTag }}
           fetch-depth: 0
