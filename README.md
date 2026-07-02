@@ -122,6 +122,7 @@ Podman Machine requirements:
 
 - **Rootful mode enabled**
 - _At least_ 6GB of RAM allocated in order to build the disk image
+- (Windows) WSL2 Podman Machine
 
 Rootful mode can be enabled through the CLI to an already deployed VM:
 
@@ -201,7 +202,7 @@ Your public key information (ex. `ssh-ed25519 AAABBBCCC...`) from `~/.ssh/id_ed2
 
 ![Escalated privileges prompt](https://raw.githubusercontent.com/podman-desktop/podman-desktop-extension-bootc/main/docs/img/escalated_privileges.png)
 
-> **Note (Windows):** Windows support is currently _not supported_ due to Hyper-V limitations (must run as a privileged user), WSL2 support is _not supported_ due to Windows using a custom kernel for Virtual Machine usage which is incompatible with bootc-based images.
+> **Note (Windows):** Virtual Machine testing with Windows support is currently _not supported_ due to Hyper-V limitations (must run as a privileged user), WSL2 support is also _not supported_ due to Windows using a custom kernel for Virtual Machine usage which is incompatible with bootc-based images.
 
 ## Advanced usage
 
