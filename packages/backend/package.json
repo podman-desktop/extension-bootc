@@ -123,7 +123,7 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-no-null": "^1.0.2",
     "eslint-plugin-redundant-undefined": "^1.0.0",
-    "eslint-plugin-sonarjs": "^4.0.3",
+    "eslint-plugin-sonarjs": "^4.1.0",
     "prettier": "^3.9.5",
     "typescript": "5.9.3",
     "vite": "8.1.4",
