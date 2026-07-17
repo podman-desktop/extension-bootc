@@ -95,7 +95,8 @@
       "postcss@<8.5.10": ">=8.5.10",
       "fast-uri@<3.1.2": ">=3.1.2",
       "brace-expansion@>=5.0.0 <5.0.6": ">=5.0.6",
-      "shell-quote@>=1.1.0 <1.8.4": ">=1.8.4"
+      "shell-quote@>=1.1.0 <1.8.4": ">=1.8.4",
+      "undici@>=7.23.0 <7.28.0": ">=7.28.0"
     },
     "ignoredBuiltDependencies": [
       "@biomejs/biome",
