@@ -12,7 +12,7 @@
   "devDependencies": {
     "@playwright/test": "1.61.1",
     "@podman-desktop/tests-playwright": "1.28.3",
-    "@types/node": "^24",
+    "@types/node": "^26",
     "typescript": "^5.9.3",
     "xvfb-maybe": "^0.2.1"
   }
