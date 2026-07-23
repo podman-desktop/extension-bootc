@@ -25,7 +25,7 @@ import { playwrightGlobalSetup } from '@podman-desktop/tests-playwright';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export async function globalSetup(): Promise<void> {
+export default async function globalSetup(): Promise<void> {
   await playwrightGlobalSetup();
 
   const srcDir = join(__dirname, '..');
