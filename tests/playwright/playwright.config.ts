@@ -19,7 +19,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  globalSetup: './src/utility/global-setup.ts',
+  globalSetup: './src/utility/plauywright-global-setup.ts',
   outputDir: './output/',
   workers: 1,
 

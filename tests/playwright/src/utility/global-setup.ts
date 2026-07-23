@@ -24,7 +24,7 @@ import { initExtensionLifecycle } from './extension-lifecycle.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export default function globalSetup(): void {
+export async function globalSetup(): Promise<void> {
   const srcDir = join(__dirname, '..');
   const specFiles = readdirSync(srcDir).filter(f => f.endsWith('.spec.ts'));
   console.log(`[globalSetup] Found ${specFiles.length} spec files — extension will be removed after the last one`);
