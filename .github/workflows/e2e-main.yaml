@@ -46,20 +46,20 @@ jobs:
     env:
       CI: true
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: github.event_name == 'workflow_dispatch'
         with:
           repository: ${{ github.event.inputs.organization }}/${{ github.event.inputs.repositoryName }}
           ref: ${{ github.event.inputs.branch }}
           path: ${{ github.event.inputs.repositoryName }}
 
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         if: github.event_name == 'push'
         with:
           path: extension-bootc
 
       # Checkout podman desktop
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: podman-desktop/podman-desktop
           ref: main
