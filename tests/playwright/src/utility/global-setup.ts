@@ -20,11 +20,14 @@ import { readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { initExtensionLifecycle } from './extension-lifecycle.js';
+import { playwrightGlobalSetup } from '@podman-desktop/tests-playwright';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export default function globalSetup(): void {
+export default async function globalSetup(): Promise<void> {
+  await playwrightGlobalSetup();
+
   const srcDir = join(__dirname, '..');
   const specFiles = readdirSync(srcDir).filter(f => f.endsWith('.spec.ts'));
   console.log(`[globalSetup] Found ${specFiles.length} spec files — extension will be removed after the last one`);
