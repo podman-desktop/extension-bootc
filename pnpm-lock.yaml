@@ -21,6 +21,7 @@ overrides:
   brace-expansion@>=5.0.0 <5.0.7: '>=5.0.7'
   shell-quote@>=1.1.0 <1.9.0: '>=1.9.0'
   js-yaml: '>=4.3.0 <5.0.0'
+  undici@>=7.23.0 <7.28.0: '>=7.28.0'
 
 importers:
 
@@ -3518,8 +3519,8 @@ packages:
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
 
-  undici@7.25.0:
-    resolution: {integrity: sha512-xXnp4kTyor2Zq+J1FfPI6Eq3ew5h6Vl0F/8d9XU5zZQf1tX9s2Su1/3PiMmUANFULpmksxkClamIZcaUqryHsQ==}
+  undici@7.29.0:
+    resolution: {integrity: sha512-IDxfleLmmbSskfWSUATiN1nfn2rDuvnMOqb5CWR92iIfojA0Ud+ulOAAEQ57LPr9rWmsreUyf5lwyao+7GNNVw==}
     engines: {node: '>=20.18.1'}
 
   unrs-resolver@1.12.2:
@@ -6129,7 +6130,7 @@ snapshots:
       saxes: 6.0.0
       symbol-tree: 3.2.4
       tough-cookie: 6.0.1
-      undici: 7.25.0
+      undici: 7.29.0
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -6971,7 +6972,7 @@ snapshots:
 
   undici-types@7.18.2: {}
 
-  undici@7.25.0: {}
+  undici@7.29.0: {}
 
   unrs-resolver@1.12.2:
     dependencies:
