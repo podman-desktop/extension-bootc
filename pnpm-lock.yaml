@@ -20,6 +20,7 @@ overrides:
   brace-expansion@>=2.0.0 <2.1.2: '>=2.1.2 <3.0.0'
   brace-expansion@>=5.0.0 <5.0.7: '>=5.0.7'
   shell-quote@>=1.1.0 <1.9.0: '>=1.9.0'
+  js-yaml: '>=4.3.0 <5.0.0'
 
 importers:
 
@@ -29,8 +30,8 @@ importers:
         specifier: ^0.12.0
         version: 0.12.0
       js-yaml:
-        specifier: ^4.2.0
-        version: 4.2.0
+        specifier: '>=4.3.0 <5.0.0'
+        version: 4.3.0
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.5.5
@@ -2621,8 +2622,8 @@ packages:
   js-tokens@9.0.1:
     resolution: {integrity: sha512-mxa9E9ITFOt0ban3j6L5MpjwegGz6lBQmM1IJkWeBZGcMxto50+eWdjC/52xDbS2vy0k7vIMK0Fe2wfL9OQSpQ==}
 
-  js-yaml@4.2.0:
-    resolution: {integrity: sha512-ePWsvanv0DWuDRsW8dnt+R4jQ31SCRCQ7hhNcPXZPsoBZiemuZNYGf7adZdqX2D86j6rvKp3RpCxVTSb8WQlOw==}
+  js-yaml@4.3.0:
+    resolution: {integrity: sha512-1td788aAnnZ5qs7V2QIRl1owjtYpbKt749Y3xauqQgwIIGF/xXWz1wMTEBx5O3LK3lXLVuqXPdPxj2BoFHaW9Q==}
     hasBin: true
 
   jsdom@29.1.1:
@@ -4249,7 +4250,7 @@ snapshots:
       globals: 14.0.0
       ignore: 5.3.2
       import-fresh: 3.3.1
-      js-yaml: 4.2.0
+      js-yaml: 4.3.0
       minimatch: 3.1.5
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
@@ -5235,7 +5236,7 @@ snapshots:
     dependencies:
       env-paths: 2.2.1
       import-fresh: 3.3.1
-      js-yaml: 4.2.0
+      js-yaml: 4.3.0
       parse-json: 5.2.0
     optionalDependencies:
       typescript: 5.9.3
@@ -6107,7 +6108,7 @@ snapshots:
 
   js-tokens@9.0.1: {}
 
-  js-yaml@4.2.0:
+  js-yaml@4.3.0:
     dependencies:
       argparse: 2.0.1
 
