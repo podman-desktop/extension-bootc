@@ -130,7 +130,7 @@ jobs:
 
       - name: build builder image
         id: builder-image
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         with:
           image: extension-bootc-builder
           tags: latest ${{ needs.tag.outputs.bootcExtensionVersion }}
@@ -181,7 +181,7 @@ jobs:
 
       - name: build extension image
         id: extension-image
-        uses: redhat-actions/buildah-build@v2
+        uses: redhat-actions/buildah-build@v3
         with:
           image: extension-bootc
           tags: latest ${{ needs.tag.outputs.bootcExtensionVersion }}
