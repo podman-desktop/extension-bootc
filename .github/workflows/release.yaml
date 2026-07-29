@@ -100,18 +100,26 @@ jobs:
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${bumpedVersion}-next\",#g" packages/backend/package.json
           sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${bumpedVersion}-next\",#g" packages/frontend/package.json
           git add package.json packages/backend/package.json packages/frontend/package.json
-          git commit -s --amend -m "chore: bump version to ${bumpedVersion}"
-          git push origin "${bumpedBranchName}"
-          echo -e "📢 Bump version to ${bumpedVersion}\n\n${{ steps.TAG_UTIL.outputs.bootcExtensionVersion }} has been released.\n\n Time to switch to the new ${bumpedVersion} version 🥳" > /tmp/pr-title
-          pullRequestUrl=$(gh pr create --title "chore: 📢 Bump version to ${bumpedVersion}" --body-file /tmp/pr-title --head "${bumpedBranchName}" --base "main")
-          echo "📢 Pull request created: ${pullRequestUrl}"
-          echo "➡️ Flag the PR as being ready for review"
-          gh pr ready "${pullRequestUrl}"
-          echo "🔅 Mark the PR as being ok to be merged automatically"
-          gh pr merge "${pullRequestUrl}" --auto --rebase
-          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${CURRENT_VERSION}\",#g" package.json
-          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${CURRENT_VERSION}\",#g" packages/backend/package.json
-          sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${CURRENT_VERSION}\",#g" packages/frontend/package.json
+
+          # For patch releases (e.g. 1.14.1), main is already bumped to the
+          # next minor (e.g. 1.15.0-next) from the original minor release,
+          # so the amend would produce an empty commit. Skip the bump PR.
+          if git diff --cached --quiet HEAD~1; then
+            echo "ℹ️ Version on main is already at ${bumpedVersion}-next, skipping bump PR (patch release)"
+          else
+            git commit -s --amend -m "chore: bump version to ${bumpedVersion}"
+            git push origin "${bumpedBranchName}"
+            echo -e "📢 Bump version to ${bumpedVersion}\n\n${{ steps.TAG_UTIL.outputs.bootcExtensionVersion }} has been released.\n\n Time to switch to the new ${bumpedVersion} version 🥳" > /tmp/pr-title
+            pullRequestUrl=$(gh pr create --title "chore: 📢 Bump version to ${bumpedVersion}" --body-file /tmp/pr-title --head "${bumpedBranchName}" --base "main")
+            echo "📢 Pull request created: ${pullRequestUrl}"
+            echo "➡️ Flag the PR as being ready for review"
+            gh pr ready "${pullRequestUrl}"
+            echo "🔅 Mark the PR as being ok to be merged automatically"
+            gh pr merge "${pullRequestUrl}" --auto --rebase
+            sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${CURRENT_VERSION}\",#g" package.json
+            sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${CURRENT_VERSION}\",#g" packages/backend/package.json
+            sed -i  "s#version\":\ \"\(.*\)\",#version\":\ \"${CURRENT_VERSION}\",#g" packages/frontend/package.json
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
