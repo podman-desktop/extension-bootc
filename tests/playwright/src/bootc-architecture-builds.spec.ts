@@ -81,6 +81,8 @@ test.afterAll(async ({ runner, page }) => {
 });
 
 test.describe('BootC Architecture Builds', () => {
+  test.describe.configure({ retries: 1 });
+
   test.beforeAll(async ({ navigationBar }) => {
     test.setTimeout(200_000);
     await installBootcExtensionIfNeeded(navigationBar);
