@@ -334,8 +334,8 @@ importers:
         specifier: 1.62.1
         version: 1.62.1
       '@podman-desktop/tests-playwright':
-        specifier: 1.29.0
-        version: 1.29.0
+        specifier: 1.29.1
+        version: 1.29.1
       '@types/node':
         specifier: ^24
         version: 24.13.3
@@ -977,8 +977,8 @@ packages:
   '@podman-desktop/api@1.28.3':
     resolution: {integrity: sha512-RCYrD90VfVn59oa8vTaDXj8Qy9BD0jxyiTNBhKNcloYf1hBCDMIKgqTcXYgNq15/5P1aGjRmgaG/jnhDEuux/g==}
 
-  '@podman-desktop/tests-playwright@1.29.0':
-    resolution: {integrity: sha512-6ylSJkx59cwlQQ2KelxuobKRYp/UAhLV7VTcJtEsenJHWWcU4IxN4sEG822LsSwCnXnAFQbqFv8Ao/VG8I/LSw==}
+  '@podman-desktop/tests-playwright@1.29.1':
+    resolution: {integrity: sha512-MS2rXf3hnCTxykyAJ6BfU2OC38+vElcwPHWAT4dIEhWslZ77LEIytO1ym+6AsefsCql9rTUBEj26oSN6r3Dg0Q==}
 
   '@podman-desktop/ui-svelte@1.21.0':
     resolution: {integrity: sha512-5ptTIAflI191jgF5q0n4YHxCo588OC4eUEAJhgUz01EglCIRSCUluI7WzQ8ML7X90iLbcJ5O8gsbXj6eERdbkg==}
@@ -1699,8 +1699,8 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  baseline-browser-mapping@2.11.11:
-    resolution: {integrity: sha512-/yImnXwyTvgMkhgekLHok/Rx5vO6E0BmStWlSqKWMVm2a2ITuZ1Tn+9bgLS+gZRdZmWtd8nxuhHpdmCUOWsTQQ==}
+  baseline-browser-mapping@2.11.12:
+    resolution: {integrity: sha512-r7WnVImvVCeFpf2DOXfy41aPWzeNg3H/A2X4dKmy1QL0MSyyk/e7z8ihJ3N6Nn2PsdhkVlqnEfnUE4a05P2aTA==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -4408,7 +4408,7 @@ snapshots:
 
   '@podman-desktop/api@1.28.3': {}
 
-  '@podman-desktop/tests-playwright@1.29.0': {}
+  '@podman-desktop/tests-playwright@1.29.1': {}
 
   '@podman-desktop/ui-svelte@1.21.0(svelte-fa@4.0.4(svelte@5.56.8(@typescript-eslint/types@8.65.0)))(svelte@5.56.8(@typescript-eslint/types@8.65.0))':
     dependencies:
@@ -5128,7 +5128,7 @@ snapshots:
 
   baseline-browser-mapping@2.10.43: {}
 
-  baseline-browser-mapping@2.11.11:
+  baseline-browser-mapping@2.11.12:
     optional: true
 
   bcrypt-pbkdf@1.0.2:
@@ -5166,7 +5166,7 @@ snapshots:
 
   browserslist@4.28.7:
     dependencies:
-      baseline-browser-mapping: 2.11.11
+      baseline-browser-mapping: 2.11.12
       caniuse-lite: 1.0.30001806
       electron-to-chromium: 1.5.399
       node-releases: 2.0.51
