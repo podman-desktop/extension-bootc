@@ -5,7 +5,7 @@ import type { Props } from './props';
 let { object }: Props = $props();
 
 function openDetails(): void {
-  router.goto(`/disk-image/${btoa(object.id)}/summary`);
+  router.goto(`/disk-image/${encodeURIComponent(object.id)}/summary`);
 }
 </script>
 
