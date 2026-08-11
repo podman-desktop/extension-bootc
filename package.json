@@ -72,7 +72,7 @@
     "lint-staged": "^17.3.0",
     "prettier": "^3.9.6",
     "prettier-plugin-svelte": "^4.1.1",
-    "svelte-check": "^4.7.4",
+    "svelte-check": "^4.7.5",
     "svelte-eslint-parser": "^1.8.0",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.66.0",
