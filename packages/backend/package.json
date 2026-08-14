@@ -108,7 +108,7 @@
     "watch": "vite --mode development build -w"
   },
   "devDependencies": {
-    "@podman-desktop/api": "1.28.3",
+    "@podman-desktop/api": "1.29.1",
     "@types/node": "^24",
     "@typescript-eslint/eslint-plugin": "^8.67.0",
     "@typescript-eslint/parser": "^8.67.0",
