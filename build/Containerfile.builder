@@ -17,6 +17,8 @@
 
 FROM registry.access.redhat.com/ubi10/nodejs-24-minimal:10.1-1766060610
 
+RUN npm i -g corepack && corepack enable
+
 # change home directory to be at /opt/app-root
 ENV HOME=/opt/app-root
 
@@ -27,5 +29,6 @@ COPY --chown=1001:0 package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc /opt/
 COPY --chown=1001:0 packages/backend/package.json /opt/app-root/extension-source/packages/backend/package.json
 COPY --chown=1001:0 packages/frontend/package.json /opt/app-root/extension-source/packages/frontend/package.json
 
-RUN npm install --global pnpm@10 && \
-    pnpm --frozen-lockfile install
+
+RUN corepack enable && corepack install && \
+    CI=true pnpm install
