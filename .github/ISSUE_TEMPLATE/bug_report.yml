@@ -24,8 +24,8 @@ body:
     id: os
     attributes:
       label: Operating system
-      description: "Which operating system are you on? Please provide the version as well. If you are on a Mac, please specify Apple silicon or Intel."
-      placeholder: "macOS Ventura 13.4 (Arm), Windows 11"
+      description: 'Which operating system are you on? Please provide the version as well. If you are on a Mac, please specify Apple silicon or Intel.'
+      placeholder: 'macOS Ventura 13.4 (Arm), Windows 11'
     validations:
       required: true
 
@@ -35,7 +35,7 @@ body:
       label: Version
       description: What version of the bootable container extension are you running?
       options:
-        - "next (development version)"
+        - 'next (development version)'
     validations:
       required: true
 

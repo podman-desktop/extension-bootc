@@ -8,7 +8,7 @@ updates:
     schedule:
       interval: 'daily'
       # check at 2am UTC
-      time: "02:00"
+      time: '02:00'
     open-pull-requests-limit: 10
 
   - package-ecosystem: 'npm'
@@ -16,7 +16,7 @@ updates:
     schedule:
       interval: daily
       # check at 2am UTC
-      time: "02:00"
+      time: '02:00'
     open-pull-requests-limit: 10
     groups:
       fortawesome:
