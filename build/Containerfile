@@ -30,8 +30,7 @@ COPY --chown=1001:root types /opt/app-root/extension-source/types
 
 # refresh dependencies (if needed)
 # and build the extension
-RUN npm install --global pnpm@11 && \
-    CI=true pnpm install && \
+RUN CI=true pnpm install && \
     pnpm build
 
 # copy output of the build + required files
