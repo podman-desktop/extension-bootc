@@ -53,9 +53,9 @@ jobs:
       - name: Generate tag utilities
         id: TAG_UTIL
         run: |
-            TAG_PATTERN=${{ github.event.inputs.version }}
-            echo "githubTag=v$TAG_PATTERN" >> ${GITHUB_OUTPUT}
-            echo "bootcExtensionVersion=$TAG_PATTERN" >> ${GITHUB_OUTPUT}
+          TAG_PATTERN=${{ github.event.inputs.version }}
+          echo "githubTag=v$TAG_PATTERN" >> ${GITHUB_OUTPUT}
+          echo "bootcExtensionVersion=$TAG_PATTERN" >> ${GITHUB_OUTPUT}
 
       - name: tag
         run: |
