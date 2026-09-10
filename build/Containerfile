@@ -23,14 +23,14 @@ WORKDIR /opt/app-root/extension-source
 COPY --chown=1001:root *.js /opt/app-root/extension-source/
 COPY --chown=1001:root .gitignore /opt/app-root/extension-source/
 COPY --chown=1001:root *.json /opt/app-root/extension-source/
+COPY --chown=1001:root pnpm-workspace.yaml /opt/app-root/extension-source/
 COPY --chown=1001:root packages /opt/app-root/extension-source/packages
-COPY --chown=1001:root .npmrc /opt/app-root/extension-source/
 COPY --chown=1001:root .gitignore /opt/app-root/extension-source/
 COPY --chown=1001:root types /opt/app-root/extension-source/types
 
 # refresh dependencies (if needed)
 # and build the extension
-RUN pnpm install && \
+RUN CI=true pnpm install && \
     pnpm build
 
 # copy output of the build + required files
