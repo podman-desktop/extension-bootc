@@ -23,7 +23,7 @@ RUN npm i -g corepack@0.31.0 && corepack enable
 
 COPY --chown=1001:1001 . .
 
-RUN CI=true pnpm install --frozen-lockfile
+RUN CI=true pnpm install
 RUN pnpm build
 
 FROM scratch
