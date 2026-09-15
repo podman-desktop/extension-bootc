@@ -23,7 +23,6 @@ export const noTimeoutChannels: string[] = [
   getChannel(BootcApi, 'pullImage'),
   getChannel(BootcApi, 'selectOutputFolder'),
   getChannel(BootcApi, 'selectBuildConfigFile'),
-  getChannel(BootcApi, 'selectAnacondaKickstartFile'),
   getChannel(BootcApi, 'selectSSHPrivateKeyFile'),
   getChannel(BootcApi, 'selectVMImageFile'),
   getChannel(BootcApi, 'createVM'),

@@ -22,44 +22,33 @@ import * as fs from 'node:fs';
 import path, { resolve } from 'node:path';
 import os from 'node:os';
 import * as containerUtils from './container-utils';
-import {
-  bootcImageBuilder,
-  bootcImageBuilderCentos,
-  bootcImageBuilderRHEL9,
-  bootcImageBuilderRHEL10,
-} from './constants';
+import { imageBuilder, imageBuilderDefault, imageBuilderRHEL9, imageBuilderRHEL10 } from './constants';
 import type { BootcBuildInfo, BuildConfig, BuildType } from '/@shared/src/models/bootc';
 import type { History } from './history';
 import * as machineUtils from './machine-utils';
 import { getConfigurationValue, telemetryLogger } from './extension';
 import { getContainerEngine } from './container-utils';
 
-export async function buildExists(folder: string, types: BuildType[]): Promise<boolean> {
-  let exists = false;
-  types.forEach(type => {
-    let imageName = ''; // Initialize imageName as an empty string
-    if (type === 'qcow2') {
-      imageName = 'qcow2/disk.qcow2';
-    } else if (type === 'ami') {
-      imageName = 'image/disk.raw';
-    } else if (type === 'raw') {
-      imageName = 'image/disk.raw';
-    } else if (type === 'vmdk') {
-      imageName = 'vmdk/disk.vmdk';
-    } else if (type === 'anaconda-iso') {
-      imageName = 'bootiso/disk.iso';
-    } else if (type === 'vhd') {
-      imageName = 'vpc/disk.vhd';
-    } else if (type === 'gce') {
-      imageName = 'gce/image.tar.gz';
-    }
+const OUTPUT_FILENAMES: Record<BuildType, string> = {
+  qcow2: 'disk.qcow2',
+  ami: 'image.raw',
+  raw: 'disk.raw',
+  vmdk: 'disk.vmdk',
+  vhd: 'disk.vhd',
+  gce: 'image.tar.gz',
+};
 
-    const imagePath = resolve(folder, imageName);
-    if (fs.existsSync(imagePath)) {
-      exists = true;
+export async function buildExists(folder: string, types: BuildType[]): Promise<boolean> {
+  for (const type of types) {
+    const imageName = OUTPUT_FILENAMES[type] ?? '';
+    if (!imageName) {
+      continue;
     }
-  });
-  return exists;
+    if (fs.existsSync(resolve(folder, imageName))) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export async function buildDiskImage(build: BootcBuildInfo, history: History, overwrite?: boolean): Promise<void> {
@@ -123,7 +112,6 @@ export async function buildDiskImage(build: BootcBuildInfo, history: History, ov
     if (buildInfo.buildConfig.user) {
       buildInfo.buildConfig.user = [];
     }
-    buildInfo.buildConfig.anacondaIsoInstallerKickstartFilePath = undefined;
     buildInfo.buildConfig.filesystem = undefined;
   }
   buildInfo.awsBucket = undefined;
@@ -143,7 +131,7 @@ export async function buildDiskImage(build: BootcBuildInfo, history: History, ov
     .withProgress(
       { location: extensionApi.ProgressLocation.TASK_WIDGET, title: `Building disk image ${build.image}` },
       async progress => {
-        const buildContainerName = build.image.split('/').pop() + '-' + bootcImageBuilder;
+        const buildContainerName = build.image.split('/').pop() + '-' + imageBuilder;
         let successful: boolean = false;
         let logData: string = 'Build Image Log ----------\n';
         logData += 'ID:     ' + build.id + '\n';
@@ -161,12 +149,9 @@ export async function buildDiskImage(build: BootcBuildInfo, history: History, ov
           fs.unlinkSync(logPath);
         }
 
-        // determine which bootc image builder to use
         const builder = await getBuilder();
 
-        // Preliminary Step 0. Create the "bootc-image-builder" container
-        // options that we will use to build the image. This will help with debugging
-        // as well as making sure we delete the previous build, etc.
+        // Create the image-builder container options for the build.
         const containerName = await getUnusedName(buildContainerName);
         const buildImageContainer = createBuilderImageOptions(containerName, build, builder);
         logData += JSON.stringify(buildImageContainer, undefined, 2);
@@ -185,14 +170,10 @@ export async function buildDiskImage(build: BootcBuildInfo, history: History, ov
           return;
         }
         try {
-          /* LINUX BUILD SUPPORT INFORMATION
-           * Linux will use the CLI directly in order to build without having to use podman machine.
-           * The reasoning is that we require sudo / escalated privileges support in order for bootc-image-builder to work.
-           * In the below code, we transfer the current non-root image, to the 'sudo' root image directory, then ask for
-           * escalated privileges to run the build command.
-           *
-           * This is a short-term solution until we have either non-root building support in bootc-image-builder or an alternative
-           * solution to the problem.
+          /* LINUX BUILD SUPPORT
+           * Linux uses the CLI directly to avoid podman machine.
+           * We transfer the non-root image to the root storage, then run
+           * image-builder via podman with escalated privileges.
            */
           if (machineUtils.isLinux()) {
             console.log(
@@ -242,11 +223,7 @@ export async function buildDiskImage(build: BootcBuildInfo, history: History, ov
               `Linux build support: Build command: ${buildCommand}\nstdout: ${buildStdout}\nstderr: ${buildStderr}`,
             );
           } else {
-            // Step 1. Pull bootcImageBuilder
-            // Pull the bootcImageBuilder since that
-            // is what is being used to build images within BootC
-            // Do progress report here so it doesn't look like it's stuck
-            // since we are going to pull an image
+            // Step 1. Pull the image-builder container image.
             progress.report({ increment: 4 });
             if (buildImageContainer.Image) {
               await containerUtils.pullImage(connection, buildImageContainer.Image);
@@ -420,110 +397,99 @@ export async function getUnusedName(name: string): Promise<string> {
 }
 
 export async function getBuilder(): Promise<string> {
-  // use the preference to decide which builder to use
   const buildProp = await getConfigurationValue<string>('builder');
 
   if (buildProp === 'RHEL' || buildProp === 'RHEL9') {
-    return bootcImageBuilderRHEL9;
+    return imageBuilderRHEL9;
   } else if (buildProp === 'RHEL10') {
-    return bootcImageBuilderRHEL10;
+    return imageBuilderRHEL10;
   }
 
-  // always default to centos bib
-  return bootcImageBuilderCentos;
+  return imageBuilderDefault;
 }
 
-// Create builder options for the "bootc-image-builder" container
+// Builds the shared flags for each image-builder invocation.
+export function buildImageBuilderFlags(build: BootcBuildInfo): string[] {
+  const flags = [
+    '--bootc-ref',
+    `${build.image}:${build.tag}`,
+    '--output-dir',
+    '/output/',
+    '--output-name',
+    'disk',
+    '--progress',
+    'verbose',
+  ];
+
+  if (build.arch) {
+    const archMap: Record<string, string> = { arm64: 'aarch64', amd64: 'x86_64' };
+    flags.push('--arch', archMap[build.arch] ?? build.arch);
+  }
+
+  if (build.filesystem && (build.filesystem === 'ext4' || build.filesystem === 'xfs' || build.filesystem === 'btrfs')) {
+    flags.push('--bootc-default-fs', build.filesystem);
+  }
+
+  if (build.awsAmiName && build.awsBucket && build.awsRegion) {
+    flags.push('--aws-ami-name', build.awsAmiName, '--aws-bucket', build.awsBucket, '--aws-region', build.awsRegion);
+  }
+
+  return flags;
+}
+
 export function createBuilderImageOptions(
   name: string,
   build: BootcBuildInfo,
   builder?: string,
 ): ContainerCreateOptions {
-  const cmd = [`${build.image}:${build.tag}`, '--output', '/output/', '--local', '--progress', 'verbose'];
+  const flags = buildImageBuilderFlags(build);
 
-  build.type.forEach(t => cmd.push('--type', t));
+  const binds = [build.folder + ':/output/', '/var/lib/containers/storage:/var/lib/containers/storage'];
 
-  if (build.arch) {
-    cmd.push('--target-arch', build.arch);
+  if (build.awsAmiName && build.awsBucket && build.awsRegion) {
+    binds.push(path.join(os.homedir(), '.aws') + ':/root/.aws:ro');
   }
 
-  // If the filesystem is specified, add it to the command
-  // the only available options are 'ext4' and 'xfs', check that filesystem is not undefined and is one of the two options
-  if (build.filesystem && (build.filesystem === 'ext4' || build.filesystem === 'xfs' || build.filesystem === 'btrfs')) {
-    cmd.push('--rootfs', build.filesystem);
+  // Mount user-provided blueprint file
+  if (build.buildConfigFilePath) {
+    const ext = path.extname(build.buildConfigFilePath);
+    binds.push(build.buildConfigFilePath + `:/config${ext}:ro`);
+    flags.push('--blueprint', `/config${ext}`);
   }
 
-  // Create the image options for the "bootc-image-builder" container
+  // Generate blueprint JSON from interactive build config
+  if (build.buildConfig && !build.buildConfigFilePath) {
+    const buildConfig = createBuildConfigJSON(build.buildConfig);
+
+    if (buildConfig.customizations && Object.keys(buildConfig.customizations).length > 0) {
+      const buildConfigPath = path.join(build.folder, 'config.json');
+      fs.writeFileSync(buildConfigPath, JSON.stringify(buildConfig, undefined, 2));
+      binds.push(buildConfigPath + ':/config.json:ro');
+      flags.push('--blueprint', '/config.json');
+    }
+  }
+
+  const cmd = ['build', ...flags, build.type[0]];
+
   const options: ContainerCreateOptions = {
     name: name,
-    Image: builder ?? bootcImageBuilderCentos,
+    Image: builder ?? imageBuilderDefault,
     Tty: true,
     HostConfig: {
       Privileged: true,
       SecurityOpt: ['label=type:unconfined_t'],
-      Binds: [build.folder + ':/output/', '/var/lib/containers/storage:/var/lib/containers/storage'],
+      Binds: binds,
     },
-
-    // Add the appropriate labels for it to appear correctly in the Podman Desktop UI.
     Labels: {
       'bootc.image.builder': 'true',
     },
     Cmd: cmd,
   };
 
-  // If awsAmiName, awsBucket, and awsRegion are defined. We will add the mounted volume
-  // of the OS homedir & the .aws directory to the container.
-  if (build.awsAmiName && build.awsBucket && build.awsRegion) {
-    // Add the commands to the container, --aws-ami-name, --aws-bucket, --aws-region
-    cmd.push('--aws-ami-name', build.awsAmiName, '--aws-bucket', build.awsBucket, '--aws-region', build.awsRegion);
-
-    if (options.HostConfig?.Binds) {
-      options?.HostConfig?.Binds.push(path.join(os.homedir(), '.aws') + ':/root/.aws:ro');
-    }
-  }
-
-  // If the buildConfigFilePath is defined, we will add the mounted volume of the buildConfigFilePath to the container.
-  // also check if .toml or .json as that is what is supported by bootc-image-builder
-  if (build.buildConfigFilePath) {
-    // The config file name can be anything, but we must only ever mount it as config.toml or config.json
-    const configFileName = path.basename(build.buildConfigFilePath);
-    const ext = path.extname(configFileName);
-
-    // Add the mount to the configuration file.
-    if (options.HostConfig?.Binds) {
-      options.HostConfig.Binds.push(build.buildConfigFilePath + `:/config${ext}:ro`);
-    }
-  }
-
-  // Check if build.buildConfig has ANYTHING defined, make sure it is not empty.
-  if (build.buildConfig) {
-    const buildConfig = createBuildConfigJSON(build.buildConfig);
-
-    // Make sure that cutomizations is exists and is not empty before adding it to the container.
-    if (buildConfig.customizations && Object.keys(buildConfig.customizations).length > 0) {
-      // Use the folder of the build to store the buildConfig JSON file as config.json
-      const buildConfigPath = path.join(build.folder, 'config.json');
-
-      // Write the buildConfig JSON to the file we'll be using
-      fs.writeFileSync(buildConfigPath, JSON.stringify(buildConfig, undefined, 2));
-
-      // Add the mount to the configuration file
-      if (options.HostConfig?.Binds) {
-        options.HostConfig.Binds.push(buildConfigPath + ':/config.json:ro');
-      }
-    }
-  }
-
-  // If there is the chown in build, add the --chown flag to the command with the value in chown
-  if (build.chown) {
-    cmd.push('--chown', build.chown);
-  }
-
   return options;
 }
 
-// Function that takes in BuildConfig and creates a JSON object out of the contents.
-// We will then return it as "cutomizations" which is required by bootc-image-builder
+// Converts BuildConfig into the blueprint customizations JSON structure.
 export function createBuildConfigJSON(buildConfig: BuildConfig): Record<string, unknown> {
   const config: Record<string, unknown> = {};
 
@@ -539,65 +505,10 @@ export function createBuildConfigJSON(buildConfig: BuildConfig): Record<string, 
     config.kernel = buildConfig.kernel;
   }
 
-  // https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file#anaconda-iso-installer-options-installer-mapping
-  // We add the kickstart file to customizations.installer.kickstart.contents
-  // we also have to make sure that when reading it, any newlines are replaced with \n
-  // and it's properly "sanitized" for JSON.
-  if (buildConfig.anacondaIsoInstallerKickstartFilePath) {
-    // Before reading it, make sure it actually exists and error out if so.
-    if (!fs.existsSync(buildConfig.anacondaIsoInstallerKickstartFilePath)) {
-      throw new Error('Anaconda ISO Installer Kickstart file does not exist.');
-    }
-
-    // Read the file
-    const kickstartContents = fs.readFileSync(buildConfig.anacondaIsoInstallerKickstartFilePath, 'utf-8');
-
-    // Make sure we correctly escape any special characters (\n, \t, etc.) for the kickstart file
-    // we also "slice" off the first and last character to remove the quotes when doing stringify.
-    const contents = JSON.stringify(kickstartContents).slice(1, -1); // Properly escape without regex
-
-    config.installer = {
-      kickstart: {
-        contents,
-      },
-    };
-  }
-
-  /*
-  For anaconda modules, it'll be a bit different, within the JSON it's setup as:
-  {
-    "customizations": {
-      "installer": {
-        "modules": {
-          "enable": [
-            "org.fedoraproject.Anaconda.Modules.Localization"
-          ],
-          "disable": [
-            "org.fedoraproject.Anaconda.Modules.Users"
-          ]
-        }
-      }
-    }
-  }
-  So we make sure that we put it in the correct modules section
-  */
-  if (
-    buildConfig.anacondaIsoInstallerModules &&
-    (buildConfig.anacondaIsoInstallerModules.enable.length > 0 || buildConfig)
-  ) {
-    config.installer = {
-      modules: {
-        enable: buildConfig.anacondaIsoInstallerModules.enable,
-        disable: buildConfig.anacondaIsoInstallerModules.disable,
-      },
-    };
-  }
-
   return { customizations: config };
 }
 
-// Creates a command that will be used to build the image on Linux. This includes adding the transfer-to-root script as well as the actual build command.
-// we also export to the log file during this process too.
+// Builds the full Linux shell command: import image, run the build, apply chown, log output.
 export function linuxBuildCommand(
   options: ContainerCreateOptions,
   build: BootcBuildInfo,
@@ -608,33 +519,27 @@ export function linuxBuildCommand(
     throw new Error('Container name is required');
   }
 
-  // Create the script that we will use to transfer the image to the root user
   const transferToRoot = transferUserImageToRoot(imagePath, build.imageId, build.image, build.tag);
-
-  // Create the CLI command that will be used to run the the actual build.
   const run = createPodmanCLIRunCommand(options);
 
-  // Combine the commands so that this will be ran in one individual sudo-prompt command. This is needed to avoid asking for credentials
-  // multiple times.
-  // We add >> ${logPath} 2>&1 to ensure that the output is written to the log file as we are not using the API for streaming the logs.
-  return `${transferToRoot} && ${run.join(' ')} >> ${logPath} 2>&1`;
+  // Chain commands in a single sudo session to avoid multiple credential prompts.
+  let command = `${transferToRoot} && ${run.join(' ')} >> ${logPath} 2>&1`;
+
+  // image-builder has no --chown flag; apply ownership change as a post-build step.
+  if (build.chown) {
+    command += ` && chown -R ${build.chown} ${build.folder}`;
+  }
+
+  return command;
 }
 
-// Transfer the image from the 'normal' user to the root user.
-// MUST be just the ID, as that is the only thing preserved (no name or tag) when importing
-// after importing we must rename to the correct name and tag.
+// Transfers the image from the normal user's storage to root storage.
 export function transferUserImageToRoot(path: string, imageId: string, imageName: string, imageTag: string): string {
-  // Remove the 'sha256:' from the imageId as that is not needed when importing.
   imageId = imageId.replace('sha256:', '');
-
-  // This is the "recommended" way to transfer between root and non-root without confliction (prompting for overriding image, problems with transfer, etc.).
-  // We will cat the /tmp file to podman import and rename at the same time, this allows a seamless transition to the image being built with bootc-image-builder by
-  // just supplying the name and tag.
   return `podman load --input ${path} && podman tag ${imageId} ${imageName}:${imageTag}`;
 }
 
-// LINUX SUPPORT.
-// this is itended to be ran with `--rm` as well to auto-remove after.
+// Generates the `podman run` CLI command from ContainerCreateOptions.
 export function createPodmanCLIRunCommand(options: ContainerCreateOptions): string[] {
   // --rm to make it temporary.
   const command = ['podman', 'run', '--rm'];

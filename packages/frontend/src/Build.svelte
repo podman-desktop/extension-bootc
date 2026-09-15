@@ -8,12 +8,7 @@ import {
   faPlusCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import { bootcClient } from './api/client';
-import type {
-  BootcBuildInfo,
-  BuildType,
-  BuildConfig,
-  BuildConfigAnacondaIsoInstallerModules,
-} from '/@shared/src/models/bootc';
+import type { BootcBuildInfo, BuildType, BuildConfig } from '/@shared/src/models/bootc';
 import Fa from 'svelte-fa';
 import { onMount } from 'svelte';
 import type { ImageInfo, ManifestInspectInfo } from '@podman-desktop/api';
@@ -43,7 +38,6 @@ let availableArchitectures: string[] = [];
 // Build options
 let buildFolder: string;
 let buildConfigFile: string;
-let buildConfigAnacondaKickstartFilePath: string;
 let buildChown: string;
 let buildType: BuildType[] = [];
 let buildArch: string | undefined;
@@ -69,7 +63,6 @@ let validateDebounceTimer: ReturnType<typeof setTimeout> | undefined;
 let fedoraDetected = false;
 let isLinux: boolean;
 let isMac: boolean;
-
 // AWS Related
 let awsAmiName: string = '';
 let awsBucket: string = '';
@@ -81,12 +74,6 @@ let buildConfigUsers: { name: string; password: string; key: string; groups: str
 ];
 let buildConfigFilesystems: { mountpoint: string; minsize: string }[] = [{ mountpoint: '', minsize: '' }];
 let buildConfigKernelArguments: string;
-
-// ISO related, anaconda installer modules
-let buildConfigAnacondaIsoInstallerModules: BuildConfigAnacondaIsoInstallerModules = {
-  enable: [''],
-  disable: [''],
-};
 
 function findImage(repoTag: string): ImageInfo | undefined {
   return bootcAvailableImages.find(
@@ -204,13 +191,6 @@ async function validate(): Promise<void> {
     return;
   }
 
-  // If anaconda-iso was selected and the buildType length is more than 1, we error saying that iso must be the only type selected.
-  if (buildType.length > 1 && buildType.includes('anaconda-iso')) {
-    errorFormValidation = 'The Anaconda ISO file format cannot be built simultaneously with other image types.';
-    existingBuild = false;
-    return;
-  }
-
   // overwrite
   existingBuild = await bootcClient.buildExists(buildFolder, buildType);
   if (existingBuild && !overwrite) {
@@ -255,23 +235,12 @@ async function buildBootcImage(): Promise<void> {
     };
   });
 
-  // Remove any elements that have buildConfigAnacondaIsoInstallerModules that are empty strings
-  // as bootc-image-builder does not accept empty strings.
-  let convertedBuildConfigAnacondaIsoInstallerModules = {
-    enable: buildConfigAnacondaIsoInstallerModules.enable.filter(module => module !== ''),
-    disable: buildConfigAnacondaIsoInstallerModules.disable.filter(module => module !== ''),
-  };
-
-  // Final object, remove any empty strings / null / undefined values as bootc-image-builder
-  // does not accept empty strings / null / undefined values / ignore them.
   const buildConfig = removeEmptyStrings({
     user: convertedBuildConfigUsers,
     filesystem: buildConfigFilesystems,
     kernel: {
       append: buildConfigKernelArguments,
     },
-    anacondaIsoInstallerKickstartFilePath: buildConfigAnacondaKickstartFilePath,
-    anacondaIsoInstallerModules: convertedBuildConfigAnacondaIsoInstallerModules,
   }) as BuildConfig;
 
   const buildOptions: BootcBuildInfo = {
@@ -364,10 +333,6 @@ async function getBuildConfigFile(): Promise<void> {
   buildConfigFile = await bootcClient.selectBuildConfigFile();
 }
 
-async function getAnacondaKickstartFile(): Promise<void> {
-  buildConfigAnacondaKickstartFilePath = await bootcClient.selectAnacondaKickstartFile();
-}
-
 function cleanup(): void {
   buildInProgress = false;
   buildErrorMessage = '';
@@ -388,26 +353,6 @@ function addFilesystem(): void {
 
 function deleteFilesystem(index: number): void {
   buildConfigFilesystems = buildConfigFilesystems.filter((_, i) => i !== index);
-}
-
-function addEnabledAnacondaInstallerModule(): void {
-  buildConfigAnacondaIsoInstallerModules.enable = [...buildConfigAnacondaIsoInstallerModules.enable, ''];
-}
-
-function addDisabledAnacondaInstallerModule(): void {
-  buildConfigAnacondaIsoInstallerModules.disable = [...buildConfigAnacondaIsoInstallerModules.disable, ''];
-}
-
-function deleteEnabledAnacondaInstallerModule(index: number): void {
-  buildConfigAnacondaIsoInstallerModules.enable = buildConfigAnacondaIsoInstallerModules.enable.filter(
-    (_, i) => i !== index,
-  );
-}
-
-function deleteDisabledAnacondaInstallerModule(index: number): void {
-  buildConfigAnacondaIsoInstallerModules.disable = buildConfigAnacondaIsoInstallerModules.disable.filter(
-    (_, i) => i !== index,
-  );
 }
 
 // Remove any empty strings in the object before passing it in to the backend
@@ -537,13 +482,8 @@ async function detectFedoraImageFilesystem(selectedImage: string): Promise<void>
   }
 }
 
-// update the array of build types
-async function updateBuildType(type: BuildType, selected: boolean): Promise<void> {
-  if (selected) {
-    buildType.push(type);
-  } else {
-    buildType = buildType.filter(t => t !== type);
-  }
+async function selectBuildType(type: BuildType): Promise<void> {
+  buildType = [type];
   await validate();
 }
 
@@ -586,132 +526,180 @@ $: if (availableArchitectures) {
   onclose={goToDiskImages}
   onbreadcrumbClick={goToDiskImages}>
   {#snippet icon()}
-  <DiskImageIcon size="30px" />
+    <DiskImageIcon size="30px" />
   {/snippet}
 
   {#snippet content()}
-  <div class="p-5 min-w-full h-fit">
-    {#if buildErrorMessage}
-      <EmptyScreen icon={faTriangleExclamation} title="Error with image build" message={buildErrorMessage}>
-        <Button
-          class="py-3"
-          on:click={(): void => {
-            cleanup();
-            router.goto('/');
-          }}>
-          Go back
-        </Button>
-      </EmptyScreen>
-    {:else}
-      <div
-        class="bg-[var(--pd-content-card-bg)] pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg text-[var(--pd-content-card-header-text)]">
-        <div class={buildInProgress ? 'opacity-40 pointer-events-none' : ''}>
-          <div class="pb-4">
-            <label for="modalImageTag" class="block mb-2 font-semibold">Bootable container image</label>
-            <div class="relative">
-              <!-- Container with relative positioning -->
-              <select
-                class="rounded-lg block w-full p-2.5 bg-charcoal-600 pl-8 border-r-8 border-transparent outline-1 outline outline-gray-900 placeholder-gray-700 text-white"
-                name="imageChoice"
-                aria-label="image-select"
-                bind:value={selectedImage}>
-                <!-- Options go here -->
-                {#if !selectedImage}
-                  <option value="" disabled selected>Select an image</option>
+    <div class="p-5 min-w-full h-fit">
+      {#if buildErrorMessage}
+        <EmptyScreen icon={faTriangleExclamation} title="Error with image build" message={buildErrorMessage}>
+          <Button
+            class="py-3"
+            on:click={(): void => {
+              cleanup();
+              router.goto('/');
+            }}>
+            Go back
+          </Button>
+        </EmptyScreen>
+      {:else}
+        <div
+          class="bg-[var(--pd-content-card-bg)] pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg text-[var(--pd-content-card-header-text)]">
+          <div class={buildInProgress ? 'opacity-40 pointer-events-none' : ''}>
+            <div class="pb-4">
+              <label for="modalImageTag" class="block mb-2 font-semibold">Bootable container image</label>
+              <div class="relative">
+                <!-- Container with relative positioning -->
+                <select
+                  class="rounded-lg block w-full p-2.5 bg-charcoal-600 pl-8 border-r-8 border-transparent outline-1 outline outline-gray-900 placeholder-gray-700 text-white"
+                  name="imageChoice"
+                  aria-label="image-select"
+                  bind:value={selectedImage}>
+                  <!-- Options go here -->
+                  {#if !selectedImage}
+                    <option value="" disabled selected>Select an image</option>
+                  {/if}
+                  {#if bootcAvailableImages.length > 0}
+                    {#each bootcAvailableImages as image (image.Id)}
+                      <!-- Repo tags is an array, only show if it is > 0 and show the first one -->
+                      {#if image.RepoTags && image.RepoTags.length > 0}
+                        <option value={image.RepoTags[0]}>{image.RepoTags[0]}</option>
+                      {/if}
+                    {/each}
+                  {/if}
+                </select>
+                <!-- Position icon absolutely within the relative container -->
+                {#if bootcAvailableImages.length === 0}
+                  <Fa
+                    class="absolute left-0 top-0 ml-2 mt-3 text-[var(--pd-state-warning)]"
+                    size="1x"
+                    icon={faTriangleExclamation} />
+                {:else if selectedImage}
+                  <Fa class="absolute left-0 top-0 ml-2 mt-3 text-[var(--pd-state-success)]" size="1x" icon={faCube} />
+                {:else}
+                  <Fa
+                    class="absolute left-0 top-0 ml-2 mt-3 text-[var(--pd-state-warning)]"
+                    size="1x"
+                    icon={faQuestionCircle} />
                 {/if}
-                {#if bootcAvailableImages.length > 0}
-                  {#each bootcAvailableImages as image (image.Id)}
-                    <!-- Repo tags is an array, only show if it is > 0 and show the first one -->
-                    {#if image.RepoTags && image.RepoTags.length > 0}
-                      <option value={image.RepoTags[0]}>{image.RepoTags[0]}</option>
-                    {/if}
-                  {/each}
-                {/if}
-              </select>
-              <!-- Position icon absolutely within the relative container -->
+              </div>
               {#if bootcAvailableImages.length === 0}
-                <Fa
-                  class="absolute left-0 top-0 ml-2 mt-3 text-[var(--pd-state-warning)]"
-                  size="1x"
-                  icon={faTriangleExclamation} />
-              {:else if selectedImage}
-                <Fa class="absolute left-0 top-0 ml-2 mt-3 text-[var(--pd-state-success)]" size="1x" icon={faCube} />
-              {:else}
-                <Fa
-                  class="absolute left-0 top-0 ml-2 mt-3 text-[var(--pd-state-warning)]"
-                  size="1x"
-                  icon={faQuestionCircle} />
+                <p class="text-[var(--pd-state-warning)] pt-1">
+                  No bootable container compatible images found. Learn to create one on our <Link
+                    externalRef={REPOSITORY_URL}>README</Link
+                  >.
+                </p>
               {/if}
             </div>
-            {#if bootcAvailableImages.length === 0}
-              <p class="text-[var(--pd-state-warning)] pt-1">
-                No bootable container compatible images found. Learn to create one on our <Link
-                  externalRef={REPOSITORY_URL}>README</Link
-                >.
-              </p>
-            {/if}
-          </div>
-          <div class="mb-3">
-            <label for="path" class="block mb-2 font-semibold">Output folder</label>
-            <div class="flex flex-row space-x-3">
-              <Input
-                name="path"
-                id="path"
-                bind:value={buildFolder}
-                placeholder="Output folder"
-                class="w-full"
-                aria-label="folder-select" />
-              <Button on:click={(): Promise<void> => getPath()}>Browse...</Button>
+            <div class="mb-3">
+              <label for="path" class="block mb-2 font-semibold">Output folder</label>
+              <div class="flex flex-row space-x-3">
+                <Input
+                  name="path"
+                  id="path"
+                  bind:value={buildFolder}
+                  placeholder="Output folder"
+                  class="w-full"
+                  aria-label="folder-select" />
+                <Button on:click={(): Promise<void> => getPath()}>Browse...</Button>
+              </div>
             </div>
-          </div>
             <div class="mb-3">
               <span class="text-md font-semibold mb-2 block">Disk image type</span>
               <div class="grid grid-cols-2 gap-8">
                 <div class="flex flex-col ml-1 space-y-2">
-                  <Checkbox
-                    checked={buildType.includes('raw')}
-                    title="raw-checkbox"
-                    on:click={(e): Promise<void> => updateBuildType('raw', e.detail)}>
-                    RAW image with partition table (*.raw)
-                  </Checkbox>
-                  <Checkbox
-                    checked={buildType.includes('qcow2')}
-                    title="qcow2-checkbox"
-                    on:click={(e): Promise<void> => updateBuildType('qcow2', e.detail)}>
+                  <label for="raw-radio" class="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      id="raw-radio"
+                      name="buildType"
+                      value="raw"
+                      checked={buildType.includes('raw')}
+                      on:change={(): Promise<void> => selectBuildType('raw')}
+                      class="sr-only peer"
+                      aria-label="raw-radio" />
+                    <div
+                      class="w-4 h-4 rounded-full border-2 border-[var(--pd-input-checkbox-unchecked)] mr-2 peer-checked:border-[var(--pd-input-checkbox-checked)] peer-checked:bg-[var(--pd-input-checkbox-checked)]">
+                    </div>
+                    RAW disk image, xz-compressed (*.raw.xz)
+                  </label>
+                  <label for="qcow2-radio" class="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      id="qcow2-radio"
+                      name="buildType"
+                      value="qcow2"
+                      checked={buildType.includes('qcow2')}
+                      on:change={(): Promise<void> => selectBuildType('qcow2')}
+                      class="sr-only peer"
+                      aria-label="qcow2-radio" />
+                    <div
+                      class="w-4 h-4 rounded-full border-2 border-[var(--pd-input-checkbox-unchecked)] mr-2 peer-checked:border-[var(--pd-input-checkbox-checked)] peer-checked:bg-[var(--pd-input-checkbox-checked)]">
+                    </div>
                     Virtualization Guest Image (*.qcow2)
-                  </Checkbox>
-                  <Checkbox
-                    checked={buildType.includes('anaconda-iso')}
-                    title="iso-checkbox"
-                    on:click={(e): Promise<void> => updateBuildType('anaconda-iso', e.detail)}>
-                    Unattended Anaconda ISO Installer (*.iso)
-                  </Checkbox>
-                  <Checkbox
-                    checked={buildType.includes('vmdk')}
-                    title="vmdk-checkbox"
-                    on:click={(e): Promise<void> => updateBuildType('vmdk', e.detail)}>
+                  </label>
+                  <label for="vmdk-radio" class="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      id="vmdk-radio"
+                      name="buildType"
+                      value="vmdk"
+                      checked={buildType.includes('vmdk')}
+                      on:change={(): Promise<void> => selectBuildType('vmdk')}
+                      class="sr-only peer"
+                      aria-label="vmdk-radio" />
+                    <div
+                      class="w-4 h-4 rounded-full border-2 border-[var(--pd-input-checkbox-unchecked)] mr-2 peer-checked:border-[var(--pd-input-checkbox-checked)] peer-checked:bg-[var(--pd-input-checkbox-checked)]">
+                    </div>
                     Virtual Machine Disk image (*.vmdk)
-                  </Checkbox>
+                  </label>
                 </div>
                 <div class="flex flex-col ml-1 space-y-2">
-                  <Checkbox
-                    checked={buildType.includes('ami')}
-                    title="ami-checkbox"
-                    on:click={(e): Promise<void> => updateBuildType('ami', e.detail)}>
+                  <label for="ami-radio" class="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      id="ami-radio"
+                      name="buildType"
+                      value="ami"
+                      checked={buildType.includes('ami')}
+                      on:change={(): Promise<void> => selectBuildType('ami')}
+                      class="sr-only peer"
+                      aria-label="ami-radio" />
+                    <div
+                      class="w-4 h-4 rounded-full border-2 border-[var(--pd-input-checkbox-unchecked)] mr-2 peer-checked:border-[var(--pd-input-checkbox-checked)] peer-checked:bg-[var(--pd-input-checkbox-checked)]">
+                    </div>
                     Amazon Machine Image (*.ami)
-                  </Checkbox>
-                  <Checkbox
-                    checked={buildType.includes('vhd')}
-                    title="vhd-checkbox"
-                    on:click={(e): Promise<void> => updateBuildType('vhd', e.detail)}>
+                  </label>
+                  <label for="vhd-radio" class="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      id="vhd-radio"
+                      name="buildType"
+                      value="vhd"
+                      checked={buildType.includes('vhd')}
+                      on:change={(): Promise<void> => selectBuildType('vhd')}
+                      class="sr-only peer"
+                      aria-label="vhd-radio" />
+                    <div
+                      class="w-4 h-4 rounded-full border-2 border-[var(--pd-input-checkbox-unchecked)] mr-2 peer-checked:border-[var(--pd-input-checkbox-checked)] peer-checked:bg-[var(--pd-input-checkbox-checked)]">
+                    </div>
                     Virtual Hard Disk (*.vhd)
-                  </Checkbox>
-                  <Checkbox
-                    checked={buildType.includes('gce')}
-                    title="gce-checkbox"
-                    on:click={(e): Promise<void> => updateBuildType('gce', e.detail)}>
+                  </label>
+                  <label for="gce-radio" class="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      id="gce-radio"
+                      name="buildType"
+                      value="gce"
+                      checked={buildType.includes('gce')}
+                      on:change={(): Promise<void> => selectBuildType('gce')}
+                      class="sr-only peer"
+                      aria-label="gce-radio" />
+                    <div
+                      class="w-4 h-4 rounded-full border-2 border-[var(--pd-input-checkbox-unchecked)] mr-2 peer-checked:border-[var(--pd-input-checkbox-checked)] peer-checked:bg-[var(--pd-input-checkbox-checked)]">
+                    </div>
                     Google Cloud Engine (*.gce)
-                  </Checkbox>
+                  </label>
                 </div>
               </div>
             </div>
@@ -839,8 +827,7 @@ $: if (availableArchitectures) {
               <!-- If AMD64 is selected, and we are on mac, we MUST say
               that there may be issues with cross-architecture building and to read our README for more information -->
               {#if isMac && buildArch === 'amd64'}
-                <p class="text-sm text-[var(--pd-state-warning)] pt-2"
-                data-testid="cross-architecture-warning">
+                <p class="text-sm text-[var(--pd-state-warning)] pt-2" data-testid="cross-architecture-warning">
                   Cross-architecture building may not work correctly on macOS. Please refer to our
                   <Link externalRef={REPOSITORY_URL}>README</Link> for more information.
                 </p>
@@ -859,8 +846,8 @@ $: if (availableArchitectures) {
                     Supplying the following fields will create a build config file that contains the build options for
                     the disk image. This will be saved in the <b>same directory as your output folder</b>. More
                     information can be found in the <Link
-                      externalRef="https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file\#-build-config"
-                      >bootc-image-builder documentation</Link
+                      externalRef="https://github.com/osbuild/image-builder-cli?tab=readme-ov-file"
+                      >image-builder documentation</Link
                     >.
                   </p>
 
@@ -952,72 +939,6 @@ $: if (availableArchitectures) {
                     id="buildConfigKernelArguments"
                     placeholder="Kernel arguments (ex. quiet)"
                     class="w-full" />
-
-                  <div>
-                    <span class="block mt-4" aria-label="anaconda-iso-installer-kickstart-file-title"
-                      >Anaconda ISO kickstart file</span>
-                  </div>
-                  <div class="mb-2">
-                    <div class="flex flex-row space-x-3">
-                      <Input
-                        name="kickstart"
-                        id="kickstart"
-                        bind:value={buildConfigAnacondaKickstartFilePath}
-                        placeholder="Kickstart file (*.ks)"
-                        class="w-full"
-                        aria-label="kickstart-select" />
-                      <Button on:click={getAnacondaKickstartFile}>Browse...</Button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <span class="block mt-4" aria-label="anaconda-iso-installer-module-title"
-                      >Anaconda ISO installer modules</span>
-                  </div>
-                  <div class="grid grid-cols-2 gap-4 mt-2">
-                    <div>
-                      <span class="block">Enable</span>
-                      {#each buildConfigAnacondaIsoInstallerModules.enable as _, index (index)}
-                        <div class="flex flex-row justify-center items-center w-full py-1">
-                          <Input
-                            placeholder="Module name"
-                            class="mr-2"
-                            bind:value={buildConfigAnacondaIsoInstallerModules.enable[index]} />
-                          <Button
-                            type="link"
-                            hidden={index === buildConfigAnacondaIsoInstallerModules.enable.length - 1}
-                            on:click={(): void => deleteEnabledAnacondaInstallerModule(index)}
-                            icon={faMinusCircle} />
-                          <Button
-                            type="link"
-                            hidden={index < buildConfigAnacondaIsoInstallerModules.enable.length - 1}
-                            on:click={addEnabledAnacondaInstallerModule}
-                            icon={faPlusCircle} />
-                        </div>
-                      {/each}
-                    </div>
-                    <div>
-                      <span class="block">Disable</span>
-                      {#each buildConfigAnacondaIsoInstallerModules.disable as _, index (index)}
-                        <div class="flex flex-row justify-center items-center w-full py-1">
-                          <Input
-                            placeholder="Module name"
-                            class="mr-2"
-                            bind:value={buildConfigAnacondaIsoInstallerModules.disable[index]} />
-                          <Button
-                            type="link"
-                            hidden={index === buildConfigAnacondaIsoInstallerModules.disable.length - 1}
-                            on:click={(): void => deleteDisabledAnacondaInstallerModule(index)}
-                            icon={faMinusCircle} />
-                          <Button
-                            type="link"
-                            hidden={index < buildConfigAnacondaIsoInstallerModules.disable.length - 1}
-                            on:click={addDisabledAnacondaInstallerModule}
-                            icon={faPlusCircle} />
-                        </div>
-                      {/each}
-                    </div>
-                  </div>
                 </div>
               </Expandable>
             </div>
@@ -1028,8 +949,8 @@ $: if (availableArchitectures) {
                   <p class="text-sm text-[var(--pd-content-text)] mb-2">
                     Supplying a file will override <b>ANY</b> changes done in the build config interactive mode. More
                     information can be found in the <Link
-                      externalRef="https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file\#-build-config"
-                      >bootc-image-builder documentation</Link
+                      externalRef="https://github.com/osbuild/image-builder-cli?tab=readme-ov-file"
+                      >image-builder documentation</Link
                     >.
                   </p>
                   <div>
@@ -1111,38 +1032,40 @@ $: if (availableArchitectures) {
                   </p>
                 </div>
               </Expandable>
+            </div>
           </div>
+          {#if existingBuild}
+            <Checkbox class="ml-1" title="overwrite-checkbox" bind:checked={overwrite}
+              >Overwrite existing build</Checkbox>
+          {/if}
+          {#if errorFormValidation}
+            <ErrorMessage aria-label="validation" error={errorFormValidation} />
+          {/if}
+          {#if buildInProgress}
+            <Button class="w-full" disabled={true}>Creating build task</Button>
+          {:else}
+            <!-- macOS and Linux you can use Macadam / VM creation, show a disclaimer as a tip that you should add your public SSH key to test the VM. -->
+            <!-- On macOS and Linux, show tip about SSH key for VM testing -->
+            {#if isMac || isLinux}
+              <p class="text-sm text-[var(--pd-content-text)] m-0 pt-0" data-testid="vm-disclaimer">
+                To test the virtual machine, add your public SSH key under <b>Users</b> in the interactive build config. Set
+                the output format to RAW or QCOW2.
+              </p>
+            {/if}
+
+            <!-- If on Linux, warn that during the build, credentials will be asked in order to run an escalated privileged build prompt -->
+            {#if isLinux}
+              <p class="text-sm text-[var(--pd-content-text)] m-0 pt-0">
+                For Linux users during the build, you will be asked for your credentials in order to run an escalated
+                privileged build prompt for the build process.
+              </p>
+            {/if}
+
+            <Button on:click={buildBootcImage} disabled={errorFormValidation !== undefined} class="w-full mt-1"
+              >Build</Button>
+          {/if}
         </div>
-        {#if existingBuild}
-          <Checkbox class="ml-1" title="overwrite-checkbox" bind:checked={overwrite}>Overwrite existing build</Checkbox>
-        {/if}
-        {#if errorFormValidation}
-          <ErrorMessage aria-label="validation" error={errorFormValidation} />
-        {/if}
-        {#if buildInProgress}
-          <Button class="w-full" disabled={true}>Creating build task</Button>
-        {:else}
-
-          <!-- macOS and Linux you can use Macadam / VM creation, show a disclaimer as a tip that you should add your public SSH key to test the VM. -->
-          <!-- On macOS and Linux, show tip about SSH key for VM testing -->
-          {#if isMac || isLinux}
-            <p class="text-sm text-[var(--pd-content-text)] m-0 pt-0" data-testid="vm-disclaimer">
-              To test the virtual machine, add your public SSH key under <b>Users</b> in the interactive build config. Set the output format to RAW or QCOW2.
-            </p>
-          {/if}
-
-          <!-- If on Linux, warn that during the build, credentials will be asked in order to run an escalated privileged build prompt -->
-          {#if isLinux}
-            <p class="text-sm text-[var(--pd-content-text)] m-0 pt-0">
-              For Linux users during the build, you will be asked for your credentials in order to run an escalated
-              privileged build prompt for the build process.
-            </p>
-          {/if}
-
-          <Button on:click={buildBootcImage} disabled={errorFormValidation !== undefined} class="w-full mt-1">Build</Button>
-        {/if}
-      </div>
-    {/if}
-  </div>
+      {/if}
+    </div>
   {/snippet}
 </FormPage>

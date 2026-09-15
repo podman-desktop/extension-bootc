@@ -16,9 +16,9 @@
  * SPDX-License-Identifier: Apache-2.0
  ***********************************************************************/
 
-export type BuildType = 'qcow2' | 'ami' | 'raw' | 'vmdk' | 'anaconda-iso' | 'vhd' | 'gce';
+export type BuildType = 'qcow2' | 'ami' | 'raw' | 'vmdk' | 'vhd' | 'gce';
 
-// Follows https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file#-build-config convention
+// Follows osbuild image-builder blueprint customization convention
 // users = array
 // filesystems = array
 // kernel = mapping
@@ -26,11 +26,6 @@ export interface BuildConfig {
   user?: BuildConfigUser[];
   filesystem?: BuildConfigFilesystem[];
   kernel?: BuildConfigKernel;
-  anacondaIsoInstallerKickstartFilePath?: string;
-  anacondaIsoInstallerModules?: BuildConfigAnacondaIsoInstallerModules;
-  // In the future:
-  // * Add installer.kickstart https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file#anaconda-iso-installer-options-installer-mapping
-  // * Add anaconda iso modules https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file#anaconda-iso-installer-modules
 }
 
 export interface BuildConfigUser {
@@ -43,11 +38,6 @@ export interface BuildConfigUser {
 export interface BuildConfigFilesystem {
   mountpoint: string;
   minsize: string;
-}
-
-export interface BuildConfigAnacondaIsoInstallerModules {
-  enable: string[];
-  disable: string[];
 }
 
 export interface BuildConfigKernel {
