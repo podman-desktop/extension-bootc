@@ -44,7 +44,7 @@
     "filesize": "^11.0.24",
     "humanize-duration": "^3.35.0",
     "jsdom": "^30.0.1",
-    "moment": "^2.30.1",
+    "moment": "^2.31.0",
     "prettier": "^3.9.6",
     "prettier-plugin-svelte": "^4.1.1",
     "svelte": "^5.57.0",
