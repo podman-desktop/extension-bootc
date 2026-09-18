@@ -26,8 +26,9 @@ import {
   getUnusedName,
   createBuildConfigJSON,
   buildDiskImage,
+  linuxBuildCommand,
 } from './build-disk-image';
-import { bootcImageBuilderCentos, bootcImageBuilderRHEL9, bootcImageBuilderRHEL10 } from './constants';
+import { imageBuilderDefault, imageBuilderRHEL9, imageBuilderRHEL10 } from './constants';
 import type { ContainerInfo, Configuration } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import { containerEngine } from '@podman-desktop/api';
@@ -100,62 +101,29 @@ test('check image builder options', async () => {
 
   expect(options).toBeDefined();
   expect(options.name).toEqual(name);
-  expect(options.Image).toEqual(bootcImageBuilderCentos);
+  expect(options.Image).toEqual(imageBuilderDefault);
   expect(options.HostConfig).toBeDefined();
   if (options.HostConfig?.Binds) {
     expect(options.HostConfig.Binds[0]).toEqual(build.folder + ':/output/');
     expect(options.HostConfig.Binds[1]).toEqual('/var/lib/containers/storage:/var/lib/containers/storage');
   }
   expect(options.Cmd).toEqual([
+    'build',
+    '--bootc-ref',
     build.image + ':' + build.tag,
-    '--output',
+    '--output-dir',
     '/output/',
-    '--local',
+    '--output-name',
+    'disk',
     '--progress',
     'verbose',
-    '--type',
-    build.type[0],
-    '--target-arch',
+    '--arch',
     build.arch,
+    'raw',
   ]);
 });
 
-test('check image builder with multiple types', async () => {
-  const name = 'my-image';
-  const build = {
-    image: 'test-image',
-    tag: '1.0',
-    type: ['raw', 'vmdk'],
-    arch: 'amd',
-    folder: '/output-folder',
-  } as BootcBuildInfo;
-  const options = createBuilderImageOptions(name, build);
-
-  expect(options).toBeDefined();
-  expect(options.name).toEqual(name);
-  expect(options.Image).toEqual(bootcImageBuilderCentos);
-  expect(options.HostConfig).toBeDefined();
-  if (options.HostConfig?.Binds) {
-    expect(options.HostConfig.Binds[0]).toEqual(build.folder + ':/output/');
-    expect(options.HostConfig.Binds[1]).toEqual('/var/lib/containers/storage:/var/lib/containers/storage');
-  }
-  expect(options.Cmd).toEqual([
-    build.image + ':' + build.tag,
-    '--output',
-    '/output/',
-    '--local',
-    '--progress',
-    'verbose',
-    '--type',
-    build.type[0],
-    '--type',
-    build.type[1],
-    '--target-arch',
-    build.arch,
-  ]);
-});
-
-test('check image builder does not include target arch', async () => {
+test('check image builder does not include arch', async () => {
   const build = {
     image: 'test-image',
     type: ['vmdk'],
@@ -163,19 +131,20 @@ test('check image builder does not include target arch', async () => {
   const options = createBuilderImageOptions('my-image', build);
 
   expect(options).toBeDefined();
-  expect(options.Cmd).not.toContain('--target-arch');
+  expect(options.Cmd).not.toContain('--arch');
 });
 
-test('check image builder includes target arch for anaconda-iso', async () => {
+test('check image builder includes arch when specified', async () => {
   const build = {
     image: 'test-image',
-    type: ['anaconda-iso'],
-    arch: 'amd',
+    type: ['qcow2'],
+    arch: 'amd64',
   } as BootcBuildInfo;
   const options = createBuilderImageOptions('my-image', build);
 
   expect(options).toBeDefined();
-  expect(options.Cmd).toContain('--target-arch');
+  expect(options.Cmd).toContain('--arch');
+  expect(options.Cmd).toContain('x86_64');
 });
 
 test('check that if xfs is passed into filesystem, it is included in the command', async () => {
@@ -188,7 +157,7 @@ test('check that if xfs is passed into filesystem, it is included in the command
   const options = createBuilderImageOptions('my-image', build);
 
   expect(options).toBeDefined();
-  expect(options.Cmd).toContain('--rootfs');
+  expect(options.Cmd).toContain('--bootc-default-fs');
   expect(options.Cmd).toContain(build.filesystem);
 });
 
@@ -202,7 +171,7 @@ test('check that if ext4 is passed into the filesystem, it is included in the co
   const options = createBuilderImageOptions('my-image', build);
 
   expect(options).toBeDefined();
-  expect(options.Cmd).toContain('--rootfs');
+  expect(options.Cmd).toContain('--bootc-default-fs');
   expect(options.Cmd).toContain(build.filesystem);
 });
 
@@ -216,7 +185,7 @@ test('check that if btrfs is passed into the filesystem, it is included in the c
   const options = createBuilderImageOptions('my-image', build);
 
   expect(options).toBeDefined();
-  expect(options.Cmd).toContain('--rootfs');
+  expect(options.Cmd).toContain('--bootc-default-fs');
   expect(options.Cmd).toContain(build.filesystem);
 });
 
@@ -230,7 +199,7 @@ test('test if a fake filesystem foobar is passed into filesystem, it is not incl
   const options = createBuilderImageOptions('my-image', build);
 
   expect(options).toBeDefined();
-  expect(options.Cmd).not.toContain('--rootfs');
+  expect(options.Cmd).not.toContain('--bootc-default-fs');
 });
 
 test('test if blank string is passed into filesystem, it is not included in the command', async () => {
@@ -243,7 +212,7 @@ test('test if blank string is passed into filesystem, it is not included in the 
   const options = createBuilderImageOptions('my-image', build);
 
   expect(options).toBeDefined();
-  expect(options.Cmd).not.toContain('--rootfs');
+  expect(options.Cmd).not.toContain('--bootc-default-fs');
 });
 
 test('test specified builder is used', async () => {
@@ -280,30 +249,24 @@ test('check we pick unused container name', async () => {
 test('check build exists', async () => {
   const folder = '/output';
 
-  // mock two existing builds on disk: qcow2 and vmdk
-  const existsList: string[] = [resolve(folder, 'qcow2/disk.qcow2'), resolve(folder, 'vmdk/disk.vmdk')];
+  const existsList: string[] = [resolve(folder, 'disk.qcow2'), resolve(folder, 'disk.vmdk')];
   vi.spyOn(fs, 'existsSync').mockImplementation(f => {
     return existsList.includes(f.toString());
   });
 
-  // vdmk exists
   let exists = await buildExists(folder, ['vmdk']);
   expect(exists).toEqual(true);
 
-  // anaconda-iso does not
-  exists = await buildExists(folder, ['anaconda-iso']);
+  exists = await buildExists(folder, ['raw']);
   expect(exists).toEqual(false);
 
-  // qcow2 exists
   exists = await buildExists(folder, ['qcow2']);
   expect(exists).toEqual(true);
 
-  // vmdk and anaconda-iso exists (because of vdmk)
-  exists = await buildExists(folder, ['vmdk', 'anaconda-iso']);
+  exists = await buildExists(folder, ['vmdk', 'raw']);
   expect(exists).toEqual(true);
 
-  // anaconda-iso and raw don't exist
-  exists = await buildExists(folder, ['anaconda-iso', 'raw']);
+  exists = await buildExists(folder, ['raw', 'gce']);
   expect(exists).toEqual(false);
 });
 
@@ -313,7 +276,7 @@ test('check uses RHEL builder for backward compatibility', async () => {
   const builder = await getBuilder();
 
   expect(builder).toBeDefined();
-  expect(builder).toEqual(bootcImageBuilderRHEL9);
+  expect(builder).toEqual(imageBuilderRHEL9);
 });
 
 test('check uses RHEL 9 builder', async () => {
@@ -322,7 +285,7 @@ test('check uses RHEL 9 builder', async () => {
   const builder = await getBuilder();
 
   expect(builder).toBeDefined();
-  expect(builder).toEqual(bootcImageBuilderRHEL9);
+  expect(builder).toEqual(imageBuilderRHEL9);
 });
 
 test('check uses RHEL 10 builder', async () => {
@@ -331,20 +294,20 @@ test('check uses RHEL 10 builder', async () => {
   const builder = await getBuilder();
 
   expect(builder).toBeDefined();
-  expect(builder).toEqual(bootcImageBuilderRHEL10);
+  expect(builder).toEqual(imageBuilderRHEL10);
 });
 
-test('check uses Centos builder', async () => {
+test('check uses default builder', async () => {
   configurationGetConfigurationMock.mockReturnValue('CentOS');
 
   const builder = await getBuilder();
 
   expect(builder).toBeDefined();
-  expect(builder).toEqual(bootcImageBuilderCentos);
+  expect(builder).toEqual(imageBuilderDefault);
 });
 
 test('create podman run CLI command', async () => {
-  const name = 'test123-bootc-image-builder';
+  const name = 'test123-image-builder';
   const build = {
     image: 'test-image',
     tag: 'latest',
@@ -356,13 +319,12 @@ test('create podman run CLI command', async () => {
   const options = createBuilderImageOptions(name, build);
   const command = createPodmanCLIRunCommand(options);
 
-  // Expect an array of the above
   const expectedCommand = [
     'podman',
     'run',
     '--rm',
     '--name',
-    'test123-bootc-image-builder',
+    'test123-image-builder',
     '--tty',
     '--privileged',
     '--security-opt',
@@ -373,24 +335,26 @@ test('create podman run CLI command', async () => {
     '/var/lib/containers/storage:/var/lib/containers/storage',
     '--label',
     'bootc.image.builder=true',
-    bootcImageBuilderCentos,
+    imageBuilderDefault,
+    'build',
+    '--bootc-ref',
     'test-image:latest',
-    '--output',
+    '--output-dir',
     '/output/',
-    '--local',
+    '--output-name',
+    'disk',
     '--progress',
     'verbose',
-    '--type',
+    '--arch',
+    'x86_64',
     'raw',
-    '--target-arch',
-    'amd64',
   ];
 
   expect(command).toEqual(expectedCommand);
 });
 
-test('expect aws options to be included in the command for volume and paramters', async () => {
-  const name = 'test123-bootc-image-builder';
+test('expect aws options to be included in the command for volume and parameters', async () => {
+  const name = 'test123-image-builder';
   const build = {
     image: 'test-image',
     tag: 'latest',
@@ -413,7 +377,6 @@ test('expect aws options to be included in the command for volume and paramters'
     expect(options.HostConfig.Binds[2]).toEqual(path.join(os.homedir(), '.aws') + ':/root/.aws:ro');
   }
 
-  // Check that the aws options are included in the command
   expect(options.Cmd).toContain('--aws-bucket');
   expect(options.Cmd).toContain(build.awsBucket);
   expect(options.Cmd).toContain('--aws-region');
@@ -423,7 +386,7 @@ test('expect aws options to be included in the command for volume and paramters'
 });
 
 test('test that if aws options are not provided, they are NOT included in the command', async () => {
-  const name = 'test123-bootc-image-builder';
+  const name = 'test123-image-builder';
   const build = {
     image: 'test-image',
     tag: 'latest',
@@ -438,20 +401,18 @@ test('test that if aws options are not provided, they are NOT included in the co
   expect(options.HostConfig).toBeDefined();
   expect(options.HostConfig?.Binds).toBeDefined();
   if (options.HostConfig?.Binds) {
-    // Expect the length to ONLY be two. The first bind is the output folder, the second is the storage folder
     expect(options.HostConfig.Binds.length).toEqual(2);
     expect(options.HostConfig.Binds[0]).toEqual(build.folder + ':/output/');
     expect(options.HostConfig.Binds[1]).toEqual('/var/lib/containers/storage:/var/lib/containers/storage');
   }
 
-  // Check that the aws options are NOT included in the command
   expect(options.Cmd).not.toContain('--aws-bucket');
   expect(options.Cmd).not.toContain('--aws-region');
   expect(options.Cmd).not.toContain('--aws-ami-name');
 });
 
 test('test if build config toml passed in, it will work', async () => {
-  const name = 'test123-bootc-image-builder';
+  const name = 'test123-image-builder';
   const build = {
     image: 'test-image',
     tag: 'latest',
@@ -472,10 +433,12 @@ test('test if build config toml passed in, it will work', async () => {
     expect(options.HostConfig.Binds[1]).toEqual('/var/lib/containers/storage:/var/lib/containers/storage');
     expect(options.HostConfig.Binds[2]).toEqual(build.buildConfigFilePath + ':/config.toml:ro');
   }
+  expect(options.Cmd).toContain('--blueprint');
+  expect(options.Cmd).toContain('/config.toml');
 });
 
 test('test build config json passed in', async () => {
-  const name = 'test123-bootc-image-builder';
+  const name = 'test123-image-builder';
   const build = {
     image: 'test-image',
     tag: 'latest',
@@ -496,12 +459,14 @@ test('test build config json passed in', async () => {
     expect(options.HostConfig.Binds[1]).toEqual('/var/lib/containers/storage:/var/lib/containers/storage');
     expect(options.HostConfig.Binds[2]).toEqual(build.buildConfigFilePath + ':/config.json:ro');
   }
+  expect(options.Cmd).toContain('--blueprint');
+  expect(options.Cmd).toContain('/config.json');
 });
 
-test('test chown works when passed into createBuilderImageOptions', async () => {
-  const name = 'test123-bootc-image-builder';
+test('test chown is applied as post-build step in linuxBuildCommand', async () => {
   const build = {
     image: 'test-image',
+    imageId: 'sha256:abc123',
     tag: 'latest',
     type: ['raw'],
     arch: 'amd64',
@@ -509,18 +474,12 @@ test('test chown works when passed into createBuilderImageOptions', async () => 
     chown: '1000:1000',
   } as BootcBuildInfo;
 
-  const options = createBuilderImageOptions(name, build);
+  const options = createBuilderImageOptions('test-container', build);
+  const logPath = path.join(os.tmpdir(), 'log');
+  const imagePath = path.join(os.tmpdir(), 'image.tar');
+  const command = linuxBuildCommand(options, build, logPath, imagePath);
 
-  expect(options).toBeDefined();
-  expect(options.HostConfig).toBeDefined();
-  expect(options.HostConfig?.Binds).toBeDefined();
-  if (options.HostConfig?.Binds) {
-    expect(options.HostConfig.Binds.length).toEqual(2);
-    expect(options.HostConfig.Binds[0]).toEqual(build.folder + ':/output/');
-    expect(options.HostConfig.Binds[1]).toEqual('/var/lib/containers/storage:/var/lib/containers/storage');
-  }
-  expect(options.Cmd).toContain('--chown');
-  expect(options.Cmd).toContain(build.chown);
+  expect(command).toContain('chown -R 1000:1000 /foo/bar/qemutest4');
 });
 
 test('test createBuildConfigJSON function works when passing in a build config with user, filesystem and kernel', async () => {
@@ -549,11 +508,9 @@ test('test createBuildConfigJSON function works when passing in a build config w
   const buildConfigJson: Record<string, any> = createBuildConfigJSON(buildConfig);
   expect(buildConfigJson).toBeDefined();
 
-  // buildConfigJson is Record<string, unknown>, but check that the first one is 'customnizations'
   const keys = Object.keys(buildConfigJson);
   expect(keys[0]).toEqual('customizations');
 
-  // Check that user, filesystem and kernel are included in the JSON
   expect(buildConfigJson.customizations).toBeDefined();
   expect(buildConfigJson?.customizations?.user[0]).toBeDefined();
   expect(buildConfigJson?.customizations?.filesystem[0]).toBeDefined();
@@ -582,7 +539,7 @@ test('test building with a buildConfig JSON file that a temporary file for build
     },
   } as BuildConfig;
 
-  const name = 'test123-bootc-image-builder';
+  const name = 'test123-image-builder';
   const build = {
     image: 'test-image',
     tag: 'latest',
@@ -594,10 +551,8 @@ test('test building with a buildConfig JSON file that a temporary file for build
 
   const options = createBuilderImageOptions(name, build);
 
-  // Expect writeFileSync was called
   expect(fs.writeFileSync).toHaveBeenCalled();
 
-  // Expect that options.HostConfig.Binds includes a buildconfig file
   expect(options).toBeDefined();
   expect(options.HostConfig).toBeDefined();
   expect(options.HostConfig?.Binds).toBeDefined();
@@ -607,68 +562,8 @@ test('test building with a buildConfig JSON file that a temporary file for build
     expect(options.HostConfig.Binds[1]).toEqual('/var/lib/containers/storage:/var/lib/containers/storage');
     expect(options.HostConfig.Binds[2]).toContain('config.json:ro');
   }
-});
-
-test('expect createBuildConfigJSON to work with anaconda iso modules being enabled / disabled', async () => {
-  const buildConfig = {
-    anacondaIsoInstallerModules: {
-      enable: ['test-module', 'test-module2'],
-      disable: ['test-module3', 'test-module4'],
-    },
-  } as BuildConfig;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const buildConfigJson: Record<string, any> = createBuildConfigJSON(buildConfig);
-  expect(buildConfigJson).toBeDefined();
-
-  // Expect enable to contain test-module and 2
-  expect(buildConfigJson.customizations.installer.modules.enable).toContain('test-module');
-  expect(buildConfigJson.customizations.installer.modules.enable).toContain('test-module2');
-
-  // Expect disable to contain test-module3 and 4
-  expect(buildConfigJson.customizations.installer.modules.disable).toContain('test-module3');
-  expect(buildConfigJson.customizations.installer.modules.disable).toContain('test-module4');
-});
-
-test('expect createBuildConfigJSON to read a valid kickstart file and output it to the JSON file stringified', async () => {
-  const buildConfig = {
-    anacondaIsoInstallerKickstartFilePath: '/foo/bar/kickstart.ks',
-  } as BuildConfig;
-
-  const mockKickstartFileContents = `
-  # Kickstart file for CentOS 7
-  #platform=x86, AMD64, or Intel EM64T
-  # System authorization information
-  auth --enableshadow --passalgo=sha512
-  # Use CDROM installation media
-  cdrom
-  # Use graphical install
-  graphical
-  # Run the Setup Agent on first boot
-  firstboot --enable
-  # Keyboard layouts
-  keyboard --vckeymap=us --xlayouts='us'
-  # System language
-  lang en_US
-  `;
-
-  // Spy on fs.readFileSync to make sure it is called
-  vi.mock('node:fs');
-  vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-  vi.spyOn(fs, 'readFileSync').mockReturnValue(mockKickstartFileContents);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const buildConfigJson: Record<string, any> = createBuildConfigJSON(buildConfig);
-  expect(buildConfigJson).toBeDefined();
-
-  // Expect readFileSync was called
-  expect(fs.readFileSync).toHaveBeenCalled();
-
-  // Expect the kickstart file to be in the JSON
-  // we "slice" the Stringify contents to also remove the quotes
-  expect(buildConfigJson.customizations.installer.kickstart.contents).toEqual(
-    JSON.stringify(mockKickstartFileContents).slice(1, -1),
-  );
+  expect(options.Cmd).toContain('--blueprint');
+  expect(options.Cmd).toContain('/config.json');
 });
 
 test('expect build to kick off in background', async () => {
@@ -693,7 +588,6 @@ test('expect build to kick off in background', async () => {
 
   await buildDiskImage(build, history, true);
 
-  // expect withProgress to still be running
   expect(extensionApi.window.withProgress).toHaveBeenCalled();
   expect(extensionApi.window.withProgress).not.toHaveResolved();
 });

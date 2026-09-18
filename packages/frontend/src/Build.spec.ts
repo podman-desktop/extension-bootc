@@ -173,8 +173,8 @@ test('Render shows correct images and history', async () => {
   expect(select.children[0].textContent).toEqual('image1:latest');
   expect(select.children[1].textContent).toEqual('image2:latest');
 
-  // Expect input iso to be selected
-  const raw = screen.getByLabelText('raw-checkbox');
+  // Expect raw radio to be selected
+  const raw = screen.getByLabelText('raw-radio');
   expect(raw).toBeDefined();
   expect(raw).toBeChecked();
 
@@ -195,14 +195,14 @@ test('Render shows correct images and history', async () => {
 test('Check that VMDK option is there', async () => {
   render(Build);
 
-  const vmdk = screen.getByLabelText('vmdk-checkbox');
+  const vmdk = screen.getByLabelText('vmdk-radio');
   expect(vmdk).toBeDefined();
 });
 
 test('Check that GCE option is there', async () => {
   render(Build);
 
-  const gce = screen.getByLabelText('gce-checkbox');
+  const gce = screen.getByLabelText('gce-radio');
   expect(gce).toBeDefined();
 });
 
@@ -784,44 +784,6 @@ test('collapse and uncollapse of advanced options', async () => {
   expect(chown).toBeDefined();
 });
 
-test('select anaconda-iso and qcow2 and expect validation error to be shown', async () => {
-  vi.mocked(bootcClient.inspectImage).mockResolvedValue(mockImageInspect);
-  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
-  vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
-  vi.mocked(bootcClient.buildExists).mockResolvedValue(false);
-  vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
-  render(Build);
-
-  // Wait until children length is 2 meaning it's fully rendered / propagated the changes
-  await vi.waitFor(() => {
-    if (screen.getByLabelText('image-select')?.children.length !== 2) {
-      throw new Error();
-    }
-  });
-
-  // Unclick raw checkbox as it's the default from history
-  const raw = screen.getByLabelText('raw-checkbox');
-  raw.click();
-
-  // Get checkbox 'iso-checkbox' and click it.
-  const iso = screen.getByLabelText('iso-checkbox');
-  await userEvent.click(iso);
-
-  // Expect 'alert' to not be there
-  expect(screen.queryByRole('alert')).toBeNull();
-
-  // Get checkbox 'qcow2-checkbox' and click it.
-  const qcow2 = screen.getByLabelText('qcow2-checkbox');
-  await userEvent.click(qcow2);
-
-  // Expect alert to be shown
-  const validation = screen.getByRole('alert');
-  expect(validation).toBeDefined();
-  expect(validation.textContent).toEqual(
-    'The Anaconda ISO file format cannot be built simultaneously with other image types.',
-  );
-});
-
 test('confirm successful build goes to logs', async () => {
   vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
   vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
@@ -857,58 +819,6 @@ test('confirm successful build goes to logs', async () => {
   expect(router.goto).not.toHaveBeenCalled();
   await userEvent.click(build);
   expect(router.goto).toHaveBeenCalledWith(`/disk-image/bmFtZTE=/build`);
-});
-
-test('expect anaconda modules ISO section to be shown', async () => {
-  vi.mocked(bootcClient.inspectImage).mockResolvedValue(mockImageInspect);
-  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
-  vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
-  vi.mocked(bootcClient.buildExists).mockResolvedValue(false);
-  vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
-  render(Build);
-
-  // Wait until children length is 2 meaning it's fully rendered / propagated the changes
-  await vi.waitFor(() => {
-    if (screen.getByLabelText('image-select')?.children.length !== 2) {
-      throw new Error();
-    }
-  });
-
-  // Find the "build-config-options" aria-label span and click it
-  const buildConfigOptions = screen.getByText('Interactive build config');
-  expect(buildConfigOptions).toBeDefined();
-  await userEvent.click(buildConfigOptions);
-
-  // Expect anaconda modules to be shown
-  // Wait for Anaconda ISO installer modules to be shown (span)
-  const anacondaModules = screen.getByLabelText('anaconda-iso-installer-module-title');
-  expect(anacondaModules).toBeDefined();
-});
-
-test('expect anaconda kickstart file section to be shown', async () => {
-  vi.mocked(bootcClient.inspectImage).mockResolvedValue(mockImageInspect);
-  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
-  vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
-  vi.mocked(bootcClient.buildExists).mockResolvedValue(false);
-  vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
-  render(Build);
-
-  // Wait until children length is 2 meaning it's fully rendered / propagated the changes
-  await vi.waitFor(() => {
-    if (screen.getByLabelText('image-select')?.children.length !== 2) {
-      throw new Error();
-    }
-  });
-
-  // Find the "build-config-options" aria-label span and click it
-  const buildConfigOptions = screen.getByText('Interactive build config');
-  expect(buildConfigOptions).toBeDefined();
-  await userEvent.click(buildConfigOptions);
-
-  // Expect anaconda kickstart file to be shown
-  // Wait for Anaconda kickstart file to be shown (span)
-  const anacondaKickstart = screen.getByLabelText('anaconda-iso-installer-kickstart-file-title');
-  expect(anacondaKickstart).toBeDefined();
 });
 
 test('on mount, expect checkPrereqs to be called', async () => {
