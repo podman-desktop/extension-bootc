@@ -31,9 +31,9 @@ export class BootcDashboardPage {
   constructor(page: Page, webview: Page) {
     this.page = page;
     this.webview = webview;
-    this.heading = webview.getByText('Welcome to bootable containers');
-    this.pullDemoImageButton = webview.getByLabel('Pull image', { exact: true });
-    this.buildDemoImageButton = webview.getByLabel('Build image', { exact: true });
+    this.heading = webview.getByRole('heading', { name: 'Welcome to Bootable Containers' });
+    this.pullDemoImageButton = webview.getByRole('button', { name: 'Pull example image', exact: true });
+    this.buildDemoImageButton = webview.getByRole('button', { name: 'Build example image', exact: true });
   }
 
   public async pullDemoImage(timeout = 300_000): Promise<void> {
@@ -56,7 +56,6 @@ export class BootcDashboardPage {
   }
 
   public async getDemoImageName(): Promise<string> {
-    const text = await this.buildDemoImageButton.innerText();
-    return text.split(' ')[1];
+    return (await this.buildDemoImageButton.getAttribute('title')) ?? '';
   }
 }
