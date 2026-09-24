@@ -80,6 +80,7 @@ test('Expect build image button if example image does not exist', async () => {
   // Build image exists since there is the example image in our mocked mockBootcImages
   const buildImage = screen.getByRole('button', { name: 'Build image' });
   expect(buildImage).toBeInTheDocument();
+  expect(buildImage).toHaveAttribute('title', 'Build');
 });
 
 test('Expect pull image button if example image does not exist', async () => {
@@ -97,6 +98,7 @@ test('Expect pull image button if example image does not exist', async () => {
   // Pull image exists since there is no image in our mocked mockBootcImages
   const pullImage = screen.getByRole('button', { name: 'Pull image' });
   expect(pullImage).toBeInTheDocument();
+  expect(pullImage).toHaveAttribute('title', 'Pull image');
 });
 
 test('Clicking on Pull image button should call bootcClient.pullImage', async () => {
