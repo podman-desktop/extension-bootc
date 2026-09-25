@@ -38,7 +38,6 @@ export abstract class BootcApi {
   abstract selectBuildConfigFile(): Promise<string>;
   abstract selectVMImageFile(): Promise<string>;
   abstract selectSSHPrivateKeyFile(): Promise<string>;
-  abstract selectAnacondaKickstartFile(): Promise<string>;
   abstract listBootcImages(): Promise<ImageInfo[]>;
   abstract listContainers(): Promise<ContainerInfo[]>;
   abstract listAllImages(): Promise<ImageInfo[]>;
