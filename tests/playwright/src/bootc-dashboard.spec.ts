@@ -28,6 +28,7 @@ import {
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BootcNavigationBar } from './model/bootc-navigationbar';
+import { BootcPage } from './model/bootc-page';
 import {
   removeBootcExtensionIfNeeded,
   handleWebview,
@@ -84,10 +85,22 @@ test.describe('BootC Dashboard', () => {
         const bootcNavigationBar = new BootcNavigationBar(page, webview);
         const bootcDashboardPage = await bootcNavigationBar.openBootcDashboard();
         await playExpect(bootcDashboardPage.heading).toBeVisible();
+        test.skip(await bootcDashboardPage.buildDemoImageButton.isVisible(), 'The demo image already exists locally');
         await bootcDashboardPage.pullDemoImage(720_000);
       });
 
-      const types = ['AMI'];
+      test('Select one supported disk image type', async ({ runner }) => {
+        [page, webview] = await handleWebview(runner);
+        const bootcNavigationBar = new BootcNavigationBar(page, webview);
+        const diskImagesPage = await bootcNavigationBar.openBootcDiskImages();
+        await diskImagesPage.buildButton.click();
+
+        const buildPage = new BootcPage(page, webview);
+        await playExpect(buildPage.heading).toBeVisible();
+        await buildPage.expectDiskTypes();
+      });
+
+      const types = ['AMI', 'GCE'];
 
       for (const type of types) {
         test(`Build demo image from dashboard for type ${type}`, async ({ runner }) => {
@@ -103,6 +116,16 @@ test.describe('BootC Dashboard', () => {
 
           const result = await bootcDashboardPage.buildDemoImage(pathToStore, type, 1_500_000);
           playExpect(result).toBeTruthy();
+        });
+        test(`Require overwrite confirmation for type ${type}`, async ({ runner }) => {
+          [page, webview] = await handleWebview(runner);
+          const bootcNavigationBar = new BootcNavigationBar(page, webview);
+          const diskImagesPage = await bootcNavigationBar.openBootcDiskImages();
+          await diskImagesPage.buildButton.click();
+
+          const buildPage = new BootcPage(page, webview);
+          await playExpect(buildPage.heading).toBeVisible();
+          await buildPage.expectOverwrite();
         });
       }
     });

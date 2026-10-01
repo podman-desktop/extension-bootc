@@ -32,7 +32,7 @@ import { imageBuilderDefault, imageBuilderRHEL9, imageBuilderRHEL10 } from './co
 import type { ContainerInfo, Configuration } from '@podman-desktop/api';
 import * as extensionApi from '@podman-desktop/api';
 import { containerEngine } from '@podman-desktop/api';
-import type { BootcBuildInfo, BuildConfig } from '/@shared/src/models/bootc';
+import type { BootcBuildInfo, BuildConfig, BuildType } from '/@shared/src/models/bootc';
 import * as fs from 'node:fs';
 import type { History } from './history';
 import path, { resolve } from 'node:path';
@@ -121,6 +121,41 @@ test('check image builder options', async () => {
     build.arch,
     'raw',
   ]);
+});
+
+test.each([imageBuilderRHEL9, imageBuilderRHEL10])('use the unified image-builder CLI for %s', builder => {
+  const build = {
+    image: 'test-image',
+    tag: 'latest',
+    type: ['qcow2'],
+    arch: 'arm64',
+    folder: '/output-folder',
+    filesystem: 'xfs',
+    buildConfigFilePath: '/blueprint.toml',
+  } as BootcBuildInfo;
+
+  const options = createBuilderImageOptions('rhel-build', build, builder);
+
+  expect(options.Image).toEqual(builder);
+  expect(options.Cmd).toEqual([
+    'build',
+    '--bootc-ref',
+    'test-image:latest',
+    '--output-dir',
+    '/output/',
+    '--output-name',
+    'disk',
+    '--progress',
+    'verbose',
+    '--arch',
+    'aarch64',
+    '--bootc-default-fs',
+    'xfs',
+    '--blueprint',
+    '/config.toml',
+    'qcow2',
+  ]);
+  expect(options.HostConfig?.Binds).toContain('/blueprint.toml:/config.toml:ro');
 });
 
 test('check image builder does not include arch', async () => {
@@ -268,6 +303,16 @@ test('check build exists', async () => {
 
   exists = await buildExists(folder, ['raw', 'gce']);
   expect(exists).toEqual(false);
+});
+
+test.each<{ type: BuildType; filename: string }>([
+  { type: 'ami', filename: 'disk.raw' },
+  { type: 'gce', filename: 'disk.tar.gz' },
+])('detect an existing $type output from image-builder', async ({ type, filename }) => {
+  const folder = '/output-folder';
+  vi.mocked(fs.existsSync).mockImplementation(file => file === resolve(folder, filename));
+
+  expect(await buildExists(folder, [type])).toBe(true);
 });
 
 test('check uses RHEL builder for backward compatibility', async () => {

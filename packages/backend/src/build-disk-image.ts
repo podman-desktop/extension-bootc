@@ -31,11 +31,11 @@ import { getContainerEngine } from './container-utils';
 
 const OUTPUT_FILENAMES: Record<BuildType, string> = {
   qcow2: 'disk.qcow2',
-  ami: 'image.raw',
+  ami: 'disk.raw',
   raw: 'disk.raw',
   vmdk: 'disk.vmdk',
   vhd: 'disk.vhd',
-  gce: 'image.tar.gz',
+  gce: 'disk.tar.gz',
 };
 
 export async function buildExists(folder: string, types: BuildType[]): Promise<boolean> {

@@ -27,12 +27,6 @@ export class BootcPage {
   readonly webview: Page;
   readonly heading: Locator;
   readonly outputFolderPath: Locator;
-  readonly rawCheckbox: Locator;
-  readonly qcow2Checkbox: Locator;
-  readonly isoCheckbox: Locator;
-  readonly vmdkCheckbox: Locator;
-  readonly amiCheckbox: Locator;
-  readonly vhdCheckbox: Locator;
   readonly amd64Button: Locator;
   readonly arm64Button: Locator;
   readonly buildButton: Locator;
@@ -52,12 +46,6 @@ export class BootcPage {
     this.heading = webview.getByLabel('Build Disk Image');
     this.outputFolderPath = webview.getByLabel('folder-select');
     this.imageSelect = webview.getByLabel('image-select');
-    this.rawCheckbox = webview.getByLabel('raw-checkbox');
-    this.qcow2Checkbox = webview.getByLabel('qcow2-checkbox');
-    this.isoCheckbox = webview.getByLabel('iso-checkbox');
-    this.vmdkCheckbox = webview.getByLabel('vmdk-checkbox');
-    this.amiCheckbox = webview.getByLabel('ami-checkbox');
-    this.vhdCheckbox = webview.getByLabel('vhd-checkbox');
     this.amd64Button = webview.getByLabel('amd64-button');
     this.arm64Button = webview.getByLabel('arm64-button');
     this.bootcListPage = webview.getByRole('region', { name: 'Bootable Containers', exact: true });
@@ -115,29 +103,7 @@ export class BootcPage {
     // wait for the UI to react to the new path before proceeding.
     await this.overwriteBuildCheckbox.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
 
-    await this.uncheckedAllCheckboxes();
-    switch (type.toLocaleLowerCase()) {
-      case 'raw':
-        await this.checkCheckbox(this.rawCheckbox);
-        break;
-      case 'qcow2':
-        await this.checkCheckbox(this.qcow2Checkbox);
-        break;
-      case 'iso':
-        await this.checkCheckbox(this.isoCheckbox);
-        break;
-      case 'vmdk':
-        await this.checkCheckbox(this.vmdkCheckbox);
-        break;
-      case 'ami':
-        await this.checkCheckbox(this.amiCheckbox);
-        break;
-      case 'vhd':
-        await this.checkCheckbox(this.vhdCheckbox);
-        break;
-      default:
-        throw new Error(`Unknown type: ${type}`);
-    }
+    await this.selectDiskType(type);
 
     switch (architecture) {
       case ArchitectureType.AMD64:
@@ -185,23 +151,36 @@ export class BootcPage {
     return result;
   }
 
-  private async uncheckedAllCheckboxes(): Promise<void> {
-    await this.uncheckCheckbox(this.rawCheckbox);
-    await this.uncheckCheckbox(this.qcow2Checkbox);
-    await this.uncheckCheckbox(this.isoCheckbox);
-    await this.uncheckCheckbox(this.vmdkCheckbox);
-    await this.uncheckCheckbox(this.amiCheckbox);
-    await this.uncheckCheckbox(this.vhdCheckbox);
+  async expectDiskTypes(): Promise<void> {
+    const types = ['raw', 'qcow2', 'vmdk', 'ami', 'vhd', 'gce'];
+    await playExpect(this.webview.locator('input[name="buildType"]')).toHaveCount(types.length);
+
+    // Each new selection must clear the previous output type.
+    for (const type of types) {
+      await this.selectDiskType(type);
+    }
+
+    await playExpect(this.webview.getByLabel('iso-checkbox')).toHaveCount(0);
+    await playExpect(this.webview.getByLabel('iso-radio')).toHaveCount(0);
   }
 
-  private async uncheckCheckbox(checkbox: Locator): Promise<void> {
-    await playExpect(checkbox).toBeVisible();
-    await checkbox.scrollIntoViewIfNeeded();
+  async expectOverwrite(): Promise<void> {
+    await playExpect(this.overwriteBuildCheckbox).toBeVisible();
+    await playExpect(this.overwriteBuildCheckbox).not.toBeChecked();
+    await playExpect(this.buildButton).toBeDisabled();
 
-    if (await checkbox.isChecked()) {
-      await checkbox.uncheck();
-    }
-    await playExpect(checkbox).not.toBeChecked();
+    await this.checkCheckbox(this.overwriteBuildCheckbox);
+    await playExpect(this.buildButton).toBeEnabled();
+  }
+
+  private async selectDiskType(type: string): Promise<void> {
+    const name = `${type.toLowerCase()}-radio`;
+    const radio = this.webview.getByRole('radio', { name, exact: true });
+
+    // Click the visible label because the native radio uses sr-only styling.
+    await this.webview.locator(`label[for="${name}"]`).click();
+    await playExpect(radio).toBeChecked();
+    await playExpect(this.webview.locator('input[name="buildType"]:checked')).toHaveCount(1);
   }
 
   private async checkCheckboxIfVisible(checkbox: Locator, timeout = 2_000): Promise<void> {

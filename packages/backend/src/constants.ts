@@ -20,6 +20,6 @@
 export const imageBuilder = 'image-builder';
 export const imageBuilderDefault = 'ghcr.io/osbuild/image-builder-cli:sha-c93cc6d986ce4b381f259f0688be2f86d5262e4f';
 
-export const imageBuilderRHEL9 = 'registry.redhat.io/rhel9/bootc-image-builder:9.8';
-export const imageBuilderRHEL10 = 'registry.redhat.io/rhel10/bootc-image-builder:10.2';
+export const imageBuilderRHEL9 = 'registry.redhat.io/rhel9/image-builder:9.9';
+export const imageBuilderRHEL10 = 'registry.redhat.io/rhel10/image-builder:10.3';
 export const macadamName = 'bootc';
