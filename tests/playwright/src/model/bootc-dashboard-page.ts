@@ -21,6 +21,8 @@ import { expect as playExpect } from '@playwright/test';
 import { BootcPage } from './bootc-page';
 import { ArchitectureType } from '@podman-desktop/tests-playwright';
 
+const NAVIGATION_TIMEOUT = 10_000;
+
 export class BootcDashboardPage {
   readonly page: Page;
   readonly webview: Page;
@@ -37,25 +39,37 @@ export class BootcDashboardPage {
   }
 
   public async pullDemoImage(timeout = 300_000): Promise<void> {
+    // A previous run can leave the example image in the engine cache.
+    await playExpect(this.pullDemoImageButton.or(this.buildDemoImageButton)).toBeVisible();
+    if (await this.buildDemoImageButton.isVisible()) {
+      await playExpect(this.buildDemoImageButton).toBeEnabled();
+      return;
+    }
+
     await playExpect(this.pullDemoImageButton).toBeEnabled();
     await this.pullDemoImageButton.click();
-    await playExpect(this.pullDemoImageButton).toBeDisabled({ timeout: 10_000 });
+
+    // A fast pull can replace the button before its disabled state is observed.
     await playExpect(this.buildDemoImageButton).toBeEnabled({ timeout: timeout });
+    await playExpect(this.pullDemoImageButton).not.toBeVisible();
   }
 
   public async buildDemoImage(pathToStore: string, type: string, timeout = 600_000): Promise<boolean> {
-    await playExpect(this.buildDemoImageButton).toBeEnabled();
-    const imageName = await this.getDemoImageName();
-    playExpect(imageName).toBeTruthy();
-    await this.buildDemoImageButton.click();
-    await playExpect(this.heading).not.toBeVisible({ timeout: 10_000 });
+    const bootcBuildImagePage = await this.openDemoImageBuild();
 
-    const bootcBuildImagePage = new BootcPage(this.page, this.webview);
-    await playExpect(bootcBuildImagePage.heading).toBeVisible({ timeout: 10_000 });
+    // The dashboard button no longer contains the image reference. Read the selected image from the form.
+    const imageName = await bootcBuildImagePage.imageSelect.inputValue();
     return await bootcBuildImagePage.buildDiskImage(imageName, pathToStore, type, ArchitectureType.Default, timeout);
   }
 
-  public async getDemoImageName(): Promise<string> {
-    return (await this.buildDemoImageButton.getAttribute('title')) ?? '';
+  public async openDemoImageBuild(): Promise<BootcPage> {
+    await playExpect(this.buildDemoImageButton).toBeEnabled();
+    await this.buildDemoImageButton.click();
+    await playExpect(this.heading).not.toBeVisible({ timeout: NAVIGATION_TIMEOUT });
+
+    const bootcBuildImagePage = new BootcPage(this.page, this.webview);
+    await playExpect(bootcBuildImagePage.heading).toBeVisible({ timeout: NAVIGATION_TIMEOUT });
+    await playExpect(bootcBuildImagePage.imageSelect).not.toHaveValue('');
+    return bootcBuildImagePage;
   }
 }

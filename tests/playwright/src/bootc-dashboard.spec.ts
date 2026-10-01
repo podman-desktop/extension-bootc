@@ -68,8 +68,6 @@ test.afterAll(async ({ runner }) => {
 });
 
 test.describe('BootC Dashboard', () => {
-  test.skip(isLinux);
-
   test.beforeAll(async ({ navigationBar }) => {
     test.setTimeout(200_000);
     await installBootcExtensionIfNeeded(navigationBar);
@@ -77,7 +75,49 @@ test.describe('BootC Dashboard', () => {
 
   test.describe
     .serial('Bootc Dashboard', () => {
-      test('Pull demo image from dashboard', async ({ runner }) => {
+      test('Show the dashboard sections and actions', async ({ runner }) => {
+        [page, webview] = await handleWebview(runner);
+        const bootcNavigationBar = new BootcNavigationBar(page, webview);
+        const dashboard = await bootcNavigationBar.openBootcDashboard();
+        await playExpect(dashboard.heading).toBeVisible();
+
+        for (const name of ['Get Started', 'Images', 'Learn more']) {
+          await playExpect(webview.getByRole('heading', { name, exact: true, level: 2 })).toBeVisible();
+        }
+
+        for (const name of [
+          'Build disk image',
+          'View images',
+          'View disk images',
+          'Read guide',
+          'Read article',
+          'Read docs',
+        ]) {
+          await playExpect(webview.getByRole('button', { name, exact: true })).toBeEnabled();
+        }
+        await playExpect(webview.getByRole('link', { name: 'View documentation' })).toBeVisible();
+        await playExpect(webview.getByRole('status', { name: /^\d+ BootC container images$/ })).toBeVisible();
+        await playExpect(webview.getByRole('status', { name: /^\d+ Disk images$/ })).toBeVisible();
+      });
+
+      for (const [action, role, destination] of [
+        ['Build disk image', 'heading', 'Build Disk Image'],
+        ['View images', 'region', 'images'],
+        ['View disk images', 'region', 'disk images'],
+      ] as const) {
+        test(`Navigate from ${action}`, async ({ runner }) => {
+          [page, webview] = await handleWebview(runner);
+          const bootcNavigationBar = new BootcNavigationBar(page, webview);
+          const dashboard = await bootcNavigationBar.openBootcDashboard();
+
+          await webview.getByRole('button', { name: action, exact: true }).click();
+
+          await playExpect(dashboard.heading).not.toBeVisible();
+          await playExpect(webview.getByRole(role, { name: destination, exact: true })).toBeVisible();
+        });
+      }
+
+      test('Pull or reuse demo image from dashboard', async ({ runner }) => {
         test.setTimeout(750_000);
 
         [page, webview] = await handleWebview(runner);
@@ -87,10 +127,21 @@ test.describe('BootC Dashboard', () => {
         await bootcDashboardPage.pullDemoImage(720_000);
       });
 
+      test('Open the example build with its image selected', async ({ runner }) => {
+        [page, webview] = await handleWebview(runner);
+        const bootcNavigationBar = new BootcNavigationBar(page, webview);
+        const dashboard = await bootcNavigationBar.openBootcDashboard();
+
+        const buildPage = await dashboard.openDemoImageBuild();
+
+        await playExpect(buildPage.imageSelect).toHaveValue('registry.gitlab.com/fedora/bootc/examples/httpd:latest');
+      });
+
       const types = ['AMI'];
 
       for (const type of types) {
         test(`Build demo image from dashboard for type ${type}`, async ({ runner }) => {
+          test.skip(isLinux, 'Building bootable images is not supported on Linux');
           test.setTimeout(1_560_000);
 
           [page, webview] = await handleWebview(runner);
