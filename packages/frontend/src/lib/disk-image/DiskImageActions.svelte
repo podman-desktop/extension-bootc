@@ -33,9 +33,9 @@ async function gotoVM(): Promise<void> {
 async function initMacadamVM(): Promise<void> {
   let imagePath = object.folder;
   if (object.type.includes('raw')) {
-    imagePath += '/image/disk.raw';
+    imagePath += '/disk.raw';
   } else if (object.type.includes('qcow2')) {
-    imagePath += '/qcow2/disk.qcow2';
+    imagePath += '/disk.qcow2';
   }
   await gotoCreateVM(object.image, imagePath);
 }

@@ -69,9 +69,7 @@ export async function inspectManifest(engineId: string, image: string): Promise<
 
 // Pull the image
 export async function pullImage(connection: ContainerProviderConnection, image: string, arch?: string): Promise<void> {
-  // Throughout bootc-image-builder and bootc, we just use "arm64" and "amd64" for the architecture,
-  // make sure that arch is either "arm64" or "amd64" before passing it to the API, and rename it to linux/arm64 or linux/amd64
-  // otherwise we just leave it as undefined.
+  // Normalize "arm64"/"amd64" to the "linux/arm64"/"linux/amd64" format the API expects.
   if (arch && (arch === 'arm64' || arch === 'amd64')) {
     arch = `linux/${arch}`;
   } else {

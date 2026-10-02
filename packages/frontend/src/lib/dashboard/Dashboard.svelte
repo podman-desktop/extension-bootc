@@ -18,7 +18,7 @@ import { REPOSITORY_URL } from '/@shared/src/repository-infos';
 let bootcImageCount = $derived($imageInfo.length);
 let diskImageCount = $derived($historyInfo.length);
 
-const bootcImageBuilderSite = 'https://github.com/osbuild/bootc-image-builder';
+const imageBuilderSite = 'https://github.com/osbuild/image-builder-cli';
 const bootcSite = 'https://bootc-dev.github.io/bootc/';
 const fedoraBaseImages = 'https://docs.fedoraproject.org/en-US/bootc/base-images/';
 </script>
@@ -34,8 +34,8 @@ const fedoraBaseImages = 'https://docs.fedoraproject.org/en-US/bootc/base-images
       <div class="flex flex-col gap-4">
         <div>
           Bootable Containers builds an entire bootable OS from your container image. Utilizing the technology of a
-          <Link externalRef={fedoraBaseImages}>compatible image</Link>, <Link externalRef={bootcImageBuilderSite}
-            >bootc-image-builder</Link
+          <Link externalRef={fedoraBaseImages}>compatible image</Link>, <Link externalRef={imageBuilderSite}
+            >image-builder</Link
           >, and <Link externalRef={bootcSite}>bootc</Link>, your container image is transformed into a bootable disk image.
         </div>
         <div>

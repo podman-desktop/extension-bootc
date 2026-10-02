@@ -117,7 +117,7 @@ test('Test clicking on create VM button for raw', async () => {
   const createVmButton = screen.getByRole('button', { name: 'Create VM' });
   await userEvent.click(createVmButton);
 
-  expect(router.goto).toHaveBeenCalledWith('/disk-images/createVM/aW1hZ2Ux/L2Zvby9pbWFnZTEvaW1hZ2UvZGlzay5yYXc=');
+  expect(router.goto).toHaveBeenCalledWith('/disk-images/createVM/aW1hZ2Ux/L2Zvby9pbWFnZTEvZGlzay5yYXc=');
 });
 
 test('Test clicking on create VM button for qcow2', async () => {
@@ -132,7 +132,7 @@ test('Test clicking on create VM button for qcow2', async () => {
   const createVmButton = screen.getByRole('button', { name: 'Create VM' });
   await userEvent.click(createVmButton);
 
-  expect(router.goto).toHaveBeenCalledWith('/disk-images/createVM/aW1hZ2Ux/L2Zvby9pbWFnZTEvcWNvdzIvZGlzay5xY293Mg==');
+  expect(router.goto).toHaveBeenCalledWith('/disk-images/createVM/aW1hZ2Ux/L2Zvby9pbWFnZTEvZGlzay5xY293Mg==');
 });
 
 test('Do not render the Create VM button if on Windows', async () => {

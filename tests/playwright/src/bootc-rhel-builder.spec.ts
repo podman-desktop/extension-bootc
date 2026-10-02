@@ -28,6 +28,7 @@ import {
   isLinux,
 } from '@podman-desktop/tests-playwright';
 import * as path from 'node:path';
+import { stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { BootcNavigationBar } from './model/bootc-navigationbar';
 import {
@@ -152,6 +153,10 @@ test.describe('BootC RHEL Builder', () => {
                       }
                     }
                     playExpect(result).toBeTruthy();
+
+                    // RHEL output must use the same layout as image-builder output.
+                    const output = await stat(path.join(pathToStore, 'disk.qcow2'));
+                    playExpect(output.size).toBeGreaterThan(0);
                   });
                 });
             }

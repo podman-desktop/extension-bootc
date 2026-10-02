@@ -27,7 +27,7 @@ const mockHistoryInfo: BootcBuildInfo = {
   imageId: 'sha256:imageId1',
   engineId: 'engine1',
   tag: 'latest',
-  type: ['anaconda-iso'],
+  type: ['qcow2'],
   folder: '/foo/image1',
   arch: 'x86_64',
   status: 'running',

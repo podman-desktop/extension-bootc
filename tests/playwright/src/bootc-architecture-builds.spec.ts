@@ -48,7 +48,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const containerFilePath = path.resolve(__dirname, '..', 'resources', 'bootable-containerfile');
 const contextDirectory = path.resolve(__dirname, '..', 'resources');
-const buildISOImage = process.env.BUILD_ISO_IMAGE;
 let imageBuildFailed = true;
 test.use({
   runnerOptions: new RunnerOptions({
@@ -121,7 +120,7 @@ test.describe('BootC Architecture Builds', () => {
           imageBuildFailed = false;
         });
 
-        const types = ['QCOW2', 'AMI', 'RAW', 'VMDK', 'ISO', 'VHD'];
+        const types = ['QCOW2', 'AMI', 'RAW', 'VMDK', 'VHD', 'GCE'];
 
         for (const type of types) {
           test.describe
@@ -144,11 +143,6 @@ test.describe('BootC Architecture Builds', () => {
 
                 if (imageBuildFailed) {
                   console.log('Image build failed, skipping test');
-                  test.skip();
-                }
-
-                if (type === 'ISO' && !buildISOImage) {
-                  console.log(`Building ISO image not requested, skipping test`);
                   test.skip();
                 }
 
