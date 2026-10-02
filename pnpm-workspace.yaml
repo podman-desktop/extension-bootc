@@ -21,6 +21,7 @@ overrides:
   undici@>=7.23.0 <7.28.0: '>=7.28.0'
   nanoid: '>=3.3.18'
   '@humanfs/node': '>=0.16.8'
+  devalue@^5: ^5.9.4
 nodeLinker: hoisted
 allowBuilds:
   '@biomejs/biome': false
