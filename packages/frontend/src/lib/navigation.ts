@@ -22,6 +22,10 @@ export function goToDiskImages(): void {
   router.goto('/disk-images');
 }
 
+export function gotoImages(): void {
+  router.goto('/images');
+}
+
 export async function gotoBuild(): Promise<void> {
   await bootcClient.telemetryLogUsage('nav-build');
   router.goto('/disk-images/build');
