@@ -5,16 +5,19 @@ import { tick } from 'svelte';
 import { bootcClient } from '/@/api/client';
 import { Button } from '@podman-desktop/ui-svelte';
 import { imageInfo } from '../stores/imageInfo';
+import { EXAMPLE_IMAGE } from './links';
 import { gotoDiskImageBuild } from './navigation';
 
-let { layout = 'default' }: { layout?: 'default' | 'dashboard' } = $props();
+interface Props {
+  compact?: boolean;
+}
 
-let isDashboard = $derived(layout === 'dashboard');
+let { compact = false }: Props = $props();
 
 let pullInProgress = $state(false);
 let displayDisclaimer = $state(false);
 
-const exampleImage = 'registry.gitlab.com/fedora/bootc/examples/httpd:latest';
+const exampleImage = EXAMPLE_IMAGE;
 const exampleImageReadmeUrl = 'https://gitlab.com/fedora/bootc/examples/-/tree/main/httpd';
 
 async function gotoBuild(): Promise<void> {
@@ -46,12 +49,12 @@ async function pullExampleImage(): Promise<void> {
 // Each time images updates, check if the image is in RepoTags
 let imageExists = $derived($imageInfo?.some(image => image.RepoTags?.includes(exampleImage)));
 
-let buildLabel = $derived(isDashboard ? 'Build example image' : `Build ${exampleImage}`);
-let pullLabel = $derived(isDashboard ? 'Pull example image' : `Pull ${exampleImage}`);
+let buildLabel = $derived(compact ? 'Build example image' : 'Build image');
+let pullLabel = $derived(compact ? 'Pull example image' : 'Pull image');
 </script>
 
 <div class="flex flex-col">
-  {#if !isDashboard}
+  {#if !compact}
     <p class="pb-1 max-w-xl text-[var(--pd-card-header-text)]">
       Create your first disk image by {imageExists ? 'building' : 'pulling'} the <Link
         externalRef={`${exampleImageReadmeUrl}`}>example container image</Link
@@ -61,18 +64,12 @@ let pullLabel = $derived(isDashboard ? 'Pull example image' : `Pull ${exampleIma
 
   <!-- Build / pull buttons -->
   {#if imageExists}
-    <Button
-      onclick={gotoBuild}
-      icon={faCube}
-      aria-label={!isDashboard ? 'Build image' : undefined}
-      title={!isDashboard ? 'Build' : undefined}>{buildLabel}</Button>
+    <Button onclick={gotoBuild} icon={faCube}>{buildLabel}</Button>
   {:else}
     <Button
       onclick={pullExampleImage}
-      icon={isDashboard ? faCloudArrowDown : faArrowCircleDown}
-      inProgress={pullInProgress}
-      aria-label={!isDashboard ? 'Pull image' : undefined}
-      title={!isDashboard ? 'Pull image' : undefined}>{pullLabel}</Button>
+      icon={compact ? faCloudArrowDown : faArrowCircleDown}
+      inProgress={pullInProgress}>{pullLabel}</Button>
   {/if}
   {#if displayDisclaimer}
     <p class="text-[var(--pd-status-waiting)] text-sm">

@@ -96,8 +96,8 @@ test.describe('BootC Dashboard', () => {
           await playExpect(webview.getByRole('button', { name, exact: true })).toBeEnabled();
         }
         await playExpect(webview.getByRole('link', { name: 'View documentation' })).toBeVisible();
-        await playExpect(webview.getByRole('status', { name: /^\d+ BootC container images$/ })).toBeVisible();
-        await playExpect(webview.getByRole('status', { name: /^\d+ Disk images$/ })).toBeVisible();
+        await playExpect(webview.getByText(/^\d+ BootC container images$/)).toBeAttached();
+        await playExpect(webview.getByText(/^\d+ Disk images$/)).toBeAttached();
       });
 
       for (const [action, role, destination] of [

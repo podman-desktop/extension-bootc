@@ -21,16 +21,15 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import { expect, test, vi } from 'vitest';
 import { bootcClient } from '/@/api/client';
+import { EXAMPLE_IMAGE } from './links';
 import FirstImage from './FirstImage.svelte';
 import type { ImageInfo } from '@podman-desktop/api';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 
-const exampleTestImage = `registry.gitlab.com/fedora/bootc/examples/httpd:latest`;
-
 const mockBootcImages: ImageInfo[] = [
   {
     Id: 'registry.gitlab.com/fedora/bootc/examples/httpd',
-    RepoTags: [exampleTestImage],
+    RepoTags: [EXAMPLE_IMAGE],
     Labels: {
       bootc: 'true',
     },
@@ -70,7 +69,7 @@ test('Expect build image button if example image does not exist', async () => {
   vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
   render(FirstImage);
 
-  // Wait until the "Pull image" button disapears
+  // Wait until the "Pull image" button disappears
   await vi.waitFor(() => {
     if (screen.queryAllByRole('button', { name: 'Pull image' }).length === 1) {
       throw new Error();
@@ -80,7 +79,8 @@ test('Expect build image button if example image does not exist', async () => {
   // Build image exists since there is the example image in our mocked mockBootcImages
   const buildImage = screen.getByRole('button', { name: 'Build image' });
   expect(buildImage).toBeInTheDocument();
-  expect(buildImage).toHaveAttribute('title', 'Build');
+  expect(buildImage).toHaveTextContent(/^Build image$/);
+  expect(buildImage).not.toHaveAttribute('title');
 });
 
 test('Expect pull image button if example image does not exist', async () => {
@@ -98,7 +98,8 @@ test('Expect pull image button if example image does not exist', async () => {
   // Pull image exists since there is no image in our mocked mockBootcImages
   const pullImage = screen.getByRole('button', { name: 'Pull image' });
   expect(pullImage).toBeInTheDocument();
-  expect(pullImage).toHaveAttribute('title', 'Pull image');
+  expect(pullImage).toHaveTextContent(/^Pull image$/);
+  expect(pullImage).not.toHaveAttribute('title');
 });
 
 test('Clicking on Pull image button should call bootcClient.pullImage', async () => {

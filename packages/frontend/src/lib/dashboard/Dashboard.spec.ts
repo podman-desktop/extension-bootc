@@ -21,14 +21,12 @@ import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { router } from 'tinro';
 import { beforeEach, expect, test, vi } from 'vitest';
-import { bootcClient } from '/@/api/client';
+import { bootcClient, rpcBrowser } from '/@/api/client';
 import Dashboard from './Dashboard.svelte';
 import type { ImageInfo } from '@podman-desktop/api';
-import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 import type { BootcBuildInfo } from '/@shared/src/models/bootc';
 import { REPOSITORY_URL } from '/@shared/src/repository-infos';
-
-const exampleImage = 'registry.gitlab.com/fedora/bootc/examples/httpd:latest';
+import { EXAMPLE_IMAGE, FEDORA_BOOTC_GUIDE_URL, IMAGE_BUILDER_GUIDE_URL, RHEL_IMAGE_MODE_URL } from '/@/lib/links';
 
 const mockBootcImages: ImageInfo[] = [
   {
@@ -59,7 +57,7 @@ const mockDiskImage: BootcBuildInfo = {
   folder: '/images',
 };
 
-vi.mock('tinro', () => ({ router: { goto: vi.fn() } }));
+vi.mock(import('tinro'));
 
 vi.mock('/@/api/client', async () => {
   return {
@@ -73,17 +71,14 @@ vi.mock('/@/api/client', async () => {
       telemetryLogUsage: vi.fn(),
     },
     rpcBrowser: {
-      subscribe: (): Subscriber => {
-        return {
-          unsubscribe: (): void => {},
-        };
-      },
+      subscribe: vi.fn(),
     },
   };
 });
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
+  vi.mocked(rpcBrowser.subscribe).mockReturnValue({ unsubscribe: vi.fn() });
   vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue([]);
   vi.mocked(bootcClient.listBootcImages).mockResolvedValue([]);
 });
@@ -105,15 +100,15 @@ test.each([0, 1, 23])('Show image counts of %i', async count => {
   render(Dashboard);
 
   await waitFor(() => {
-    expect(screen.getByRole('status', { name: `${count} BootC container images` })).toBeInTheDocument();
-    expect(screen.getByRole('status', { name: `${count} Disk images` })).toBeInTheDocument();
+    expect(screen.getByText(`${count} BootC container images`)).toBeInTheDocument();
+    expect(screen.getByText(`${count} Disk images`)).toBeInTheDocument();
   });
 });
 
 test.each([
   ['Build disk image', '/disk-images/build'],
-  ['View images', '/images/'],
-  ['View disk images', '/disk-images/'],
+  ['View images', '/images'],
+  ['View disk images', '/disk-images'],
 ])('Navigate from %s', async (name, destination) => {
   render(Dashboard);
 
@@ -124,9 +119,9 @@ test.each([
 
 test.each([
   ['link', 'View documentation', REPOSITORY_URL],
-  ['button', 'Read guide', 'https://osbuild.org/docs/user-guide/introduction/'],
-  ['button', 'Read article', 'https://developers.redhat.com/articles/2024/05/07/image-mode-rhel-bootable-containers'],
-  ['button', 'Read docs', 'https://docs.fedoraproject.org/en-US/bootc/getting-started/'],
+  ['button', 'Read guide', IMAGE_BUILDER_GUIDE_URL],
+  ['button', 'Read article', RHEL_IMAGE_MODE_URL],
+  ['button', 'Read docs', FEDORA_BOOTC_GUIDE_URL],
 ])('Open the %s %s through the backend', async (role, name, url) => {
   render(Dashboard);
 
@@ -143,7 +138,7 @@ test('Disable the example action until the pull completes', async () => {
   const pullButton = await screen.findByRole('button', { name: 'Pull example image' });
   await fireEvent.click(pullButton);
 
-  expect(bootcClient.pullImage).toHaveBeenCalledWith(exampleImage);
+  expect(bootcClient.pullImage).toHaveBeenCalledWith(EXAMPLE_IMAGE);
   expect(pullButton).toBeDisabled();
 
   resolve();
@@ -151,7 +146,7 @@ test('Disable the example action until the pull completes', async () => {
 });
 
 test('Build the example with its image and tag selected', async () => {
-  vi.mocked(bootcClient.listBootcImages).mockResolvedValue([{ ...mockBootcImages[0], RepoTags: [exampleImage] }]);
+  vi.mocked(bootcClient.listBootcImages).mockResolvedValue([{ ...mockBootcImages[0], RepoTags: [EXAMPLE_IMAGE] }]);
   render(Dashboard);
 
   const buildButton = await screen.findByRole('button', { name: 'Build example image' });

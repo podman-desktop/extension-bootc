@@ -26,6 +26,7 @@ import {
   gotoCreateVMForm,
   goToDiskImages,
   gotoImage,
+  gotoImages,
   gotoDiskImageBuild,
   gotoImageBuild,
 } from './navigation';
@@ -72,6 +73,12 @@ test('Test gotoBuild navigation', async () => {
 
   expect(router.goto).toHaveBeenCalledWith('/disk-images/build');
   expect(bootcClient.telemetryLogUsage).toHaveBeenCalledWith('nav-build');
+});
+
+test('Test gotoImages navigation', async () => {
+  gotoImages();
+
+  expect(router.goto).toHaveBeenCalledWith('/images');
 });
 
 test('Test gotoImage navigation', async () => {

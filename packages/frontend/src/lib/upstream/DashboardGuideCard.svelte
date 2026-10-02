@@ -23,14 +23,14 @@ async function openLink(): Promise<void> {
 
 <article
   aria-label={title}
-  class="grid grid-cols-[2.5rem_minmax(0,1fr)] @min-[36rem]:grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 px-4 py-2 rounded-lg shadow-sm bg-[var(--pd-content-card-bg)]">
+  class="grid grid-cols-[2.5rem_minmax(0,1fr)] @min-[36rem]:grid-cols-[2.5rem_minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 px-4 py-2 rounded-lg shadow-sm bg-(--pd-content-card-bg)">
   <div
-    class="flex items-center justify-center w-10 h-10 shrink-0 text-[40px] text-[var(--pd-content-header)]"
+    class="flex items-center justify-center w-10 h-10 shrink-0 text-[40px] text-(--pd-content-header)"
     aria-hidden="true">
     {@render icon()}
   </div>
   <div class="flex flex-col gap-1 flex-1 min-w-0">
-    <h3 class="text-lg font-semibold text-[var(--pd-content-header)]">{title}</h3>
+    <h3 class="text-lg font-semibold text-(--pd-content-header)">{title}</h3>
     <p>{domain}</p>
     <p>{description}</p>
   </div>
