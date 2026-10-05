@@ -178,47 +178,22 @@ test('check image builder includes target arch for anaconda-iso', async () => {
   expect(options.Cmd).toContain('--target-arch');
 });
 
-test('check that if xfs is passed into filesystem, it is included in the command', async () => {
-  const build = {
-    image: 'test-image',
-    type: ['vmdk'],
-    arch: 'amd',
-    filesystem: 'xfs',
-  } as BootcBuildInfo;
-  const options = createBuilderImageOptions('my-image', build);
+test.each(['xfs', 'ext4', 'btrfs'])(
+  'check that if %s is passed into filesystem, it is included in the command',
+  async filesystem => {
+    const build = {
+      image: 'test-image',
+      type: ['vmdk'],
+      arch: 'amd',
+      filesystem,
+    } as BootcBuildInfo;
+    const options = createBuilderImageOptions('my-image', build);
 
-  expect(options).toBeDefined();
-  expect(options.Cmd).toContain('--rootfs');
-  expect(options.Cmd).toContain(build.filesystem);
-});
-
-test('check that if ext4 is passed into the filesystem, it is included in the command', async () => {
-  const build = {
-    image: 'test-image',
-    type: ['vmdk'],
-    arch: 'amd',
-    filesystem: 'ext4',
-  } as BootcBuildInfo;
-  const options = createBuilderImageOptions('my-image', build);
-
-  expect(options).toBeDefined();
-  expect(options.Cmd).toContain('--rootfs');
-  expect(options.Cmd).toContain(build.filesystem);
-});
-
-test('check that if btrfs is passed into the filesystem, it is included in the command', async () => {
-  const build = {
-    image: 'test-image',
-    type: ['vmdk'],
-    arch: 'amd',
-    filesystem: 'btrfs',
-  } as BootcBuildInfo;
-  const options = createBuilderImageOptions('my-image', build);
-
-  expect(options).toBeDefined();
-  expect(options.Cmd).toContain('--rootfs');
-  expect(options.Cmd).toContain(build.filesystem);
-});
+    expect(options).toBeDefined();
+    expect(options.Cmd).toContain('--rootfs');
+    expect(options.Cmd).toContain(build.filesystem);
+  },
+);
 
 test('test if a fake filesystem foobar is passed into filesystem, it is not included in the command', async () => {
   const build = {
@@ -439,7 +414,7 @@ test('test that if aws options are not provided, they are NOT included in the co
   expect(options.HostConfig?.Binds).toBeDefined();
   if (options.HostConfig?.Binds) {
     // Expect the length to ONLY be two. The first bind is the output folder, the second is the storage folder
-    expect(options.HostConfig.Binds.length).toEqual(2);
+    expect(options.HostConfig.Binds).toHaveLength(2);
     expect(options.HostConfig.Binds[0]).toEqual(build.folder + ':/output/');
     expect(options.HostConfig.Binds[1]).toEqual('/var/lib/containers/storage:/var/lib/containers/storage');
   }
@@ -467,7 +442,7 @@ test('test if build config toml passed in, it will work', async () => {
   expect(options.HostConfig).toBeDefined();
   expect(options.HostConfig?.Binds).toBeDefined();
   if (options.HostConfig?.Binds) {
-    expect(options.HostConfig.Binds.length).toEqual(3);
+    expect(options.HostConfig.Binds).toHaveLength(3);
     expect(options.HostConfig.Binds[0]).toEqual(build.folder + ':/output/');
     expect(options.HostConfig.Binds[1]).toEqual('/var/lib/containers/storage:/var/lib/containers/storage');
     expect(options.HostConfig.Binds[2]).toEqual(build.buildConfigFilePath + ':/config.toml:ro');
@@ -491,7 +466,7 @@ test('test build config json passed in', async () => {
   expect(options.HostConfig).toBeDefined();
   expect(options.HostConfig?.Binds).toBeDefined();
   if (options.HostConfig?.Binds) {
-    expect(options.HostConfig.Binds.length).toEqual(3);
+    expect(options.HostConfig.Binds).toHaveLength(3);
     expect(options.HostConfig.Binds[0]).toEqual(build.folder + ':/output/');
     expect(options.HostConfig.Binds[1]).toEqual('/var/lib/containers/storage:/var/lib/containers/storage');
     expect(options.HostConfig.Binds[2]).toEqual(build.buildConfigFilePath + ':/config.json:ro');
@@ -515,7 +490,7 @@ test('test chown works when passed into createBuilderImageOptions', async () => 
   expect(options.HostConfig).toBeDefined();
   expect(options.HostConfig?.Binds).toBeDefined();
   if (options.HostConfig?.Binds) {
-    expect(options.HostConfig.Binds.length).toEqual(2);
+    expect(options.HostConfig.Binds).toHaveLength(2);
     expect(options.HostConfig.Binds[0]).toEqual(build.folder + ':/output/');
     expect(options.HostConfig.Binds[1]).toEqual('/var/lib/containers/storage:/var/lib/containers/storage');
   }
@@ -602,7 +577,7 @@ test('test building with a buildConfig JSON file that a temporary file for build
   expect(options.HostConfig).toBeDefined();
   expect(options.HostConfig?.Binds).toBeDefined();
   if (options.HostConfig?.Binds) {
-    expect(options.HostConfig.Binds.length).toEqual(3);
+    expect(options.HostConfig.Binds).toHaveLength(3);
     expect(options.HostConfig.Binds[0]).toEqual(build.folder + ':/output/');
     expect(options.HostConfig.Binds[1]).toEqual('/var/lib/containers/storage:/var/lib/containers/storage');
     expect(options.HostConfig.Binds[2]).toContain('config.json:ro');
@@ -653,7 +628,6 @@ test('expect createBuildConfigJSON to read a valid kickstart file and output it 
   `;
 
   // Spy on fs.readFileSync to make sure it is called
-  vi.mock('node:fs');
   vi.spyOn(fs, 'existsSync').mockReturnValue(true);
   vi.spyOn(fs, 'readFileSync').mockReturnValue(mockKickstartFileContents);
 

@@ -79,6 +79,7 @@ test.afterAll(async ({ runner, page }) => {
 });
 
 test.describe('BootC Examples', () => {
+  // eslint-disable-next-line sonarjs/no-skipped-tests -- platform gate: BootC examples suite unsupported on Linux
   test.skip(isLinux);
 
   test.beforeAll(async ({ navigationBar }) => {
