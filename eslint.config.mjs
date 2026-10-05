@@ -31,7 +31,6 @@ import noNull from 'eslint-plugin-no-null';
 import sonarjs from 'eslint-plugin-sonarjs';
 import etc from 'eslint-plugin-etc';
 import svelte from 'eslint-plugin-svelte';
-import redundantUndefined from 'eslint-plugin-redundant-undefined';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -75,7 +74,6 @@ export default [
       etc: fixupPluginRules(etc),
       import: fixupPluginRules(importPlugin),
       'no-null': fixupPluginRules(noNull),
-      'redundant-undefined': fixupPluginRules(redundantUndefined),
       'simple-import-sort': fixupPluginRules(simpleImportSort),
     },
     settings: {
@@ -185,7 +183,6 @@ export default [
       'etc/no-commented-out-code': 'error',
       'etc/no-deprecated': 'off',
       'etc/no-commented-out-code': 'off',
-      'redundant-undefined/redundant-undefined': 'error',
       'import/no-extraneous-dependencies': 'error',
       'import/no-restricted-paths': [
         'error',
