@@ -29,7 +29,6 @@ import { FlatCompat } from '@eslint/eslintrc';
 import unicorn from 'eslint-plugin-unicorn';
 import noNull from 'eslint-plugin-no-null';
 import sonarjs from 'eslint-plugin-sonarjs';
-import etc from 'eslint-plugin-etc';
 import svelte from 'eslint-plugin-svelte';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 
@@ -63,15 +62,12 @@ export default [
   ...typescriptLint.configs.recommended,
   sonarjs.configs.recommended,
   ...svelte.configs['flat/recommended'],
-  ...fixupConfigRules(
-    compat.extends('plugin:import/recommended', 'plugin:import/typescript', 'plugin:etc/recommended'),
-  ),
+  ...fixupConfigRules(compat.extends('plugin:import/recommended', 'plugin:import/typescript')),
   {
     plugins: {
       // compliant v9 plug-ins
       unicorn,
       // non-compliant v9 plug-ins
-      etc: fixupPluginRules(etc),
       import: fixupPluginRules(importPlugin),
       'no-null': fixupPluginRules(noNull),
       'simple-import-sort': fixupPluginRules(simpleImportSort),
@@ -144,6 +140,7 @@ export default [
 
       // unicorn custom rules
       'unicorn/prefer-node-protocol': 'error',
+      'unicorn/no-array-sort': 'error',
       'no-null/no-null': 'error',
       'sonarjs/no-empty-function': 'off',
       'sonarjs/deprecation': 'off',
@@ -180,9 +177,6 @@ export default [
       'sonarjs/no-empty-collection': 'off',
       'sonarjs/no-small-switch': 'off',
       'sonarjs/no-unused-expressions': 'off',
-      'etc/no-commented-out-code': 'error',
-      'etc/no-deprecated': 'off',
-      'etc/no-commented-out-code': 'off',
       'import/no-extraneous-dependencies': 'error',
       'import/no-restricted-paths': [
         'error',
@@ -220,7 +214,6 @@ export default [
 
     rules: {
       eqeqeq: 'off',
-      'etc/no-implicit-any-catch': 'off',
       'no-inner-declarations': 'off',
       'sonarjs/code-eval': 'off',
       'sonarjs/different-types-comparison': 'off',
