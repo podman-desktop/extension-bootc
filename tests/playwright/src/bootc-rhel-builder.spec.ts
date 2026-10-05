@@ -79,6 +79,7 @@ test.afterAll(async ({ runner, page }) => {
 });
 
 test.describe('BootC RHEL Builder', () => {
+  // eslint-disable-next-line sonarjs/no-skipped-tests -- platform gate: RHEL builder suite unsupported on Linux
   test.skip(isLinux);
 
   test.beforeAll(async ({ navigationBar }) => {
@@ -88,6 +89,7 @@ test.describe('BootC RHEL Builder', () => {
 
   test.describe
     .serial('Bootc image with RHEL builder', () => {
+      // eslint-disable-next-line sonarjs/assertions-in-tests -- drives a preference change via page object; assertion would duplicate page-object internals
       test('Change builder to RHEL in Preferences', async ({ navigationBar }) => {
         await changeToRHELBuilderInPreferences(navigationBar);
       });
@@ -147,6 +149,7 @@ test.describe('BootC RHEL Builder', () => {
 
                       if (failureFullText.includes('Can also be that the registry requires authentication')) {
                         console.log('Could not pull rhel image from registry, skipping test');
+                        // eslint-disable-next-line sonarjs/no-skipped-tests -- conditionally skipped when the RHEL image cannot be pulled (registry auth required)
                         test.skip();
                         return;
                       }

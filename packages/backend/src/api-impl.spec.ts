@@ -90,8 +90,8 @@ test('getExamples should return examplesCatalog', async () => {
   // When running get Examples we should return the examplesCatalog (it's exported)
   const result = await bootcApi.getExamples();
   // Check that the examples and categories are NOT empty
-  expect(result.examples.length).not.toBe(0);
-  expect(result.categories.length).not.toBe(0);
+  expect(result.examples).not.toHaveLength(0);
+  expect(result.categories).not.toHaveLength(0);
 
   expect(result).toEqual(examplesCatalog as ExamplesList);
 });
@@ -105,7 +105,7 @@ test('listContainers should return list from extension api', async () => {
   const result = await apiImpl.listContainers();
 
   expect(podmanDesktopApi.containerEngine.listContainers).toHaveBeenCalled();
-  expect(result.length).toBe(2);
+  expect(result).toHaveLength(2);
 });
 
 test('deleteImage should call the extension api and fire event', async () => {

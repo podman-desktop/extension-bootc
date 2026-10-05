@@ -33,22 +33,17 @@ test('Expect running status to display correct background color', async () => {
   expect(icon).not.toHaveClass('text-xs');
 });
 
-test('Expect success status to display green background', async () => {
-  const status = 'success';
+test.each([
+  { status: 'success', background: 'bg-[var(--pd-status-running)]' },
+  { status: 'error', background: 'bg-[var(--pd-status-terminated)]' },
+  { status: 'lost', background: 'bg-[var(--pd-status-degraded)]' },
+  { status: 'used', background: 'bg-[var(--pd-status-running)]' },
+])('Expect $status status to display $background background', async ({ status, background }) => {
   render(BootcStatusIcon, { status });
   const icon = screen.getByRole('status');
   expect(icon).toBeInTheDocument();
   expect(icon).toHaveAttribute('title', status);
-  expect(icon).toHaveClass('bg-[var(--pd-status-running)]');
-});
-
-test('Expect error status to display red background', async () => {
-  const status = 'error';
-  render(BootcStatusIcon, { status });
-  const icon = screen.getByRole('status');
-  expect(icon).toBeInTheDocument();
-  expect(icon).toHaveAttribute('title', status);
-  expect(icon).toHaveClass('bg-[var(--pd-status-terminated)]');
+  expect(icon).toHaveClass(background);
 });
 
 test('If running, creating or deleting, expect an svg which is the spinner', async () => {
@@ -57,24 +52,6 @@ test('If running, creating or deleting, expect an svg which is the spinner', asy
   const icon = screen.getByRole('status');
   expect(icon).toBeInTheDocument();
   expect(icon).toContainHTML('<svg');
-});
-
-test('Expect lost status to display amber background', async () => {
-  const status = 'lost';
-  render(BootcStatusIcon, { status });
-  const icon = screen.getByRole('status');
-  expect(icon).toBeInTheDocument();
-  expect(icon).toHaveAttribute('title', status);
-  expect(icon).toHaveClass('bg-[var(--pd-status-degraded)]');
-});
-
-test('Expect used status to display green background', async () => {
-  const status = 'used';
-  render(BootcStatusIcon, { status });
-  const icon = screen.getByRole('status');
-  expect(icon).toBeInTheDocument();
-  expect(icon).toHaveAttribute('title', status);
-  expect(icon).toHaveClass('bg-[var(--pd-status-running)]');
 });
 
 test('Expect unused status to display correct border', async () => {

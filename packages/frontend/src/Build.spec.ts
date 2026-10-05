@@ -167,7 +167,7 @@ test('Render shows correct images and history', async () => {
 
   const select = screen.getByLabelText('image-select');
   expect(select).toBeDefined();
-  expect(select.children.length).toEqual(2);
+  expect(select.children).toHaveLength(2);
 
   // Expect image:1 to be first since it's the last one in the history
   expect(select.children[0].textContent).toEqual('image1:latest');
@@ -222,7 +222,7 @@ test('Check that preselecting an image works', async () => {
 
   const select = screen.getByLabelText('image-select') as HTMLSelectElement;
   expect(select).toBeDefined();
-  expect(select.children.length).toEqual(2);
+  expect(select.children).toHaveLength(2);
 
   // Expect image:1 to be first since it's the last one in the history
   expect(select.children[0].textContent).toEqual('image1:latest');
@@ -438,7 +438,7 @@ test('Do not show an image if it has no repotags and has isManifest as false', a
 
   const select = screen.getByLabelText('image-select');
   expect(select).toBeDefined();
-  expect(select.children.length).toEqual(1);
+  expect(select.children).toHaveLength(1);
   expect(select.children[0].textContent).toEqual('Select an image');
 
   // Find the <p> that CONTAINS "No bootable container compatible images found."
@@ -558,7 +558,7 @@ test('Show the image if isManifest: true and Labels is empty', async () => {
 
   const select = screen.getByLabelText('image-select');
   expect(select).toBeDefined();
-  expect(select.children.length).toEqual(1);
+  expect(select.children).toHaveLength(1);
   expect(select.children[0].textContent).toEqual('testmanifest1:latest');
 
   // Expect input amd64 to be selected
@@ -676,7 +676,7 @@ test('have amd64 and arm64 NOT disabled if inspectManifest contains both archite
 
   const select = screen.getByLabelText('image-select');
   expect(select).toBeDefined();
-  expect(select.children.length).toEqual(1);
+  expect(select.children).toHaveLength(1);
   expect(select.children[0].textContent).toEqual('testmanifest1:latest');
 
   // Expect amd64 and arm64 to be not disabled

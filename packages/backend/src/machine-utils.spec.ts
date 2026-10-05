@@ -160,29 +160,14 @@ test('Pass true if Rootful is in HostUser', async () => {
   await expect(machineUtils.isPodmanMachineRootful(fakeConnection)).resolves.toBe(true);
 });
 
-test('Check isPodmanV5Machine on 4.9', async () => {
+test.each([
+  ['4.9.4', false],
+  ['5.0.0', true],
+  ['5.0.0-dev', true],
+])('Check isPodmanV5Machine on %s', async (version, expected) => {
   const fakeMachineInfoJSON = {
     Version: {
-      Version: '4.9.4',
-    },
-  };
-
-  vi.spyOn(extensionApi.process, 'exec').mockReturnValueOnce(
-    Promise.resolve({ stdout: JSON.stringify(fakeMachineInfoJSON) } as extensionApi.RunResult),
-  );
-
-  // Mock existsSync to return true (the "fake" file is there)
-  vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-
-  // Mock the readFile function to return the "fake" file with rootful being true
-  vi.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(JSON.stringify({ Rootful: true }));
-  await expect(machineUtils.isPodmanV5Machine(fakeConnection)).resolves.toBe(false);
-});
-
-test('Check isPodmanV5Machine on 5.0', async () => {
-  const fakeMachineInfoJSON = {
-    Version: {
-      Version: '5.0.0',
+      Version: version,
     },
     Host: {
       NumberOfMachines: 1,
@@ -198,29 +183,7 @@ test('Check isPodmanV5Machine on 5.0', async () => {
 
   // Mock the readFile function to return the "fake" file with rootful being true
   vi.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(JSON.stringify({ Rootful: true }));
-  await expect(machineUtils.isPodmanV5Machine(fakeConnection)).resolves.toBe(true);
-});
-
-test('Check isPodmanV5Machine on 5.0.0-dev resolves to be true', async () => {
-  const fakeMachineInfoJSON = {
-    Version: {
-      Version: '5.0.0-dev',
-    },
-    Host: {
-      NumberOfMachines: 1,
-    },
-  };
-
-  vi.spyOn(extensionApi.process, 'exec').mockReturnValueOnce(
-    Promise.resolve({ stdout: JSON.stringify(fakeMachineInfoJSON) } as extensionApi.RunResult),
-  );
-
-  // Mock existsSync to return true (the "fake" file is there)
-  vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-
-  // Mock the readFile function to return the "fake" file with rootful being true
-  vi.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(JSON.stringify({ Rootful: true }));
-  await expect(machineUtils.isPodmanV5Machine(fakeConnection)).resolves.toBe(true);
+  await expect(machineUtils.isPodmanV5Machine(fakeConnection)).resolves.toBe(expected);
 });
 
 test('Fail if machine version is 4.0.0 for isPodmanV5Machine', async () => {
@@ -329,10 +292,10 @@ test('Pass prereq if rootful v5 machine (macos/windows)', async () => {
   vi.spyOn(fs.promises, 'readFile').mockResolvedValueOnce(JSON.stringify({ HostUser: { Rootful: true } }));
   await expect(machineUtils.isPodmanMachineRootful(fakeConnection)).resolves.toBe(true);
 
-  expect(await machineUtils.checkPrereqs(fakeConnection)).toEqual(undefined);
+  expect(await machineUtils.checkPrereqs(fakeConnection)).toBeUndefined();
 });
 
 test('Pass prereq (linux)', async () => {
   vi.mocked(extensionApi.env).isLinux = true;
-  expect(await machineUtils.checkPrereqs(fakeConnection)).toEqual(undefined);
+  expect(await machineUtils.checkPrereqs(fakeConnection)).toBeUndefined();
 });

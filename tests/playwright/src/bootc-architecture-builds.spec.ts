@@ -93,6 +93,7 @@ test.describe('BootC Architecture Builds', () => {
   for (const architecture of architectures) {
     test.describe
       .serial(`Bootc images for architecture: ${architecture}`, () => {
+        // eslint-disable-next-line sonarjs/assertions-in-tests -- assertions use playExpect.poll(...), which the rule does not recognize
         test(`Build bootc image from containerfile for architecture: ${architecture}`, async ({ navigationBar }) => {
           test.setTimeout(1_560_000);
 
@@ -127,15 +128,19 @@ test.describe('BootC Architecture Builds', () => {
           test.describe
             .serial('Building images ', () => {
               test(`Building bootable image type: ${type}`, async ({ runner, navigationBar }) => {
+                // eslint-disable-next-line sonarjs/no-skipped-tests -- platform gate: bootable image builds unsupported on Linux
                 test.skip(isLinux, 'Building bootable images is not supported on Linux');
+                // eslint-disable-next-line sonarjs/no-skipped-tests -- platform gate: amd64 bootable builds unsupported on macOS
                 test.skip(
                   isMac && architecture === ArchitectureType.AMD64,
                   'Building amd64 bootable images is not supported on macOS',
                 );
+                // eslint-disable-next-line sonarjs/no-skipped-tests -- platform gate: arm64 bootable builds unsupported on Windows
                 test.skip(
                   isWindows && architecture === ArchitectureType.ARM64,
                   'Building arm64 bootable images is not supported on Windows',
                 );
+                // eslint-disable-next-line sonarjs/no-skipped-tests -- platform gate: VMDK builds too slow on Windows virtualized environments
                 test.skip(
                   isWindows && type === 'VMDK',
                   'VMDK builds are too slow on Windows virtualized environments (Hyper-V/WSL2 I/O bottleneck)',
@@ -144,11 +149,13 @@ test.describe('BootC Architecture Builds', () => {
 
                 if (imageBuildFailed) {
                   console.log('Image build failed, skipping test');
+                  // eslint-disable-next-line sonarjs/no-skipped-tests -- conditionally skipped when the prerequisite image build failed
                   test.skip();
                 }
 
                 if (type === 'ISO' && !buildISOImage) {
                   console.log(`Building ISO image not requested, skipping test`);
+                  // eslint-disable-next-line sonarjs/no-skipped-tests -- conditionally skipped when ISO build was not requested
                   test.skip();
                 }
 

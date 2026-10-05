@@ -115,8 +115,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
 
   // replace links with webView Uri links
   // in the content <script type="module" crossorigin src="./index-RKnfBG18.js"></script> replace src with webview.asWebviewUri
-  // eslint-disable-next-line sonarjs/slow-regex
-  const scriptLink = indexHtml.match(/<script.*?src="(.*?)".*?>/g);
+  const scriptLink = indexHtml.match(/<script[^>]*?src="([^"]*)"[^>]*>/g);
   if (scriptLink) {
     const regEx: RegExp = RegExp(/src="(.*?)"/);
     scriptLink.forEach(link => {
@@ -131,8 +130,7 @@ export async function activate(extensionContext: ExtensionContext): Promise<void
   }
 
   // and now replace for css file as well
-  // eslint-disable-next-line sonarjs/slow-regex
-  const cssLink = indexHtml.match(/<link.*?href="(.*?)".*?>/g);
+  const cssLink = indexHtml.match(/<link[^>]*?href="([^"]*)"[^>]*>/g);
   if (cssLink) {
     const regEx: RegExp = RegExp(/href="(.*?)"/);
     cssLink.forEach(link => {
