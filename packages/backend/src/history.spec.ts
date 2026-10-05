@@ -21,14 +21,7 @@ import { History } from './history';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-vi.mock('node:fs', async () => {
-  return {
-    readFile: vi.fn().mockImplementation(() => '[]'),
-    writeFile: vi.fn().mockImplementation(() => Promise.resolve()),
-    existsSync: vi.fn().mockImplementation(() => true),
-    mkdir: vi.fn().mockImplementation(() => Promise.resolve()),
-  };
-});
+vi.mock(import('node:fs/promises'));
 
 beforeEach(() => {
   vi.clearAllMocks();
