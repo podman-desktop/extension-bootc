@@ -26,6 +26,8 @@ overrides:
   '@humanfs/node': '>=0.16.8'
   devalue@^5: ^5.9.4
   source-map-js@^1: ^1.2.2
+  postcss-selector-parser@^6: ^7.1.6
+  postcss-selector-parser@^7: ^7.1.6
 
 importers:
 
@@ -2924,12 +2926,8 @@ packages:
     peerDependencies:
       postcss: '>=8.5.18'
 
-  postcss-selector-parser@6.0.10:
-    resolution: {integrity: sha512-IQ7TZdoaqbT+LCpShg46jnZVlhWD2w6iQYAcYXfHARZ7X1t/UGhhceQDs5X0cGqKvYlHNOuv7Oa1xmb0oQuA3w==}
-    engines: {node: '>=4'}
-
-  postcss-selector-parser@7.1.5:
-    resolution: {integrity: sha512-KvvtD7SrlBP7dlgkBghEE3r84CABm5SmV2aNcG4oCA+qDnJ/tvKonFVvwWAyyWUEwxuNawdfEAZKP9zM3oZ2Uw==}
+  postcss-selector-parser@7.1.6:
+    resolution: {integrity: sha512-7qASPzhKF2l2KLboRZux8CCTRMdGiV08vWmyKzPz22qZ7ZjQBOeY7rNzNoCLSUiftJ7HUq0GERHmxw/t0dCdMw==}
     engines: {node: '>=4'}
 
   postcss-value-parser@4.2.0:
@@ -4301,7 +4299,7 @@ snapshots:
 
   '@tailwindcss/typography@0.5.20(tailwindcss@4.3.3)':
     dependencies:
-      postcss-selector-parser: 6.0.10
+      postcss-selector-parser: 7.1.6
       tailwindcss: 4.3.3
 
   '@tailwindcss/vite@4.3.3(vite@8.3.2(@types/node@24.19.1)(esbuild@0.25.12)(jiti@2.7.0)(yaml@2.9.1))':
@@ -6088,12 +6086,7 @@ snapshots:
     dependencies:
       postcss: 8.5.26
 
-  postcss-selector-parser@6.0.10:
-    dependencies:
-      cssesc: 3.0.0
-      util-deprecate: 1.0.2
-
-  postcss-selector-parser@7.1.5:
+  postcss-selector-parser@7.1.6:
     dependencies:
       cssesc: 3.0.0
       util-deprecate: 1.0.2
@@ -6416,7 +6409,7 @@ snapshots:
       espree: 10.4.0
       postcss: 8.5.26
       postcss-scss: 4.0.9(postcss@8.5.26)
-      postcss-selector-parser: 7.1.5
+      postcss-selector-parser: 7.1.6
       semver: 7.8.5
     optionalDependencies:
       svelte: 5.57.1(@typescript-eslint/types@8.71.0)

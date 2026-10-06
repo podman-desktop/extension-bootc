@@ -23,6 +23,8 @@ overrides:
   '@humanfs/node': '>=0.16.8'
   devalue@^5: ^5.9.4
   source-map-js@^1: ^1.2.2
+  postcss-selector-parser@^6: ^7.1.6
+  postcss-selector-parser@^7: ^7.1.6
 nodeLinker: hoisted
 allowBuilds:
   '@biomejs/biome': false
