@@ -91,11 +91,13 @@ test('Test that getConfigurationValue was called to get the default values..', a
   const createButton = screen.getByRole('button', { name: 'Create Virtual Machine' });
   expect(createButton).toBeEnabled();
 
-  // Expect it to be called with 'bootc', and 'macadam.ssh.private.key'
-  expect(bootcClient.getConfigurationValue).toHaveBeenCalledWith('bootc', 'macadam.ssh.private.key');
+  await vi.waitFor(() => {
+    // Expect it to be called with 'bootc' and 'macadam.ssh.private.key'
+    expect(bootcClient.getConfigurationValue).toHaveBeenCalledWith('bootc', 'macadam.ssh.private.key');
 
-  // Expect it to be called with bootc and macadam.ssh.username
-  expect(bootcClient.getConfigurationValue).toHaveBeenCalledWith('bootc', 'macadam.ssh.username');
+    // Expect it to be called with 'bootc' and 'macadam.ssh.username'
+    expect(bootcClient.getConfigurationValue).toHaveBeenCalledWith('bootc', 'macadam.ssh.username');
+  });
 });
 
 test('Test pressing Create Virtual Machine calls bootcClient.createVM', async () => {
