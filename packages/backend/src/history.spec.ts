@@ -21,21 +21,14 @@ import { History } from './history';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
+vi.mock(import('node:fs/promises'));
+
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
 describe('History class tests', () => {
   test('check simple add and get', async () => {
-    vi.mock('node:fs', async () => {
-      return {
-        readFile: vi.fn().mockImplementation(() => '[]'),
-        writeFile: vi.fn().mockImplementation(() => Promise.resolve()),
-        existsSync: vi.fn().mockImplementation(() => true),
-        mkdir: vi.fn().mockImplementation(() => Promise.resolve()),
-      };
-    });
-
     const tmpDir = os.tmpdir();
     const tmpFilePath = path.join(tmpDir, `tempfile-${Date.now()}`);
     const history = new History(tmpFilePath);
@@ -56,15 +49,6 @@ describe('History class tests', () => {
   });
 
   test('check get returns latest after multiple adds', async () => {
-    vi.mock('node:fs', async () => {
-      return {
-        readFile: vi.fn().mockImplementation(() => '[]'),
-        writeFile: vi.fn().mockImplementation(() => Promise.resolve()),
-        existsSync: vi.fn().mockImplementation(() => true),
-        mkdir: vi.fn().mockImplementation(() => Promise.resolve()),
-      };
-    });
-
     const tmpDir = os.tmpdir();
     const tmpFilePath = path.join(tmpDir, `tempfile-${Date.now()}`);
     const history = new History(tmpFilePath);

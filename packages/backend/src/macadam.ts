@@ -100,7 +100,7 @@ export class MacadamHandler {
       return vms;
     } catch (err) {
       console.error('Failed to list VMs:', err);
-      throw new Error(`Error listing VMs: ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(`Error listing VMs: ${err instanceof Error ? err.message : String(err)}`, { cause: err });
     }
   }
 }

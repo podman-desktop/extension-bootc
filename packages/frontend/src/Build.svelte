@@ -553,6 +553,7 @@ $: if (selectedImage || buildFolder || buildArch || overwrite) {
   if (validateDebounceTimer) {
     clearTimeout(validateDebounceTimer);
   }
+  // eslint-disable-next-line no-useless-assignment -- timer handle is read by clearTimeout on the next reactive run
   validateDebounceTimer = setTimeout(() => {
     validate().catch((e: unknown) => console.error('error validating on change', e));
   }, 500);

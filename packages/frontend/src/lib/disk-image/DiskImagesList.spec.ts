@@ -74,7 +74,7 @@ test('Disk Images renders correctly with no past builds', async () => {
   vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue([]);
 
   render(DiskImagesList);
-  expect(screen.queryByText('No disk images')).not.toBeNull();
+  expect(screen.getByText('No disk images')).not.toBeNull();
 });
 
 test('Homepage renders correctly with multiple rows', async () => {
@@ -89,10 +89,10 @@ test('Homepage renders correctly with multiple rows', async () => {
 
   await vi.waitFor(() => {
     // Name 'image1:latest' should be present
-    expect(screen.queryByText('image1:latest')).not.toBeNull();
+    expect(screen.getByText('image1:latest')).not.toBeNull();
 
     // Name 'image2:latest' should be present
-    expect(screen.queryByText('image2:latest')).not.toBeNull();
+    expect(screen.getByText('image2:latest')).not.toBeNull();
   });
 });
 
@@ -145,7 +145,7 @@ test('On non-windows, the Create VM button should show', async () => {
   });
 
   // Check that the Create VM button is present
-  expect(screen.queryByText('Create VM')).not.toBeNull();
+  expect(screen.getByText('Create VM')).not.toBeNull();
 });
 
 test('On windows, the Create VM button should not show', async () => {

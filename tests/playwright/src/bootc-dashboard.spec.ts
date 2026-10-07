@@ -141,6 +141,7 @@ test.describe('BootC Dashboard', () => {
 
       for (const type of types) {
         test(`Build demo image from dashboard for type ${type}`, async ({ runner }) => {
+          // eslint-disable-next-line sonarjs/no-skipped-tests -- platform gate: bootable image builds unsupported on Linux
           test.skip(isLinux, 'Building bootable images is not supported on Linux');
           test.setTimeout(1_560_000);
 
