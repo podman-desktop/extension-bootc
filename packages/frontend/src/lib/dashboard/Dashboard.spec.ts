@@ -38,14 +38,9 @@ const mockBootcImages: ImageInfo[] = [
     engineId: 'engine1',
     engineName: 'engine1',
     ParentId: 'parent1',
-    Created: 0,
-    VirtualSize: 0,
-    Size: 0,
-    Containers: 0,
-    SharedSize: 0,
     Digest: 'sha256:1234567890abcdef',
   },
-];
+] as unknown as ImageInfo[];
 
 const mockDiskImage: BootcBuildInfo = {
   id: 'disk-image',
