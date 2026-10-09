@@ -64,11 +64,6 @@ const mockBootcImages: ImageInfo[] = [
     engineId: 'engine1',
     engineName: 'engine1',
     ParentId: 'parent1',
-    Created: 0,
-    VirtualSize: 0,
-    Size: 0,
-    Containers: 0,
-    SharedSize: 0,
     Digest: 'sha256:image1',
   },
   {
@@ -80,14 +75,9 @@ const mockBootcImages: ImageInfo[] = [
     engineId: 'engine2',
     engineName: 'engine2',
     ParentId: 'parent2',
-    Created: 0,
-    VirtualSize: 0,
-    Size: 0,
-    Containers: 0,
-    SharedSize: 0,
     Digest: 'sha256:image2',
   },
-];
+] as unknown as ImageInfo[];
 
 const mockImageInspect = {
   Architecture: 'amd64',
@@ -289,65 +279,9 @@ test('Check that overwriting an existing build works', async () => {
 
 const fakedImageInspect: ImageInspectInfo = {
   Architecture: 'amd64',
-  Author: '',
-  Comment: '',
-  Config: {
-    ArgsEscaped: false,
-    AttachStderr: false,
-    AttachStdin: false,
-    AttachStdout: false,
-    Cmd: [],
-    Domainname: '',
-    Entrypoint: [],
-    Env: [],
-    ExposedPorts: {},
-    Hostname: '',
-    Image: '',
-    Labels: {},
-    OnBuild: [],
-    OpenStdin: false,
-    StdinOnce: false,
-    Tty: false,
-    User: '',
-    Volumes: {},
-    WorkingDir: '',
-  },
-  Container: '',
-  ContainerConfig: {
-    ArgsEscaped: false,
-    AttachStderr: false,
-    AttachStdin: false,
-    AttachStdout: false,
-    Cmd: [],
-    Domainname: '',
-    Env: [],
-    ExposedPorts: {},
-    Hostname: '',
-    Image: '',
-    Labels: {},
-    OpenStdin: false,
-    StdinOnce: false,
-    Tty: false,
-    User: '',
-    Volumes: {},
-    WorkingDir: '',
-  },
-  Created: '',
-  DockerVersion: '',
-  GraphDriver: { Data: { DeviceId: '', DeviceName: '', DeviceSize: '' }, Name: '' },
-  Id: '',
-  Os: '',
-  Parent: '',
-  RepoDigests: [],
-  RepoTags: [],
-  RootFS: {
-    Type: '',
-  },
-  Size: 0,
-  VirtualSize: 0,
   engineId: 'engineid',
   engineName: 'engineName',
-};
+} as unknown as ImageInspectInfo;
 
 test('Test that arm64 is disabled in form if inspectImage returns no arm64', async () => {
   vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
@@ -412,15 +346,10 @@ test('Do not show an image if it has no repotags and has isManifest as false', a
       engineId: 'engine1',
       engineName: 'engine1',
       ParentId: 'parent1',
-      Created: 0,
-      VirtualSize: 0,
-      Size: 0,
-      Containers: 0,
-      SharedSize: 0,
       Digest: 'sha256:image1',
       isManifest: false,
     },
-  ];
+  ] as unknown as ImageInfo[];
 
   vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
   vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockedImages);
@@ -492,11 +421,6 @@ test('Show the image if isManifest: true and Labels is empty', async () => {
       engineId: 'engine1',
       engineName: 'engine1',
       ParentId: 'parent1',
-      Created: 0,
-      VirtualSize: 0,
-      Size: 0,
-      Containers: 0,
-      SharedSize: 0,
       Digest: 'sha256:image1',
       isManifest: true,
     },
@@ -511,15 +435,10 @@ test('Show the image if isManifest: true and Labels is empty', async () => {
       engineId: 'engine1',
       engineName: 'engine1',
       ParentId: 'parent1',
-      Created: 0,
-      VirtualSize: 0,
-      Size: 0,
-      Containers: 0,
-      SharedSize: 0,
       Digest: 'sha256:image2',
       isManifest: false,
     },
-  ];
+  ] as unknown as ImageInfo[];
 
   const mockedManifestInspect: ManifestInspectInfo = {
     engineId: 'podman1',
@@ -581,11 +500,6 @@ test('have amd64 and arm64 NOT disabled if inspectManifest contains both archite
       engineId: 'engine1',
       engineName: 'engine1',
       ParentId: 'parent1',
-      Created: 0,
-      VirtualSize: 0,
-      Size: 0,
-      Containers: 0,
-      SharedSize: 0,
       Digest: 'sha256:image1',
       isManifest: true,
     },
@@ -600,11 +514,6 @@ test('have amd64 and arm64 NOT disabled if inspectManifest contains both archite
       engineId: 'engine1',
       engineName: 'engine1',
       ParentId: 'parent1',
-      Created: 0,
-      VirtualSize: 0,
-      Size: 0,
-      Containers: 0,
-      SharedSize: 0,
       Digest: 'sha256:image2',
       isManifest: false,
     },
@@ -617,15 +526,10 @@ test('have amd64 and arm64 NOT disabled if inspectManifest contains both archite
       engineId: 'engine1',
       engineName: 'engine1',
       ParentId: 'parent1',
-      Created: 0,
-      VirtualSize: 0,
-      Size: 0,
-      Containers: 0,
-      SharedSize: 0,
       Digest: 'sha256:image3',
       isManifest: false,
     },
-  ];
+  ] as unknown as ImageInfo[];
 
   const mockedManifestInspect: ManifestInspectInfo = {
     engineId: 'podman1',
@@ -721,13 +625,8 @@ test('if a manifest is created that has the label "6.8.9-300.fc40.aarch64" in as
     engineId: 'podman1',
     engineName: 'podman',
     ParentId: '',
-    Created: 0,
-    VirtualSize: 0,
-    Size: 0,
-    Containers: 0,
-    SharedSize: 0,
     Digest: 'sha256:fedoraImage',
-  };
+  } as unknown as ImageInfo;
 
   vi.mocked(bootcClient.inspectImage).mockResolvedValue(mockImageInspect);
   vi.mocked(bootcClient.inspectManifest).mockResolvedValue(mockManifestInspect);
