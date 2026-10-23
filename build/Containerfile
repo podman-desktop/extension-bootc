@@ -24,7 +24,7 @@ WORKDIR /opt/app-root/src
 # invocation non-interactive, otherwise that nested install blocks on a prompt.
 ENV CI=true
 
-RUN npm i -g corepack@0.31.0 && corepack enable
+RUN npm i -g corepack@0.34.6 && corepack enable
 
 COPY --chown=1001:1001 . .
 
