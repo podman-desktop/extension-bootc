@@ -45,6 +45,7 @@ export class BootcPage {
   readonly bootcBuildDiskPage: Locator;
   readonly getTypeOfLatestBuildImage: Locator;
   readonly overwriteBuildCheckbox: Locator;
+  private readonly nextButton: Locator;
 
   constructor(page: Page, webview: Page) {
     this.page = page;
@@ -58,17 +59,18 @@ export class BootcPage {
     this.vmdkCheckbox = webview.getByLabel('vmdk-checkbox');
     this.amiCheckbox = webview.getByLabel('ami-checkbox');
     this.vhdCheckbox = webview.getByLabel('vhd-checkbox');
-    this.amd64Button = webview.getByLabel('amd64-button');
-    this.arm64Button = webview.getByLabel('arm64-button');
+    this.amd64Button = webview.getByRole('radio', { name: 'amd64-select', exact: true });
+    this.arm64Button = webview.getByRole('radio', { name: 'arm64-select', exact: true });
     this.bootcListPage = webview.getByRole('region', { name: 'Bootable Containers', exact: true });
     this.bootcBuildDiskPage = webview.getByLabel('Build Disk Image');
-    this.buildButton = webview.getByRole('button', { name: 'Build', exact: true });
+    this.buildButton = webview.getByRole('button', { name: 'Build disk image', exact: true });
     this.goBackButton = webview.getByRole('button', { name: 'Go back', exact: true });
     this.rowGroup = webview.getByRole('rowgroup').nth(1);
     this.latestBuiltImage = this.rowGroup.getByRole('row').first();
     this.getCurrentStatusOfLatestBuildImage = this.latestBuiltImage.getByRole('status');
     this.getTypeOfLatestBuildImage = this.latestBuiltImage.getByRole('cell').nth(4);
     this.overwriteBuildCheckbox = webview.getByLabel('overwrite-checkbox');
+    this.nextButton = webview.getByRole('button', { name: 'Next', exact: true });
   }
 
   async buildDiskImage(
@@ -92,9 +94,9 @@ export class BootcPage {
     }
 
     await playExpect(this.heading).toBeVisible({ timeout: 10_000 });
-    await this.webview.waitForTimeout(5_000);
-
     await this.imageSelect.selectOption({ label: imageName });
+    await this.nextButton.click();
+
     await Promise.race([
       playExpect(this.amd64Button).toBeEnabled({ timeout: 30_000 }),
       playExpect(this.arm64Button).toBeEnabled({ timeout: 30_000 }),
@@ -108,10 +110,6 @@ export class BootcPage {
 
     await this.outputFolderPath.fill(pathToStore);
     await playExpect(this.outputFolderPath).toHaveValue(pathToStore);
-
-    // The overwrite checkbox may be visible for the previous path value;
-    // wait for the UI to react to the new path before proceeding.
-    await this.overwriteBuildCheckbox.waitFor({ state: 'hidden', timeout: 5_000 }).catch(() => {});
 
     await this.uncheckedAllCheckboxes();
     switch (type.toLocaleLowerCase()) {
@@ -140,11 +138,14 @@ export class BootcPage {
     switch (architecture) {
       case ArchitectureType.AMD64:
         await playExpect(this.amd64Button).toBeEnabled();
-        await this.amd64Button.click();
+        // The input is visually hidden. Select its visible label.
+        await this.amd64Button.locator('..').click();
+        await playExpect(this.amd64Button).toBeChecked();
         break;
       case ArchitectureType.ARM64:
         await playExpect(this.arm64Button).toBeEnabled();
-        await this.arm64Button.click();
+        await this.arm64Button.locator('..').click();
+        await playExpect(this.arm64Button).toBeChecked();
         break;
       case ArchitectureType.Default:
         // No action needed for default architecture
@@ -153,6 +154,10 @@ export class BootcPage {
         throw new Error(`Unknown architecture: ${architecture}`);
     }
 
+    await this.nextButton.click();
+    await playExpect(this.webview.getByRole('heading', { name: 'User configuration', exact: true })).toBeVisible();
+    await this.nextButton.click();
+    await playExpect(this.webview.getByRole('heading', { name: 'Review and build', exact: true })).toBeVisible();
     await this.checkCheckboxIfVisible(this.overwriteBuildCheckbox);
 
     await this.buildButton.scrollIntoViewIfNeeded();
