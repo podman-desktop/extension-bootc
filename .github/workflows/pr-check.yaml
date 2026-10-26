@@ -31,18 +31,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: pnpm/action-setup@v6.0.9
-        name: Install pnpm
+      - uses: pnpm/setup@v3.1.2
+        name: Install pnpm, Node.js and dependencies
         with:
-          run_install: false
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: 'pnpm'
-
-      - name: Execute pnpm
-        run: pnpm install
+          runtime: node@24
+          cache: true
 
       - name: Run linter
         run: pnpm lint:check
@@ -73,9 +66,6 @@ jobs:
       - uses: actions/checkout@v7
         with:
           path: extension-bootc
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
 
       # Checkout podman desktop
       - uses: actions/checkout@v7
@@ -115,15 +105,11 @@ jobs:
           # allow unprivileged user namespace
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
-      - uses: pnpm/action-setup@v6.0.9
-        name: Install pnpm
+      - uses: pnpm/setup@v3.1.2
+        name: Install pnpm and Node.js
         with:
-          run_install: false
-          package_json_file: ./podman-desktop/package.json
-
-      - name: Execute pnpm
-        working-directory: ./podman-desktop
-        run: pnpm install
+          runtime: node@24
+          working-directory: ./podman-desktop
 
       - name: Build Podman Desktop for E2E tests
         working-directory: ./podman-desktop
