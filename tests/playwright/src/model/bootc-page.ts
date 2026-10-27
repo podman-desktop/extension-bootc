@@ -154,11 +154,10 @@ export class BootcPage {
         throw new Error(`Unknown architecture: ${architecture}`);
     }
 
-    await this.nextButton.click();
-    await playExpect(this.webview.getByRole('heading', { name: 'User configuration', exact: true })).toBeVisible();
-    await this.nextButton.click();
-    await playExpect(this.webview.getByRole('heading', { name: 'Review and build', exact: true })).toBeVisible();
     await this.checkCheckboxIfVisible(this.overwriteBuildCheckbox);
+    await this.nextButton.click();
+    await playExpect(this.webview.getByRole('textbox', { name: 'Username', exact: true })).toBeVisible();
+    await playExpect(this.buildButton).toBeVisible();
 
     await this.buildButton.scrollIntoViewIfNeeded();
     await playExpect(this.buildButton).toBeEnabled({ timeout: 15_000 });

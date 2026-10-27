@@ -29,9 +29,9 @@ const steps = [
   { id: 'build', label: 'Build' },
 ];
 
-test('disable the current step and future steps', async () => {
+test('disable the current step and unavailable steps', async () => {
   const onStepClick = vi.fn();
-  render(Stepper, { value: 'image', steps, onStepClick });
+  render(Stepper, { value: 'image', steps: steps.map(step => ({ ...step, disabled: true })), onStepClick });
 
   for (const button of screen.getAllByRole('button')) {
     expect(button).toBeDisabled();
@@ -63,7 +63,16 @@ test.each(['Select image', '1'])('return to a previous step through %s', async n
   const target = name === '1' ? screen.getByText(name) : screen.getByRole('button', { name });
   await userEvent.click(target);
 
-  expect(onStepClick).toHaveBeenCalledExactlyOnceWith('image');
+  expect(onStepClick).toHaveBeenCalledExactlyOnceWith(steps[0]);
   expect(screen.getByRole('button', { name: 'Output configuration' })).toBeDisabled();
-  expect(screen.getByRole('button', { name: 'Build' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Build' })).toBeEnabled();
+});
+
+test('select an available future step with its typed object', async () => {
+  const onStepClick = vi.fn();
+  render(Stepper, { value: 'image', steps, onStepClick });
+
+  await userEvent.click(screen.getByRole('button', { name: 'Build' }));
+
+  expect(onStepClick).toHaveBeenCalledExactlyOnceWith(steps[2]);
 });

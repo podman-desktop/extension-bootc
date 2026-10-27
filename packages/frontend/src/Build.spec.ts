@@ -30,6 +30,8 @@ import { historyInfo } from './stores/historyInfo';
 import type { Subscriber } from '/@shared/src/messages/MessageProxy';
 import { REPOSITORY_URL } from '/@shared/src/repository-infos';
 
+const BUILD_HISTORY_TIMEOUT_MS = 2_000;
+
 const mockHistoryInfo: BootcBuildInfo[] = [
   {
     id: 'name1',
@@ -151,18 +153,10 @@ async function waitForImagesAndSelect(expectedCount: number = 2, selectImage?: s
 }
 
 // Helper function to navigate to a specific step (from step 1 - select-image)
-async function goToStep(step: 'output-config' | 'user-config' | 'build'): Promise<void> {
-  // Click Next button to proceed through steps
-  let stepsToClick = 3;
-  if (step === 'output-config') {
-    stepsToClick = 1;
-  } else if (step === 'user-config') {
-    stepsToClick = 2;
-  }
-
-  for (let i = 0; i < stepsToClick; i++) {
-    const nextButton = screen.getByRole('button', { name: 'Next' });
-    await userEvent.click(nextButton);
+async function goToStep(step: 'build-config' | 'user-config'): Promise<void> {
+  await clickNext();
+  if (step === 'user-config') {
+    await clickNext();
   }
 }
 
@@ -178,6 +172,160 @@ async function clickNext(): Promise<void> {
   const nextButton = screen.getByRole('button', { name: 'Next' });
   await userEvent.click(nextButton);
 }
+
+async function renderWizard(existingBuild = false): Promise<void> {
+  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
+  vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
+  vi.mocked(bootcClient.inspectImage).mockResolvedValue(mockImageInspect);
+  vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
+  vi.mocked(bootcClient.buildExists).mockResolvedValue(existingBuild);
+
+  render(Build, { imageName: 'image1', imageTag: 'latest' });
+  await waitForImagesAndSelect(2);
+  await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled());
+}
+
+test('review: resolve overwrite errors on the output step', async () => {
+  await renderWizard(true);
+  await clickNext();
+
+  expect(await screen.findByRole('alert')).toHaveTextContent('Confirm overwriting existing build');
+  expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'User configuration' })).toBeDisabled();
+
+  await userEvent.click(screen.getByLabelText('overwrite-checkbox'));
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'User configuration' })).toBeEnabled();
+});
+
+test('review: block forward navigation for incompatible image types', async () => {
+  await renderWizard();
+  await clickNext();
+  await userEvent.click(screen.getByLabelText('iso-checkbox'));
+
+  expect(screen.getByRole('alert')).toHaveTextContent(
+    'The Anaconda ISO file format cannot be built simultaneously with other image types.',
+  );
+  for (const name of ['Next', 'User configuration']) {
+    expect(screen.getByRole('button', { name })).toBeDisabled();
+  }
+});
+
+test('review: return directly to the final user step', async () => {
+  await renderWizard();
+  await vi.waitFor(() => expect(screen.getByRole('button', { name: 'User configuration' })).toBeEnabled());
+  expect(screen.getByRole('button', { name: 'Build configuration' })).toBeEnabled();
+  await userEvent.click(screen.getByRole('button', { name: 'User configuration' }));
+  expect(screen.getByRole('button', { name: 'Build disk image' })).toBeEnabled();
+  expect(screen.queryByRole('heading', { name: 'Configuration summary' })).not.toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole('button', { name: 'Select image' }));
+  await userEvent.click(screen.getByRole('button', { name: 'User configuration' }));
+  expect(screen.getByRole('button', { name: 'Build disk image' })).toBeEnabled();
+
+  await userEvent.click(screen.getByRole('button', { name: 'Build configuration' }));
+  await userEvent.clear(screen.getByLabelText('folder-select'));
+  expect(screen.getByRole('button', { name: 'User configuration' })).toBeDisabled();
+});
+
+test('review: ignore outdated output checks and block navigation while pending', async () => {
+  await renderWizard();
+  await clickNext();
+  await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled());
+
+  const previousCheck = Promise.withResolvers<boolean>();
+  vi.mocked(bootcClient.buildExists).mockReturnValueOnce(previousCheck.promise);
+  await userEvent.clear(screen.getByLabelText('folder-select'));
+  await userEvent.type(screen.getByLabelText('folder-select'), '/previous-output');
+  await vi.waitFor(() => expect(bootcClient.buildExists).toHaveBeenCalledWith('/previous-output', ['raw']));
+  expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+
+  await userEvent.clear(screen.getByLabelText('folder-select'));
+  await userEvent.type(screen.getByLabelText('folder-select'), '/current-output');
+  await vi.waitFor(() => expect(bootcClient.buildExists).toHaveBeenCalledWith('/current-output', ['raw']));
+  await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled());
+
+  previousCheck.resolve(true);
+  await previousCheck.promise;
+  expect(screen.queryByLabelText('overwrite-checkbox')).not.toBeInTheDocument();
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+});
+
+test('require new overwrite consent when the output changes', async () => {
+  await renderWizard(true);
+  await clickNext();
+  await userEvent.click(await screen.findByLabelText('overwrite-checkbox'));
+  expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
+
+  vi.mocked(bootcClient.buildExists).mockClear();
+  await userEvent.clear(screen.getByLabelText('folder-select'));
+  await userEvent.type(screen.getByLabelText('folder-select'), '/another-existing-output');
+  await vi.waitFor(() => expect(screen.getByLabelText('overwrite-checkbox')).not.toBeChecked());
+  expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+  expect(bootcClient.buildExists).toHaveBeenCalledExactlyOnceWith('/another-existing-output', ['raw']);
+});
+
+test('show output check failures on the output step', async () => {
+  await renderWizard();
+  await clickNext();
+  await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled());
+
+  vi.mocked(bootcClient.buildExists).mockRejectedValueOnce(new Error('Output is unavailable'));
+  await userEvent.type(screen.getByLabelText('folder-select'), '/unavailable');
+
+  expect(await screen.findByRole('alert')).toHaveTextContent('Output is unavailable');
+  expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'User configuration' })).toBeDisabled();
+});
+
+test('keep output errors on their step for a new build', async () => {
+  vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue([]);
+  vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
+  vi.mocked(bootcClient.inspectImage).mockResolvedValue(mockImageInspect);
+  vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
+
+  render(Build, { imageName: 'image1', imageTag: 'latest' });
+  await vi.waitFor(() => expect(screen.getByRole('button', { name: 'Build configuration' })).toBeEnabled());
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'User configuration' })).toBeDisabled();
+
+  await userEvent.click(screen.getByRole('button', { name: 'Build configuration' }));
+  expect(screen.getByRole('alert')).toHaveTextContent('No output folder selected');
+});
+
+test('allow a new build when history is unavailable', async () => {
+  vi.mocked(bootcClient.listHistoryInfo).mockRejectedValue(new Error('History is unavailable'));
+  vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
+  vi.mocked(bootcClient.inspectImage).mockResolvedValue(mockImageInspect);
+  vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
+
+  render(Build, { imageName: 'image1', imageTag: 'latest' });
+  await clickNext();
+
+  expect(screen.getByLabelText('folder-select')).toHaveValue('');
+  expect(screen.getByRole('alert')).toHaveTextContent('No output folder selected');
+});
+
+test('keep the latest image architecture after a delayed inspection', async () => {
+  await renderWizard();
+  const previousImage = Promise.withResolvers<ImageInspectInfo>();
+  vi.mocked(bootcClient.inspectImage).mockClear();
+  vi.mocked(bootcClient.inspectImage).mockReturnValueOnce(previousImage.promise);
+  vi.mocked(bootcClient.inspectImage).mockResolvedValueOnce({ ...mockImageInspect, Architecture: 'arm64' });
+
+  await userEvent.selectOptions(screen.getByLabelText('image-select'), 'image2:latest');
+  expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+  await userEvent.selectOptions(screen.getByLabelText('image-select'), 'image1:latest');
+  await clickNext();
+  expect(screen.getByLabelText('arm64-select')).toBeChecked();
+
+  previousImage.resolve(mockImageInspect);
+  await previousImage.promise;
+  expect(screen.getByLabelText('arm64-select')).toBeChecked();
+  expect(screen.getByLabelText('amd64-select')).toBeDisabled();
+  expect(bootcClient.inspectImage).toHaveBeenCalledTimes(2);
+});
 
 test('Render shows correct images and history', async () => {
   vi.mocked(bootcClient.inspectImage).mockResolvedValue(mockImageInspect);
@@ -205,7 +353,7 @@ test('Render shows correct images and history', async () => {
 
   // Select first image and go to step 2 to check output options
   await waitForImagesAndSelect(2, 'image1:latest');
-  await goToStep('output-config');
+  await goToStep('build-config');
 
   // Expect input iso to be selected (from history)
   const raw = screen.getByLabelText('raw-checkbox');
@@ -236,40 +384,35 @@ test('use sentence case throughout the build wizard', async () => {
   render(Build, { imageName: 'image1', imageTag: 'latest' });
   await waitForImagesAndSelect(2, 'image1:latest');
 
-  for (const name of ['Select image', 'Output configuration', 'User configuration', 'Build']) {
+  for (const name of ['Select image', 'Build configuration', 'User configuration']) {
     screen.getByRole('button', { name });
   }
-  screen.getByRole('heading', { name: 'Select bootable container image' });
+  expect(screen.getByRole('navigation', { name: 'Build steps' }).querySelectorAll('button')).toHaveLength(3);
+  expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
 
-  await goToStep('output-config');
-  screen.getByRole('heading', { name: 'Output configuration' });
+  await goToStep('build-config');
   screen.getByText('Virtualization guest image (*.qcow2)');
   screen.getByText('Unattended Anaconda ISO installer (*.iso)');
   screen.getByText('Amazon Machine Image (*.ami)');
   await userEvent.clear(screen.getByLabelText('folder-select'));
   await userEvent.type(screen.getByLabelText('folder-select'), '/wizard-output');
+  await userEvent.click(screen.getByLabelText('raw-checkbox'));
   await userEvent.click(screen.getByLabelText('iso-checkbox'));
-  await clickNext();
-
-  screen.getByRole('heading', { name: 'User configuration' });
-  screen.getByRole('textbox', { name: 'SSH public key (recommended)' });
   screen.getByText('Anaconda ISO options');
-  await clickNext();
-
-  expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Review and build');
-  screen.getByRole('heading', { name: 'Configuration summary' });
-  for (const name of ['Output folder:', 'Disk type(s):', 'Users configured:']) {
-    screen.getByText(name, { exact: true });
-  }
   screen.getByText('Filesystem configuration');
   screen.getByText('Kernel arguments');
-  screen.getByRole('button', { name: 'Build disk image' });
 
   await userEvent.click(screen.getByText('Advanced options'));
   screen.getByRole('textbox', { name: 'AMI name' });
   screen.getByPlaceholderText('AMI name to be used');
   screen.getByRole('textbox', { name: 'S3 bucket' });
   screen.getByRole('textbox', { name: 'S3 region' });
+
+  await clickNext();
+  screen.getByRole('textbox', { name: 'SSH public key (recommended)' });
+  screen.getByRole('button', { name: 'Build disk image' });
+  expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
+  expect(screen.queryByText('Advanced options')).not.toBeInTheDocument();
 });
 
 test('disable wizard controls throughout build submission', async () => {
@@ -285,17 +428,16 @@ test('disable wizard controls throughout build submission', async () => {
 
   render(Build, { imageName: 'image1', imageTag: 'latest' });
   await waitForImagesAndSelect(2, 'image1:latest');
-  await goToStep('output-config');
+  await goToStep('build-config');
   await userEvent.clear(screen.getByLabelText('folder-select'));
   await userEvent.type(screen.getByLabelText('folder-select'), '/wizard-output');
   if (!(screen.getByLabelText('raw-checkbox') as HTMLInputElement).checked) {
     await userEvent.click(screen.getByLabelText('raw-checkbox'));
   }
   await clickNext();
-  await clickNext();
 
   await userEvent.click(screen.getByRole('button', { name: 'Build disk image' }));
-  for (const name of ['Select image', 'Output configuration', 'User configuration', 'Back']) {
+  for (const name of ['Select image', 'Build configuration', 'User configuration', 'Back']) {
     expect(screen.getByRole('button', { name })).toBeDisabled();
   }
 
@@ -320,7 +462,7 @@ test('Check that VMDK option is there', async () => {
   render(Build);
 
   await waitForImagesAndSelect(2, 'image1:latest');
-  await goToStep('output-config');
+  await goToStep('build-config');
 
   const vmdk = screen.getByLabelText('vmdk-checkbox');
   expect(vmdk).toBeDefined();
@@ -336,7 +478,7 @@ test('Check that GCE option is there', async () => {
   render(Build);
 
   await waitForImagesAndSelect(2, 'image1:latest');
-  await goToStep('output-config');
+  await goToStep('build-config');
 
   const gce = screen.getByLabelText('gce-checkbox');
   expect(gce).toBeDefined();
@@ -393,7 +535,7 @@ test('check prerequisites once across form changes', async () => {
 
   render(Build);
   await waitForImagesAndSelect(2, 'image1:latest');
-  await goToStep('output-config');
+  await goToStep('build-config');
 
   vi.mocked(bootcClient.checkPrereqs).mockClear();
   await userEvent.type(screen.getByLabelText('folder-select'), '/new-output');
@@ -431,7 +573,7 @@ test('preserve login credentials through wizard navigation', async () => {
 
   render(Build, { imageName: 'image1', imageTag: 'latest' });
   await waitForImagesAndSelect(2, 'image1:latest');
-  await goToStep('output-config');
+  await goToStep('build-config');
   await userEvent.clear(screen.getByLabelText('folder-select'));
   await userEvent.type(screen.getByLabelText('folder-select'), '/wizard-output');
   const raw = screen.getByLabelText('raw-checkbox');
@@ -439,18 +581,30 @@ test('preserve login credentials through wizard navigation', async () => {
     await userEvent.click(raw);
   }
   await clickNext();
-  await clickNext();
   screen.getByRole('heading', { name: 'No login credentials configured' });
 
-  await userEvent.click(screen.getByRole('button', { name: 'Go back to configure users' }));
   await userEvent.type(screen.getByRole('textbox', { name: 'Username' }), 'root');
   await userEvent.type(screen.getByRole('textbox', { name: 'SSH public key (recommended)' }), 'ssh-ed25519 test-key');
-  await clickNext();
   expect(screen.queryByRole('heading', { name: 'No login credentials configured' })).not.toBeInTheDocument();
 
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
   await userEvent.click(screen.getByRole('button', { name: 'User configuration' }));
   expect(screen.getByRole('textbox', { name: 'Username' })).toHaveValue('root');
   expect(screen.getByRole('textbox', { name: 'SSH public key (recommended)' })).toHaveValue('ssh-ed25519 test-key');
+});
+
+test('show the configuration file override on the final user step', async () => {
+  await renderWizard();
+  await goToStep('build-config');
+  await userEvent.click(screen.getByText('Build config file (override)'));
+  await userEvent.type(screen.getByLabelText('buildconfig-select'), '/config.toml');
+  await clickNext();
+
+  expect(screen.getByText('The configuration file', { exact: false })).toHaveTextContent(
+    'The configuration file /config.toml overrides these user settings.',
+  );
+  expect(screen.queryByRole('heading', { name: 'No login credentials configured' })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Build disk image' })).toBeEnabled();
 });
 
 test('Check that overwriting an existing build works', async () => {
@@ -468,11 +622,7 @@ test('Check that overwriting an existing build works', async () => {
   await waitForImagesAndSelect(2);
 
   // Navigate to output config (step 2) - history pre-fills folder, type, arch
-  await goToStep('output-config');
-
-  // Go to user-config then build step (2 more clicks) - form is pre-filled from history
-  await clickNext(); // to user-config
-  await clickNext(); // to build
+  await goToStep('build-config');
 
   const overwrite = screen.getByLabelText('Overwrite existing build');
   expect(overwrite).toBeDefined();
@@ -508,8 +658,8 @@ test('Test that arm64 is disabled in form if inspectImage returns no arm64', asy
   // Wait for images to load
   await waitForImagesAndSelect(2);
 
-  // Go to output-config step where architecture options are shown
-  await goToStep('output-config');
+  // Go to build-config step where architecture options are shown
+  await goToStep('build-config');
 
   const arm64 = screen.getByLabelText('arm64-select');
   expect(arm64).toBeDefined();
@@ -535,8 +685,8 @@ test('In the rare case that Architecture from inspectImage is blank, do not sele
   // Wait for images to load
   await waitForImagesAndSelect(2);
 
-  // Go to output-config step where architecture options are shown
-  await goToStep('output-config');
+  // Go to build-config step where architecture options are shown
+  await goToStep('build-config');
 
   const arm64 = screen.getByLabelText('arm64-select');
   expect(arm64).toBeDefined();
@@ -594,7 +744,7 @@ test('Do not show an image if it has no repotags and has isManifest as false', a
   expect(bootcClient.openLink).toBeCalledWith(REPOSITORY_URL);
 });
 
-test('If inspectImage fails, do not select any architecture / make them available', async () => {
+test('show an inspection error on the image step and block navigation', async () => {
   vi.mocked(bootcClient.listHistoryInfo).mockResolvedValue(mockHistoryInfo);
   vi.mocked(bootcClient.listBootcImages).mockResolvedValue(mockBootcImages);
   vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
@@ -615,23 +765,9 @@ test('If inspectImage fails, do not select any architecture / make them availabl
   // Wait for images to load
   await waitForImagesAndSelect(2);
 
-  // Go to output-config step where architecture options are shown
-  await goToStep('output-config');
-
-  const arm64 = screen.getByLabelText('arm64-select');
-  expect(arm64).toBeDefined();
-  expect(arm64).toBeDisabled();
-
-  const x86_64 = screen.getByLabelText('amd64-select');
-  expect(x86_64).toBeDefined();
-  expect(x86_64).toBeDisabled();
-
-  await userEvent.type(screen.getByLabelText('folder-select'), '/wizard-output');
-  if (!(screen.getByLabelText('raw-checkbox') as HTMLInputElement).checked) {
-    await userEvent.click(screen.getByLabelText('raw-checkbox'));
-  }
-  expect(screen.getByRole('alert')).toHaveTextContent('Architecture must be selected');
+  expect(await screen.findByRole('alert')).toHaveTextContent('Error');
   expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Build configuration' })).toBeDisabled();
 });
 
 test('Show the image if isManifest: true and Labels is empty', async () => {
@@ -702,8 +838,8 @@ test('Show the image if isManifest: true and Labels is empty', async () => {
   expect(select.children).toHaveLength(1);
   expect(select.children[0].textContent).toEqual('testmanifest1:latest');
 
-  // Go to output-config step where architecture options are shown
-  await goToStep('output-config');
+  // Go to build-config step where architecture options are shown
+  await goToStep('build-config');
 
   // Expect input amd64 to be selected
   const x86_64 = screen.getByLabelText('amd64-select');
@@ -808,8 +944,8 @@ test('have amd64 and arm64 NOT disabled if inspectManifest contains both archite
   expect(select.children).toHaveLength(1);
   expect(select.children[0].textContent).toEqual('testmanifest1:latest');
 
-  // Go to output-config step where architecture options are shown
-  await goToStep('output-config');
+  // Go to build-config step where architecture options are shown
+  await goToStep('build-config');
 
   // Expect amd64 and arm64 to be not disabled
   const x86_64 = screen.getByLabelText('amd64-select');
@@ -876,8 +1012,8 @@ test('if a manifest is created that has the label "6.8.9-300.fc40.aarch64" in as
 
   await new Promise(resolve => setTimeout(resolve, 200));
 
-  // Go to output-config step where filesystem options are shown
-  await goToStep('output-config');
+  // Go to build-config step where filesystem options are shown
+  await goToStep('build-config');
 
   const xfsRadio = screen.getByLabelText('xfs-filesystem-select');
   expect(xfsRadio).toBeDefined();
@@ -894,13 +1030,9 @@ test('collapse and uncollapse of advanced options', async () => {
 
   render(Build);
 
-  // Wait for images and navigate to build step where advanced options are
+  // Open the build settings to edit advanced options.
   await waitForImagesAndSelect(2, 'image1:latest');
-  await goToStep('output-config');
-
-  // Go to user-config then build (2 more clicks) - form is pre-filled from history
-  await clickNext(); // to user-config
-  await clickNext(); // to build
+  await goToStep('build-config');
 
   const advancedOptions = screen.getByText('Advanced options');
   expect(advancedOptions).toBeDefined();
@@ -930,7 +1062,7 @@ test('select anaconda-iso and qcow2 and expect validation error to be shown', as
 
   // Wait for images and navigate to output config
   await waitForImagesAndSelect(2, 'image1:latest');
-  await goToStep('output-config');
+  await goToStep('build-config');
 
   // Unclick raw checkbox as it's the default from history
   const raw = screen.getByLabelText('raw-checkbox');
@@ -944,16 +1076,13 @@ test('select anaconda-iso and qcow2 and expect validation error to be shown', as
   const qcow2 = screen.getByLabelText('qcow2-checkbox');
   await userEvent.click(qcow2);
 
-  // Go to build step to see validation (2 more clicks from output-config)
-  await clickNext(); // to user-config
-  await clickNext(); // to build
-
   // Expect alert to be shown
   const validation = screen.getByRole('alert');
   expect(validation).toBeDefined();
   expect(validation.textContent).toEqual(
     'The Anaconda ISO file format cannot be built simultaneously with other image types.',
   );
+  expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
 });
 
 test('confirm successful build goes to logs', async () => {
@@ -970,16 +1099,29 @@ test('confirm successful build goes to logs', async () => {
 
   // Wait for images and navigate through steps
   await waitForImagesAndSelect(2, 'image1:latest');
-  await goToStep('output-config');
-
-  // Go to user-config then build (2 more clicks) - form is pre-filled from history
-  await clickNext(); // to user-config
-  await clickNext(); // to build
+  await goToStep('build-config');
 
   // confirm overwriting the previous build
   const overwriteCheck = screen.getByLabelText('overwrite-checkbox');
   expect(overwriteCheck).toBeDefined();
   await userEvent.click(overwriteCheck);
+
+  // Build settings must survive navigation to the final user step.
+  await userEvent.click(screen.getByText('Kernel arguments'));
+  await userEvent.type(screen.getByPlaceholderText('Kernel arguments (ex. quiet)'), 'quiet');
+  await userEvent.click(screen.getByText('Filesystem configuration'));
+  await userEvent.type(screen.getByPlaceholderText('Mountpoint (ex. /mnt)'), '/var');
+  await userEvent.type(screen.getByPlaceholderText(/^Minimum size/), '10 GiB');
+  await userEvent.click(screen.getByText('Advanced options'));
+  await userEvent.type(screen.getByRole('textbox', { name: 'AMI name' }), 'wizard-ami');
+
+  await clickNext();
+  await userEvent.type(screen.getByRole('textbox', { name: 'Username' }), 'builder');
+  await userEvent.type(screen.getByRole('textbox', { name: 'SSH public key (recommended)' }), 'ssh-ed25519 test-key');
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  await userEvent.click(screen.getByText('Kernel arguments'));
+  expect(screen.getByPlaceholderText('Kernel arguments (ex. quiet)')).toHaveValue('quiet');
+  await clickNext();
 
   // confirm build button is enabled
   const build = screen.getByRole('button', { name: 'Build disk image' });
@@ -989,7 +1131,20 @@ test('confirm successful build goes to logs', async () => {
   // check that clicking redirects to the build logs page
   expect(router.goto).not.toHaveBeenCalled();
   await userEvent.click(build);
-  expect(router.goto).toHaveBeenCalledWith(`/disk-image/bmFtZTE=/build`);
+  expect(bootcClient.buildImage).toHaveBeenCalledWith(
+    expect.objectContaining({
+      awsAmiName: 'wizard-ami',
+      buildConfig: expect.objectContaining({
+        kernel: { append: 'quiet' },
+        filesystem: [{ mountpoint: '/var', minsize: '10 GiB' }],
+        user: [{ name: 'builder', key: 'ssh-ed25519 test-key' }],
+      }),
+    }),
+    true,
+  );
+  await vi.waitFor(() => expect(router.goto).toHaveBeenCalledWith(`/disk-image/bmFtZTE=/build`), {
+    timeout: BUILD_HISTORY_TIMEOUT_MS,
+  });
 });
 
 test('expect anaconda modules ISO section to be shown', async () => {
@@ -1002,16 +1157,12 @@ test('expect anaconda modules ISO section to be shown', async () => {
 
   // Wait for images and navigate to output config
   await waitForImagesAndSelect(2, 'image1:latest');
-  await goToStep('output-config');
+  await goToStep('build-config');
 
   // Select anaconda-iso type to enable anaconda options
+  await userEvent.click(screen.getByLabelText('raw-checkbox'));
   const iso = screen.getByLabelText('iso-checkbox');
   await userEvent.click(iso);
-
-  // Architecture is auto-selected based on mockImageInspect (amd64)
-  // Proceed to user config step
-  const nextButton = screen.getByRole('button', { name: 'Next' });
-  await userEvent.click(nextButton);
 
   // Click on Anaconda ISO options
   const anacondaOptions = screen.getByText('Anaconda ISO options');
@@ -1033,16 +1184,12 @@ test('expect anaconda kickstart file section to be shown', async () => {
 
   // Wait for images and navigate to output config
   await waitForImagesAndSelect(2, 'image1:latest');
-  await goToStep('output-config');
+  await goToStep('build-config');
 
   // Select anaconda-iso type to enable anaconda options
+  await userEvent.click(screen.getByLabelText('raw-checkbox'));
   const iso = screen.getByLabelText('iso-checkbox');
   await userEvent.click(iso);
-
-  // Architecture is auto-selected based on mockImageInspect (amd64)
-  // Proceed to user config step
-  const nextButton = screen.getByRole('button', { name: 'Next' });
-  await userEvent.click(nextButton);
 
   // Click on Anaconda ISO options
   const anacondaOptions = screen.getByText('Anaconda ISO options');
@@ -1108,7 +1255,7 @@ test.each([
 
   // Wait for images and navigate to output config
   await waitForImagesAndSelect(2, 'image1:latest');
-  await goToStep('output-config');
+  await goToStep('build-config');
 
   const x86_64 = screen.getByLabelText('amd64-select');
   expect(x86_64).toBeDefined();

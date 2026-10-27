@@ -16,52 +16,55 @@
  SPDX-License-Identifier: Apache-2.0
 -->
 
-<script lang="ts">
-import { Button } from '@podman-desktop/ui-svelte';
-
+<script lang="ts" module>
 export interface Step {
   id: string;
   label: string;
+  disabled?: boolean;
 }
+</script>
+
+<script lang="ts" generics="T extends Step">
+import { Button } from '@podman-desktop/ui-svelte';
 
 interface Props {
-  value: string;
-  steps: Step[];
-  onStepClick?: (stepId: string) => void;
+  value: T['id'];
+  steps: T[];
+  onStepClick?: (step: T) => void;
 }
 
 let { value, steps, onStepClick }: Props = $props();
 
 const currentIndex = $derived(steps.findIndex(step => step.id === value));
 
-function handleStepClick(stepId: string, stepIndex: number): void {
-  // Only completed steps support navigation.
-  if (stepIndex < currentIndex && onStepClick) {
-    onStepClick(stepId);
+function handleStepClick(step: T): void {
+  if (isClickable(step)) {
+    onStepClick?.(step);
   }
 }
 
-function isClickable(stepIndex: number): boolean {
-  return stepIndex < currentIndex && !!onStepClick;
+function isClickable(step: T): boolean {
+  return step.id !== value && !step.disabled && !!onStepClick;
 }
 </script>
 
-<nav class="flex items-center" aria-label="Build steps">
+<nav class="flex items-center justify-between gap-8" aria-label="Build steps">
   {#each steps as step, index (step.id)}
     <div aria-current={value === step.id ? 'step' : undefined}>
       <Button
         type="link"
-        padding="p-0"
+        padding="px-3 py-2"
         class="flex items-center text-sm {value === step.id
           ? 'text-[var(--pd-button-primary-bg)] font-semibold'
           : 'text-[var(--pd-content-card-text)]'}"
         aria-label={step.label}
-        disabled={!isClickable(index)}
-        onclick={handleStepClick.bind(undefined, step.id, index)}
-        title={isClickable(index) ? `Go back to ${step.label}` : ''}>
+        disabled={!isClickable(step)}
+        onclick={(): void => handleStepClick(step)}
+        title={isClickable(step) ? `Go to ${step.label}` : ''}>
         <span
           aria-hidden="true"
-          class="flex items-center justify-center w-6 h-6 rounded-full border-2 mr-2 text-xs font-bold {value === step.id
+          class="flex items-center justify-center w-6 h-6 rounded-full border-2 mr-2 text-xs font-bold {value ===
+          step.id
             ? 'border-[var(--pd-button-primary-bg)] bg-[var(--pd-button-primary-bg)] text-white'
             : currentIndex > index
               ? 'border-[var(--pd-state-success)] bg-[var(--pd-state-success)] text-white'
@@ -71,8 +74,5 @@ function isClickable(stepIndex: number): boolean {
         {step.label}
       </Button>
     </div>
-    {#if index < steps.length - 1}
-      <div class="grow mx-4 h-0.5 bg-[var(--pd-content-card-border)]"></div>
-    {/if}
   {/each}
 </nav>

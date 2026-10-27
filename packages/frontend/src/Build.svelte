@@ -9,7 +9,7 @@ import {
   faKey,
   faUserPlus,
 } from '@fortawesome/free-solid-svg-icons';
-import { bootcClient } from './api/client';
+import { bootcClient } from '/@/api/client';
 import type {
   BootcBuildInfo,
   BuildType,
@@ -17,27 +17,26 @@ import type {
   BuildConfigAnacondaIsoInstallerModules,
 } from '/@shared/src/models/bootc';
 import Fa from 'svelte-fa';
-import { onMount } from 'svelte';
+import { onDestroy, onMount } from 'svelte';
 import type { ImageInfo, ManifestInspectInfo } from '@podman-desktop/api';
 import { router } from 'tinro';
-import DiskImageIcon from './lib/DiskImageIcon.svelte';
+import DiskImageIcon from '/@/lib/DiskImageIcon.svelte';
 import { Button, Input, EmptyScreen, FormPage, Checkbox, ErrorMessage, Expandable } from '@podman-desktop/ui-svelte';
-import Link from './lib/Link.svelte';
+import Link from '/@/lib/Link.svelte';
 import { historyInfo } from '/@/stores/historyInfo';
-import { goToDiskImages } from './lib/navigation';
+import { goToDiskImages } from '/@/lib/navigation';
 import { REPOSITORY_URL } from '/@shared/src/repository-infos';
-import Stepper from './lib/stepper/Stepper.svelte';
+import Stepper from '/@/lib/stepper/Stepper.svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
-
-// Step definitions
-type StepId = 'select-image' | 'output-config' | 'user-config' | 'build';
 
 const STEPS = [
   { id: 'select-image', label: 'Select image' },
-  { id: 'output-config', label: 'Output configuration' },
+  { id: 'build-config', label: 'Build configuration' },
   { id: 'user-config', label: 'User configuration' },
-  { id: 'build', label: 'Build' },
-];
+] as const;
+type Step = (typeof STEPS)[number];
+type StepId = Step['id'];
+const OUTPUT_CHECK_DELAY = 500;
 
 let currentStep = $state<StepId>('select-image');
 
@@ -74,12 +73,49 @@ let overwrite = $state<boolean>(false);
 let buildInProgress = $state<boolean>(false);
 let bootcAvailableImages = $state<ImageInfo[]>([]);
 let buildErrorMessage = $state<string>('');
-let errorFormValidation = $state<string | undefined>(undefined);
 let isInitialized = $state<boolean>(false);
+let isInspectingImage = $state(false);
+let imageError = $state<string | undefined>();
+let isCheckingOutput = $state(false);
+let outputCheckError = $state<string | undefined>();
+let outputCheckTimer: ReturnType<typeof setTimeout> | undefined;
+let outputCheckId = 0;
+let imageRequestId = 0;
 
-// Prerequisites do not change with form input. Cache the initial result.
-let cachedPrereqs: string | undefined;
-let prereqsChecked = false;
+// Derive form errors without RPC calls or effects that change state.
+const outputError = $derived.by(() => {
+  if (!buildFolder) {
+    return 'No output folder selected';
+  }
+  if (!buildType.length) {
+    return 'Must select at least one disk image type';
+  }
+  if (!buildArch) {
+    return 'Architecture must be selected';
+  }
+  if (buildType.length > 1 && buildType.includes('anaconda-iso')) {
+    return 'The Anaconda ISO file format cannot be built simultaneously with other image types.';
+  }
+  return undefined;
+});
+const errorFormValidation = $derived(
+  !selectedImage
+    ? 'No image selected'
+    : (imageError ??
+        outputError ??
+        outputCheckError ??
+        (existingBuild && !overwrite ? 'Confirm overwriting existing build' : undefined)),
+);
+const canConfigureBuild = $derived(isInitialized && !!selectedImage && !isInspectingImage && !imageError);
+const canBuild = $derived(canConfigureBuild && !isCheckingOutput && errorFormValidation === undefined);
+const steps = $derived(
+  STEPS.map(step => ({
+    ...step,
+    disabled: step.id === 'select-image' ? false : step.id === 'build-config' ? !canConfigureBuild : !canBuild,
+  })),
+);
+const currentIndex = $derived(STEPS.findIndex(step => step.id === currentStep));
+const nextStep = $derived(steps[currentIndex + 1]);
 
 // Specific to root filesystem selection
 // SPECIFICALLY fedora, where we **need** to select the filesystem, as it is not auto-selected.
@@ -153,24 +189,6 @@ async function fillBuildOptions(historyInfo: BootcBuildInfo[] = []): Promise<voi
   }
 }
 
-async function fillArchitectures(historyInfo: BootcBuildInfo[]): Promise<void> {
-  // If there is only one available architecture, select it automatically.
-  if (availableArchitectures.length === 1) {
-    buildArch = availableArchitectures[0];
-    return;
-  }
-
-  // If none are propagated yet, go through the history, update available architectures and select the latest one
-  if (selectedImage && historyInfo.length > 0) {
-    const latestArch = historyInfo[0].arch;
-    await updateAvailableArchitectures(selectedImage);
-    // Only set buildArch if it's available in availableArchitectures
-    if (latestArch && availableArchitectures.includes(latestArch)) {
-      buildArch = latestArch;
-    }
-  }
-}
-
 // This will fill the chown function by getting the user and group ID from the OS
 // and filling in the information in the chown input field.
 async function fillChownOption(): Promise<void> {
@@ -182,70 +200,53 @@ async function fillChownOption(): Promise<void> {
   }
 }
 
-async function validate(): Promise<void> {
-  if (!prereqsChecked) {
-    try {
-      cachedPrereqs = await bootcClient.checkPrereqs();
-      prereqsChecked = true;
-    } catch (err: unknown) {
-      errorFormValidation = String(err);
-      existingBuild = false;
-      return;
+function resetOutputCheck(): number {
+  clearTimeout(outputCheckTimer);
+  existingBuild = false;
+  outputCheckError = undefined;
+  isCheckingOutput = !!buildFolder && buildType.length > 0;
+  return ++outputCheckId;
+}
+
+async function checkOutput(request = resetOutputCheck()): Promise<void> {
+  if (!isCheckingOutput) {
+    return;
+  }
+
+  try {
+    const exists = await bootcClient.buildExists(buildFolder, [...buildType]);
+    // Ignore results for an output folder or format that the user changed.
+    if (request === outputCheckId) {
+      existingBuild = exists;
+    }
+  } catch (error) {
+    if (request === outputCheckId) {
+      outputCheckError = String(error);
+    }
+  } finally {
+    if (request === outputCheckId) {
+      isCheckingOutput = false;
     }
   }
+}
 
-  if (cachedPrereqs) {
-    errorFormValidation = cachedPrereqs;
-    existingBuild = false;
-    return;
+function setBuildFolder(folder: string): void {
+  buildFolder = folder;
+  overwrite = false;
+  const request = resetOutputCheck();
+
+  // Defer the RPC until the user pauses input. Navigation stays disabled.
+  if (isCheckingOutput) {
+    outputCheckTimer = setTimeout(() => {
+      checkOutput(request).catch(console.error);
+    }, OUTPUT_CHECK_DELAY);
   }
-
-  if (!selectedImage) {
-    errorFormValidation = 'No image selected';
-    existingBuild = false;
-    return;
-  }
-
-  if (!buildFolder) {
-    errorFormValidation = 'No output folder selected';
-    existingBuild = false;
-    return;
-  }
-
-  if (!buildType?.length) {
-    errorFormValidation = 'Must select at least one disk image type';
-    existingBuild = false;
-    return;
-  }
-
-  if (!buildArch) {
-    errorFormValidation = 'Architecture must be selected';
-    existingBuild = false;
-    return;
-  }
-
-  // If anaconda-iso was selected and the buildType length is more than 1, we error saying that iso must be the only type selected.
-  if (buildType.length > 1 && buildType.includes('anaconda-iso')) {
-    errorFormValidation = 'The Anaconda ISO file format cannot be built simultaneously with other image types.';
-    existingBuild = false;
-    return;
-  }
-
-  // overwrite
-  existingBuild = await bootcClient.buildExists(buildFolder, [...buildType]);
-  if (existingBuild && !overwrite) {
-    errorFormValidation = 'Confirm overwriting existing build';
-    return;
-  }
-
-  // no problems, ready to build!
-  errorFormValidation = undefined;
 }
 
 async function buildBootcImage(): Promise<void> {
   // you can't get here without a selected image, but this
   // avoids a svelte error
-  if (!selectedImage || buildInProgress) {
+  if (!selectedImage || !canBuild || buildInProgress) {
     return;
   }
 
@@ -377,7 +378,7 @@ async function buildBootcImage(): Promise<void> {
 }
 
 async function getPath(): Promise<void> {
-  buildFolder = await bootcClient.selectOutputFolder();
+  setBuildFolder(await bootcClient.selectOutputFolder());
 }
 
 async function getBuildConfigFile(): Promise<void> {
@@ -391,7 +392,6 @@ async function getAnacondaKickstartFile(): Promise<void> {
 function cleanup(): void {
   buildInProgress = false;
   buildErrorMessage = '';
-  errorFormValidation = '';
 }
 
 function addUser(): void {
@@ -460,100 +460,91 @@ onMount(async () => {
 
   // Stop before the wizard if the machine does not meet the prerequisites.
   try {
-    cachedPrereqs = await bootcClient.checkPrereqs();
-    prereqsChecked = true;
+    const prereqs = await bootcClient.checkPrereqs();
+    if (prereqs) {
+      buildErrorMessage = prereqs;
+      return;
+    }
   } catch (err: unknown) {
     buildErrorMessage = String(err);
     return;
   }
 
-  if (cachedPrereqs) {
-    buildErrorMessage = cachedPrereqs;
-    return;
-  }
-
-  // Fills the build options with the last options
-  await fillBuildOptions($historyInfo);
-  await fillArchitectures($historyInfo);
+  // Load history before defaults, including when the store has no subscribers yet.
+  const history = await bootcClient.listHistoryInfo().catch((error: unknown) => {
+    console.error('Cannot load build history:', error);
+    return [];
+  });
+  await fillBuildOptions(history);
+  await updateImage();
 
   if (isLinux) {
     await fillChownOption();
   }
 
   isInitialized = true;
-  await validate();
+  await checkOutput();
 });
 
-/// Find the selected image and update availableArchitectures with the architecture of the image
-async function updateAvailableArchitectures(selectedImage: string): Promise<void> {
-  const image = findImage(selectedImage);
-  if (image) {
-    // If it is a manifest, we can just inspectManifest and get the architecture(s) from there
-    if (image?.isManifest) {
-      try {
-        const manifest = await bootcClient.inspectManifest(image);
-        // Go through each manifest.manifests and get the architecture from manifest.platform.architecture
-        availableArchitectures = manifest.manifests.map(manifest => manifest.platform.architecture);
-      } catch (error) {
-        console.error('Error inspecting manifest:', error);
-      }
-    } else {
-      try {
-        const imageInspect = await bootcClient.inspectImage(image);
-        // Architecture is a mandatory field in the image inspect and should **always** be there.
-        if (imageInspect?.Architecture) {
-          availableArchitectures = [imageInspect.Architecture];
-        } else {
-          // If for SOME reason Architecture is missing (testing purposes, weird output, etc.)
-          // we will set availableArchitectures to an empty array to disable the architecture selection.
-          availableArchitectures = [];
-          console.error('Architecture not found in image inspect:', selectedImage);
-        }
-      } catch (error) {
-        console.error('Error inspecting image:', error);
-      }
-    }
-  }
+onDestroy(() => {
+  clearTimeout(outputCheckTimer);
+  outputCheckId++;
+  imageRequestId++;
+});
+
+async function selectImage(value: string | undefined): Promise<void> {
+  selectedImage = value;
+  await updateImage();
 }
 
-// Updates the filesystem selection based upon the select image,
-// specifically if the image is Fedora we will  have to select the filesystem (it cannot be default).
-async function detectFedoraImageFilesystem(selectedImage: string): Promise<void> {
-  const image = findImage(selectedImage);
-  let imageLabels = image?.Labels;
+async function updateImage(): Promise<void> {
+  const request = ++imageRequestId;
+  const previousArch = buildArch;
+  availableArchitectures = [];
+  buildArch = undefined;
+  imageError = undefined;
+  isInspectingImage = true;
 
-  // If it is a manifest, we must find the child images associated to the manifest
-  // in order to get the labels used to determine if it's based on Fedora or not
-  if (image?.isManifest) {
-    try {
-      const manifest = await bootcClient.inspectManifest(image);
-      const foundImages = await findImagesAssociatedToManifest(manifest);
-
-      // Just get the labels from the first image, as they should all be the same.
-      imageLabels = foundImages[0]?.Labels;
-    } catch (error) {
-      console.error('Error inspecting manifest:', error);
+  try {
+    const image = selectedImage ? findImage(selectedImage) : undefined;
+    if (!image) {
+      return;
     }
-  }
 
-  // We use a specical label to determine what the bootc image was built against. We do not use "annotations" due to limitations of the PD API
-  // that does not show the annotations of the inspect image.
-  // Each build will have 'ostree.linux' added as a label, within that label it is either el9 (for centos / rhel) or fc40 for Fedora.
-  // the format for example will be: "ostree.linux": "5.14.0-437.el9.x86_64", or "ostree.linux": "6.8.9-300.fc40.aarch64",
-  // we can use this to determine if the bootc image was built upon.
-  // We will use regex to determine if it is fedora or not by checking if it contains "fcNUMBER" where NUMBER is the version of Fedora.
-  if (imageLabels?.['ostree.linux']) {
-    const label = imageLabels['ostree.linux'];
-    const regEx: RegExp = RegExp(/fc\d+/);
-    if (regEx.exec(label)) {
-      // Make sure that we show the fedora disclaimer and auto-select xfs if buildFilesystem is empty.
-      fedoraDetected = true;
-      if (buildFilesystem === '') {
-        buildFilesystem = 'xfs';
-      }
+    let architectures: string[];
+    let labels = image.Labels;
+    if (image.isManifest) {
+      const manifest = await bootcClient.inspectManifest(image);
+      architectures = manifest.manifests.map(entry => entry.platform.architecture);
+      const foundImages = await findImagesAssociatedToManifest(manifest);
+      labels = foundImages[0]?.Labels;
     } else {
-      fedoraDetected = false;
+      const inspected = await bootcClient.inspectImage(image);
+      architectures = inspected?.Architecture ? [inspected.Architecture] : [];
+    }
+
+    // A later selection owns the form, even if this request finishes last.
+    if (request !== imageRequestId) {
+      return;
+    }
+
+    availableArchitectures = architectures;
+    buildArch = architectures.length === 1 ? architectures[0] : architectures.find(arch => arch === previousArch);
+
+    // Fedora images require an explicit filesystem, identified by their kernel label.
+    fedoraDetected = /fc\d+/.test(labels?.['ostree.linux'] ?? '');
+    if (!fedoraDetected) {
       buildFilesystem = '';
+    } else if (!buildFilesystem) {
+      buildFilesystem = 'xfs';
+    }
+  } catch (error) {
+    if (request === imageRequestId) {
+      imageError = String(error);
+    }
+  } finally {
+    if (request === imageRequestId) {
+      isInspectingImage = false;
     }
   }
 }
@@ -565,89 +556,25 @@ async function updateBuildType(type: BuildType, selected: boolean): Promise<void
   } else {
     buildType = buildType.filter(t => t !== type);
   }
-  await validate();
-}
-
-// validate every time a selection changes in the form or available architectures
-$effect(() => {
-  // Read all dependencies to ensure effect re-runs when any of them change
-  const _image = selectedImage;
-  const _folder = buildFolder;
-  const _arch = buildArch;
-  const _overwrite = overwrite;
-  const _buildTypeLength = buildType.length;
-  const _initialized = isInitialized;
-
-  // Only run validation after initial setup is complete
-  if (_initialized && (_image || _folder || _arch || _overwrite || _buildTypeLength >= 0)) {
-    validate().catch((e: unknown) => console.error('error validating on change', e));
-  }
-});
-
-// Each time an image is selected, we need to update the available architectures
-// to do that, inspect the image and get the architecture.
-$effect(() => {
-  if (selectedImage) {
-    updateAvailableArchitectures(selectedImage).catch((e: unknown) => console.error('error updating architectures', e));
-    detectFedoraImageFilesystem(selectedImage).catch((e: unknown) => console.error('error detecting filesystem', e));
-  }
-});
-
-$effect(() => {
-  if (availableArchitectures.length === 1) {
-    buildArch = availableArchitectures[0];
-    return;
-  }
-
-  // Read the history selection even when no architecture is available.
-  if (buildArch && !availableArchitectures.includes(buildArch)) {
-    buildArch = undefined;
-  }
-});
-
-// Step navigation functions
-function canProceedFromStep(step: StepId): boolean {
-  switch (step) {
-    case 'select-image':
-      return !!selectedImage;
-    case 'output-config':
-      return !!buildFolder && buildType.length > 0 && !!buildArch;
-    case 'user-config':
-      return true; // User config is optional
-    case 'build':
-      return true;
-    default:
-      return false;
-  }
+  overwrite = false;
+  await checkOutput();
 }
 
 function goToNext(): void {
-  if (currentStep === 'select-image' && canProceedFromStep('select-image')) {
-    currentStep = 'output-config';
-  } else if (currentStep === 'output-config' && canProceedFromStep('output-config')) {
-    currentStep = 'user-config';
-  } else if (currentStep === 'user-config') {
-    currentStep = 'build';
+  if (nextStep && !nextStep.disabled) {
+    currentStep = nextStep.id;
   }
 }
 
 function goBack(): void {
-  if (currentStep === 'output-config') {
-    currentStep = 'select-image';
-  } else if (currentStep === 'user-config') {
-    currentStep = 'output-config';
-  } else if (currentStep === 'build') {
-    currentStep = 'user-config';
+  const previousStep = STEPS[currentIndex - 1];
+  if (previousStep) {
+    currentStep = previousStep.id;
   }
 }
 
-function handleStepClick(stepId: string): void {
-  const stepIndex = STEPS.findIndex(s => s.id === stepId);
-  const currentIndex = STEPS.findIndex(s => s.id === currentStep);
-
-  if (stepIndex < currentIndex) {
-    currentStep = stepId as StepId;
-  }
+function handleStepClick(step: Step): void {
+  currentStep = step.id;
 }
 
 // Check if user has configured at least one user with SSH key or password for VM login
@@ -687,7 +614,7 @@ function hasUserConfiguredForLogin(): boolean {
 
         <!-- Stepper -->
         <div class="mb-6">
-          <Stepper value={currentStep} steps={STEPS} onStepClick={handleStepClick} />
+          <Stepper value={currentStep} {steps} onStepClick={handleStepClick} />
         </div>
 
         <div class={buildInProgress ? 'opacity-40 pointer-events-none' : ''}>
@@ -695,13 +622,6 @@ function hasUserConfiguredForLogin(): boolean {
           <!-- Step 1: Select image -->
           {#if currentStep === 'select-image'}
             <div class="space-y-4">
-              <h2 class="text-lg font-semibold text-[var(--pd-content-card-header-text)]">
-                Select bootable container image
-              </h2>
-              <p class="text-sm text-[var(--pd-content-card-text)]">
-                Choose a bootable container image to convert into a disk image.
-              </p>
-
               <div class="pb-4">
                 <label for="modalImageTag" class="block mb-2 font-semibold">Bootable container image</label>
                 <div class="relative">
@@ -709,7 +629,8 @@ function hasUserConfiguredForLogin(): boolean {
                     class="rounded-lg block w-full p-2.5 bg-charcoal-600 pl-8 border-r-8 border-transparent outline-1 outline outline-gray-900 placeholder-gray-700 text-white"
                     name="imageChoice"
                     aria-label="image-select"
-                    bind:value={selectedImage}>
+                    disabled={!isInitialized}
+                    bind:value={(): string | undefined => selectedImage, selectImage}>
                     {#if !selectedImage}
                       <option value="" disabled selected>Select an image</option>
                     {/if}
@@ -744,29 +665,26 @@ function hasUserConfiguredForLogin(): boolean {
                 {/if}
               </div>
 
+              {#if imageError}
+                <ErrorMessage aria-label="validation" error={imageError} />
+              {/if}
+
               <div class="flex justify-end mt-6">
-                <Button disabled={!selectedImage} onclick={goToNext}>Next</Button>
+                <Button disabled={!nextStep || nextStep.disabled} onclick={goToNext}>Next</Button>
               </div>
             </div>
           {/if}
 
-          <!-- Step 2: Output configuration -->
-          {#if currentStep === 'output-config'}
+          <!-- Step 2: Build configuration -->
+          {#if currentStep === 'build-config'}
             <div class="space-y-4">
-              <h2 class="text-lg font-semibold text-[var(--pd-content-card-header-text)]">
-                Output configuration
-              </h2>
-              <p class="text-sm text-[var(--pd-content-card-text)]">
-                Configure the output folder, disk image type, filesystem, and target platform.
-              </p>
-
               <div class="mb-3">
                 <label for="path" class="block mb-2 font-semibold">Output folder</label>
                 <div class="flex flex-row space-x-3">
                   <Input
                     name="path"
                     id="path"
-                    bind:value={buildFolder}
+                    bind:value={(): string => buildFolder, setBuildFolder}
                     placeholder="Output folder"
                     class="w-full"
                     aria-label="folder-select" />
@@ -889,10 +807,9 @@ function hasUserConfiguredForLogin(): boolean {
                 </div>
                 <p class="text-sm text-[var(--pd-content-text)]">
                   {#if fedoraDetected}
-                    Fedora detected. By default Fedora requires a specific filesystem to be selected. XFS is recommended.
+                    Fedora requires an explicit filesystem. XFS is the default selection.
                   {:else}
-                    The default filesystem is automatically detected based on the base container image. However, some
-                    images such as Fedora may require a specific filesystem to be selected.
+                    The container image determines the default filesystem.
                   {/if}
                 </p>
               </div>
@@ -931,263 +848,14 @@ function hasUserConfiguredForLogin(): boolean {
                 {#if isMac && buildArch === 'amd64'}
                   <p class="text-sm text-[var(--pd-state-warning)] pt-2"
                   data-testid="cross-architecture-warning">
-                    Cross-architecture building may not work correctly on macOS. Please refer to our
-                    <Link externalRef={REPOSITORY_URL}>README</Link> for more information.
+                    Builds for another architecture can fail on macOS. See the
+                    <Link externalRef={REPOSITORY_URL}>README</Link>.
                   </p>
                 {/if}
                 <p class="text-sm text-[var(--pd-content-text)] pt-2">
-                  Disk image architecture must match the architecture of the original image. For example, you must have an
-                  ARM container image to build an ARM disk image. You can only select the architecture that is detectable
-                  within the image or manifest.
+                  Available platforms match the selected container image or manifest.
                 </p>
               </div>
-
-              {#if errorFormValidation}
-                <ErrorMessage aria-label="validation" error={errorFormValidation} />
-              {/if}
-
-              <div class="flex justify-between mt-6">
-                <Button type="secondary" onclick={goBack}>Back</Button>
-                <Button disabled={!buildFolder || buildType.length === 0 || !buildArch} onclick={goToNext}>Next</Button>
-              </div>
-            </div>
-          {/if}
-
-          <!-- Step 3: User configuration -->
-          {#if currentStep === 'user-config'}
-            <div class="space-y-4">
-              <h2 class="text-lg font-semibold text-[var(--pd-content-card-header-text)]">
-                User configuration
-              </h2>
-
-              <p class="text-sm text-[var(--pd-content-card-text)]">
-                Configure users, SSH keys, and passwords for your disk image. This will be saved in a build config file in the same directory as your output folder. More information can be found in the <Link
-                  externalRef="https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file\#-build-config"
-                  >bootc-image-builder documentation</Link>.
-              </p>
-
-
-              <!-- Important notice about VM login -->
-              <div class="p-4 rounded-lg bg-[var(--pd-content-card-inset-bg)] border-2 border-[var(--pd-button-primary-bg)]">
-                <div class="flex items-start gap-3">
-                  <Icon class="text-[var(--pd-button-primary-bg)] mt-1 text-[1.2em]" icon={faKey} />
-                  <div>
-                    <h3 class="font-semibold text-[var(--pd-content-card-header-text)] mb-2">
-                      Important: Configure login credentials to access your VM
-                    </h3>
-                    <p class="text-sm text-[var(--pd-content-card-text)] mb-2">
-                      To log into your virtual machine after booting, you must configure at least one of the following:
-                    </p>
-                    <ul class="text-sm text-[var(--pd-content-card-text)] list-disc list-inside space-y-1">
-                      <li><strong>Option 1:</strong> Add your SSH public key for the <code class="bg-[var(--pd-content-card-bg)] px-1 rounded">root</code> user</li>
-                      <li><strong>Option 2:</strong> Create a new user with a password and/or SSH public key</li>
-                    </ul>
-                    <p class="text-sm text-[var(--pd-content-card-text)] mt-2 opacity-80">
-                      Without credentials configured, you will not be able to log into the virtual machine.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div class="flex items-center gap-2 mt-4 mb-2">
-                  <Icon class="text-[var(--pd-content-card-header-text)]" icon={faUserPlus} />
-                  <span class="font-semibold">Users</span>
-                </div>
-                <p class="text-sm text-[var(--pd-content-card-text)] mb-3">
-                  Add users with their credentials. For SSH access, paste your public key (e.g., from <code class="bg-[var(--pd-content-card-inset-bg)] px-1 rounded">~/.ssh/id_ed25519.pub</code> or <code class="bg-[var(--pd-content-card-inset-bg)] px-1 rounded">~/.ssh/id_rsa.pub</code>).
-                </p>
-              </div>
-
-              {#each buildConfigUsers as user, index (index)}
-                <div class="p-3 rounded-lg bg-[var(--pd-content-card-inset-bg)] border border-[var(--pd-content-card-border)]">
-                  <div class="flex flex-row justify-between items-center mb-2">
-                    <span class="text-sm font-medium text-[var(--pd-content-card-header-text)]">User {index + 1}</span>
-                    <div class="flex items-center">
-                      <Button
-                        type="link"
-                        hidden={index === buildConfigUsers.length - 1}
-                        on:click={(): void => deleteUser(index)}
-                        icon={faMinusCircle} />
-                      <Button
-                        type="link"
-                        hidden={index < buildConfigUsers.length - 1}
-                        on:click={addUser}
-                        icon={faPlusCircle} />
-                    </div>
-                  </div>
-                  <div class="grid grid-cols-2 gap-3">
-                    <div>
-                      <label for="buildConfigName-{index}" class="block text-xs text-[var(--pd-content-card-text)] mb-1">Username</label>
-                      <Input
-                        bind:value={user.name}
-                        id="buildConfigName-{index}"
-                        placeholder="e.g., root or myuser" />
-                    </div>
-                    <div>
-                      <label for="buildConfigPassword-{index}" class="block text-xs text-[var(--pd-content-card-text)] mb-1">Password (optional)</label>
-                      <Input
-                        bind:value={user.password}
-                        id="buildConfigPassword-{index}"
-                        placeholder="Password for console login" />
-                    </div>
-                    <div class="col-span-2">
-                      <label for="buildConfigKey-{index}" class="block text-xs text-[var(--pd-content-card-text)] mb-1">SSH public key (recommended)</label>
-                      <Input
-                        bind:value={user.key}
-                        id="buildConfigKey-{index}"
-                        placeholder="ssh-ed25519 AAAA... or ssh-rsa AAAA..." />
-                    </div>
-                    <div class="col-span-2">
-                      <label for="buildConfigGroups-{index}" class="block text-xs text-[var(--pd-content-card-text)] mb-1">Groups (comma separated)</label>
-                      <Input
-                        bind:value={user.groups}
-                        id="buildConfigGroups-{index}"
-                        placeholder="e.g., wheel,docker" />
-                    </div>
-                  </div>
-                </div>
-              {/each}
-
-              <!-- Anaconda ISO options -->
-              {#if buildType.includes('anaconda-iso')}
-                <div class="mt-2">
-                  <Expandable expanded={false}>
-                    {#snippet title()}<div class="font-semibold">Anaconda ISO options</div>{/snippet}
-                    <div class="ml-4 mt-2">
-                      <div>
-                        <span class="block mt-2" aria-label="anaconda-iso-installer-kickstart-file-title"
-                          >Kickstart file</span>
-                      </div>
-                      <div class="mb-2">
-                        <div class="flex flex-row space-x-3">
-                          <Input
-                            name="kickstart"
-                            id="kickstart"
-                            bind:value={buildConfigAnacondaKickstartFilePath}
-                            placeholder="Kickstart file (*.ks)"
-                            class="w-full"
-                            aria-label="kickstart-select" />
-                          <Button on:click={getAnacondaKickstartFile}>Browse...</Button>
-                        </div>
-                      </div>
-
-                      <div>
-                        <span class="block mt-4" aria-label="anaconda-iso-installer-module-title"
-                          >Installer modules</span>
-                      </div>
-                      <div class="grid grid-cols-2 gap-4 mt-2">
-                        <div>
-                          <span class="block text-sm">Enable</span>
-                          {#each buildConfigAnacondaIsoInstallerModules.enable as _, index (index)}
-                            <div class="flex flex-row justify-center items-center w-full py-1">
-                              <Input
-                                placeholder="Module name"
-                                class="mr-2"
-                                bind:value={buildConfigAnacondaIsoInstallerModules.enable[index]} />
-                              <Button
-                                type="link"
-                                hidden={index === buildConfigAnacondaIsoInstallerModules.enable.length - 1}
-                                on:click={(): void => deleteEnabledAnacondaInstallerModule(index)}
-                                icon={faMinusCircle} />
-                              <Button
-                                type="link"
-                                hidden={index < buildConfigAnacondaIsoInstallerModules.enable.length - 1}
-                                on:click={addEnabledAnacondaInstallerModule}
-                                icon={faPlusCircle} />
-                            </div>
-                          {/each}
-                        </div>
-                        <div>
-                          <span class="block text-sm">Disable</span>
-                          {#each buildConfigAnacondaIsoInstallerModules.disable as _, index (index)}
-                            <div class="flex flex-row justify-center items-center w-full py-1">
-                              <Input
-                                placeholder="Module name"
-                                class="mr-2"
-                                bind:value={buildConfigAnacondaIsoInstallerModules.disable[index]} />
-                              <Button
-                                type="link"
-                                hidden={index === buildConfigAnacondaIsoInstallerModules.disable.length - 1}
-                                on:click={(): void => deleteDisabledAnacondaInstallerModule(index)}
-                                icon={faMinusCircle} />
-                              <Button
-                                type="link"
-                                hidden={index < buildConfigAnacondaIsoInstallerModules.disable.length - 1}
-                                on:click={addDisabledAnacondaInstallerModule}
-                                icon={faPlusCircle} />
-                            </div>
-                          {/each}
-                        </div>
-                      </div>
-                    </div>
-                  </Expandable>
-                </div>
-              {/if}
-
-              <div class="flex justify-between mt-6">
-                <Button type="secondary" onclick={goBack}>Back</Button>
-                <Button onclick={goToNext}>Next</Button>
-              </div>
-            </div>
-          {/if}
-
-          <!-- Step 4: Build -->
-          {#if currentStep === 'build'}
-            <div class="space-y-4">
-              <h2 class="text-lg font-semibold text-[var(--pd-content-card-header-text)]">
-                Review and build
-              </h2>
-
-              <p class="text-sm text-[var(--pd-content-card-text)]">
-                Review your configuration and start the build process.
-              </p>
-
-              <!-- Configuration summary -->
-              <div class="p-4 rounded-lg bg-[var(--pd-content-card-inset-bg)] border border-[var(--pd-content-card-border)]">
-                <h3 class="font-semibold text-[var(--pd-content-card-header-text)] mb-3">Configuration summary</h3>
-                <dl class="grid grid-cols-2 gap-2 text-sm">
-                  <dt class="text-[var(--pd-content-card-text)]">Image:</dt>
-                  <dd class="text-[var(--pd-content-card-header-text)] font-medium">{selectedImage}</dd>
-
-                  <dt class="text-[var(--pd-content-card-text)]">Output folder:</dt>
-                  <dd class="text-[var(--pd-content-card-header-text)] font-medium truncate">{buildFolder}</dd>
-
-                  <dt class="text-[var(--pd-content-card-text)]">Disk type(s):</dt>
-                  <dd class="text-[var(--pd-content-card-header-text)] font-medium">{buildType.join(', ')}</dd>
-
-                  <dt class="text-[var(--pd-content-card-text)]">Architecture:</dt>
-                  <dd class="text-[var(--pd-content-card-header-text)] font-medium">{buildArch}</dd>
-
-                  <dt class="text-[var(--pd-content-card-text)]">Filesystem:</dt>
-                  <dd class="text-[var(--pd-content-card-header-text)] font-medium">{buildFilesystem || 'Default'}</dd>
-
-                  <dt class="text-[var(--pd-content-card-text)]">Users configured:</dt>
-                  <dd class="text-[var(--pd-content-card-header-text)] font-medium">
-                    {buildConfigUsers.filter(u => u.name).length > 0
-                      ? buildConfigUsers.filter(u => u.name).map(u => u.name).join(', ')
-                      : 'None'}
-                  </dd>
-                </dl>
-              </div>
-
-              <!-- Warning if no user credentials configured -->
-              {#if !hasUserConfiguredForLogin()}
-                <div class="p-4 rounded-lg bg-[var(--pd-state-warning)]/10 border border-[var(--pd-state-warning)]">
-                  <div class="flex items-start gap-3">
-                    <Fa class="text-[var(--pd-state-warning)] mt-1" size="1.2x" icon={faTriangleExclamation} />
-                    <div>
-                      <h3 class="font-semibold text-[var(--pd-state-warning)] mb-1">
-                        No login credentials configured
-                      </h3>
-                      <p class="text-sm text-[var(--pd-content-card-text)]">
-                        You have not configured any users with SSH keys or passwords. You will not be able to log into the virtual machine.
-                        <Button type="link" padding="p-0" class="underline" onclick={goBack}>Go back to configure users</Button>.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              {/if}
 
               <!-- Filesystems section -->
               <div class="mb-2">
@@ -1248,8 +916,7 @@ function hasUserConfiguredForLogin(): boolean {
                   {#snippet title()}<div class="font-semibold">Build config file (override)</div>{/snippet}
                   <div class="ml-4 mt-2">
                     <p class="text-sm text-[var(--pd-content-text)] mb-2">
-                      Supplying a file will override <b>ALL</b> user configuration from the previous step. More
-                      information can be found in the <Link
+                      A configuration file overrides the user, filesystem, kernel, and Anaconda settings. See the <Link
                         externalRef="https://github.com/osbuild/bootc-image-builder?tab=readme-ov-file\#-build-config"
                         >bootc-image-builder documentation</Link
                       >.
@@ -1332,8 +999,195 @@ function hasUserConfiguredForLogin(): boolean {
                 </Expandable>
               </div>
 
+              <!-- Anaconda ISO options -->
+              {#if buildType.includes('anaconda-iso')}
+                <div class="mt-2">
+                  <Expandable expanded={false}>
+                    {#snippet title()}<div class="font-semibold">Anaconda ISO options</div>{/snippet}
+                    <div class="ml-4 mt-2">
+                      <div>
+                        <span class="block mt-2" aria-label="anaconda-iso-installer-kickstart-file-title"
+                          >Kickstart file</span>
+                      </div>
+                      <div class="mb-2">
+                        <div class="flex flex-row space-x-3">
+                          <Input
+                            name="kickstart"
+                            id="kickstart"
+                            bind:value={buildConfigAnacondaKickstartFilePath}
+                            placeholder="Kickstart file (*.ks)"
+                            class="w-full"
+                            aria-label="kickstart-select" />
+                          <Button on:click={getAnacondaKickstartFile}>Browse...</Button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <span class="block mt-4" aria-label="anaconda-iso-installer-module-title"
+                          >Installer modules</span>
+                      </div>
+                      <div class="grid grid-cols-2 gap-4 mt-2">
+                        <div>
+                          <span class="block text-sm">Enable</span>
+                          {#each buildConfigAnacondaIsoInstallerModules.enable as _, index (index)}
+                            <div class="flex flex-row justify-center items-center w-full py-1">
+                              <Input
+                                placeholder="Module name"
+                                class="mr-2"
+                                bind:value={buildConfigAnacondaIsoInstallerModules.enable[index]} />
+                              <Button
+                                type="link"
+                                hidden={index === buildConfigAnacondaIsoInstallerModules.enable.length - 1}
+                                on:click={(): void => deleteEnabledAnacondaInstallerModule(index)}
+                                icon={faMinusCircle} />
+                              <Button
+                                type="link"
+                                hidden={index < buildConfigAnacondaIsoInstallerModules.enable.length - 1}
+                                on:click={addEnabledAnacondaInstallerModule}
+                                icon={faPlusCircle} />
+                            </div>
+                          {/each}
+                        </div>
+                        <div>
+                          <span class="block text-sm">Disable</span>
+                          {#each buildConfigAnacondaIsoInstallerModules.disable as _, index (index)}
+                            <div class="flex flex-row justify-center items-center w-full py-1">
+                              <Input
+                                placeholder="Module name"
+                                class="mr-2"
+                                bind:value={buildConfigAnacondaIsoInstallerModules.disable[index]} />
+                              <Button
+                                type="link"
+                                hidden={index === buildConfigAnacondaIsoInstallerModules.disable.length - 1}
+                                on:click={(): void => deleteDisabledAnacondaInstallerModule(index)}
+                                icon={faMinusCircle} />
+                              <Button
+                                type="link"
+                                hidden={index < buildConfigAnacondaIsoInstallerModules.disable.length - 1}
+                                on:click={addDisabledAnacondaInstallerModule}
+                                icon={faPlusCircle} />
+                            </div>
+                          {/each}
+                        </div>
+                      </div>
+                    </div>
+                  </Expandable>
+                </div>
+              {/if}
+
               {#if existingBuild}
                 <Checkbox class="ml-1" title="overwrite-checkbox" bind:checked={overwrite}>Overwrite existing build</Checkbox>
+              {/if}
+
+              {#if errorFormValidation}
+                <ErrorMessage aria-label="validation" error={errorFormValidation} />
+              {/if}
+
+              <div class="flex justify-between mt-6">
+                <Button type="link" onclick={goBack}>Back</Button>
+                <Button disabled={!nextStep || nextStep.disabled} onclick={goToNext}>Next</Button>
+              </div>
+            </div>
+          {/if}
+
+          <!-- Step 3: User configuration -->
+          {#if currentStep === 'user-config'}
+            <div class="space-y-4">
+              <!-- Keep login guidance beside the credential fields. -->
+              <div class="p-4 rounded-lg bg-[var(--pd-content-card-inset-bg)] border-2 border-[var(--pd-button-primary-bg)]">
+                <div class="flex items-start gap-3">
+                  <Icon class="text-[var(--pd-button-primary-bg)] mt-1 text-[1.2em]" icon={faKey} />
+                  <div>
+                    <h3 class="font-semibold text-[var(--pd-content-card-header-text)] mb-2">
+                      VM login credentials
+                    </h3>
+                    <p class="text-sm text-[var(--pd-content-card-text)]">
+                      Add a password or SSH public key for a user, such as <code>root</code>.
+                      Credentials are required to log into the VM.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-center gap-2 mt-4 mb-2">
+                  <Icon class="text-[var(--pd-content-card-header-text)]" icon={faUserPlus} />
+                  <span class="font-semibold">Users</span>
+                </div>
+                <p class="text-sm text-[var(--pd-content-card-text)] mb-3">
+                  Use an SSH public key from a file such as <code class="bg-[var(--pd-content-card-inset-bg)] px-1 rounded">~/.ssh/id_ed25519.pub</code>.
+                </p>
+              </div>
+
+              {#each buildConfigUsers as user, index (index)}
+                <div class="p-3 rounded-lg bg-[var(--pd-content-card-inset-bg)] border border-[var(--pd-content-card-border)]">
+                  <div class="flex flex-row justify-between items-center mb-2">
+                    <span class="text-sm font-medium text-[var(--pd-content-card-header-text)]">User {index + 1}</span>
+                    <div class="flex items-center">
+                      <Button
+                        type="link"
+                        hidden={index === buildConfigUsers.length - 1}
+                        on:click={(): void => deleteUser(index)}
+                        icon={faMinusCircle} />
+                      <Button
+                        type="link"
+                        hidden={index < buildConfigUsers.length - 1}
+                        on:click={addUser}
+                        icon={faPlusCircle} />
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label for="buildConfigName-{index}" class="block text-xs text-[var(--pd-content-card-text)] mb-1">Username</label>
+                      <Input
+                        bind:value={user.name}
+                        id="buildConfigName-{index}"
+                        placeholder="e.g., root or myuser" />
+                    </div>
+                    <div>
+                      <label for="buildConfigPassword-{index}" class="block text-xs text-[var(--pd-content-card-text)] mb-1">Password (optional)</label>
+                      <Input
+                        bind:value={user.password}
+                        id="buildConfigPassword-{index}"
+                        placeholder="Password for console login" />
+                    </div>
+                    <div class="col-span-2">
+                      <label for="buildConfigKey-{index}" class="block text-xs text-[var(--pd-content-card-text)] mb-1">SSH public key (recommended)</label>
+                      <Input
+                        bind:value={user.key}
+                        id="buildConfigKey-{index}"
+                        placeholder="ssh-ed25519 AAAA... or ssh-rsa AAAA..." />
+                    </div>
+                    <div class="col-span-2">
+                      <label for="buildConfigGroups-{index}" class="block text-xs text-[var(--pd-content-card-text)] mb-1">Groups (comma separated)</label>
+                      <Input
+                        bind:value={user.groups}
+                        id="buildConfigGroups-{index}"
+                        placeholder="e.g., wheel,docker" />
+                    </div>
+                  </div>
+                </div>
+              {/each}
+
+              <!-- Keep the login warning beside the final build action. -->
+              {#if buildConfigFile}
+                <p class="text-sm text-[var(--pd-content-card-text)]">
+                  The configuration file <code>{buildConfigFile}</code> overrides these user settings.
+                </p>
+              {:else if !hasUserConfiguredForLogin()}
+                <div class="p-4 rounded-lg bg-[var(--pd-state-warning)]/10 border border-[var(--pd-state-warning)]">
+                  <div class="flex items-start gap-3">
+                    <Fa class="text-[var(--pd-state-warning)] mt-1" size="1.2x" icon={faTriangleExclamation} />
+                    <div>
+                      <h3 class="font-semibold text-[var(--pd-state-warning)] mb-1">
+                        No login credentials configured
+                      </h3>
+                      <p class="text-sm text-[var(--pd-content-card-text)]">
+                        Set a password or SSH public key above to enable VM login.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               {/if}
 
               {#if errorFormValidation}
@@ -1349,11 +1203,11 @@ function hasUserConfiguredForLogin(): boolean {
               {/if}
 
               <div class="flex justify-between mt-6">
-                <Button type="secondary" onclick={goBack}>Back</Button>
+                <Button type="link" onclick={goBack}>Back</Button>
                 {#if buildInProgress}
                   <Button disabled={true}>Creating build task</Button>
                 {:else}
-                  <Button onclick={buildBootcImage} disabled={errorFormValidation !== undefined}>Build disk image</Button>
+                  <Button onclick={buildBootcImage} disabled={!canBuild}>Build disk image</Button>
                 {/if}
               </div>
             </div>
