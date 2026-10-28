@@ -6,7 +6,6 @@ import {
   faTriangleExclamation,
   faMinusCircle,
   faPlusCircle,
-  faKey,
   faUserPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { bootcClient } from '/@/api/client';
@@ -21,7 +20,8 @@ import { onDestroy, onMount } from 'svelte';
 import type { ImageInfo, ManifestInspectInfo } from '@podman-desktop/api';
 import { router } from 'tinro';
 import DiskImageIcon from '/@/lib/DiskImageIcon.svelte';
-import { Button, Input, EmptyScreen, FormPage, Checkbox, ErrorMessage, Expandable } from '@podman-desktop/ui-svelte';
+import BuildWarning from '/@/lib/BuildWarning.svelte';
+import { Button, Input, EmptyScreen, FormPage, Checkbox, Expandable } from '@podman-desktop/ui-svelte';
 import Link from '/@/lib/Link.svelte';
 import { historyInfo } from '/@/stores/historyInfo';
 import { goToDiskImages } from '/@/lib/navigation';
@@ -30,7 +30,7 @@ import Stepper from '/@/lib/stepper/Stepper.svelte';
 import { Icon } from '@podman-desktop/ui-svelte/icons';
 
 const STEPS = [
-  { id: 'select-image', label: 'Select image' },
+  { id: 'select-image', label: 'Image and output' },
   { id: 'build-config', label: 'Build configuration' },
   { id: 'user-config', label: 'User configuration' },
 ] as const;
@@ -90,15 +90,12 @@ const outputError = $derived.by(() => {
   if (!buildType.length) {
     return 'Must select at least one disk image type';
   }
-  if (!buildArch) {
-    return 'Architecture must be selected';
-  }
   if (buildType.length > 1 && buildType.includes('anaconda-iso')) {
     return 'The Anaconda ISO file format cannot be built simultaneously with other image types.';
   }
   return undefined;
 });
-const errorFormValidation = $derived(
+const setupError = $derived(
   !selectedImage
     ? 'No image selected'
     : (imageError ??
@@ -106,8 +103,11 @@ const errorFormValidation = $derived(
         outputCheckError ??
         (existingBuild && !overwrite ? 'Confirm overwriting existing build' : undefined)),
 );
-const canConfigureBuild = $derived(isInitialized && !!selectedImage && !isInspectingImage && !imageError);
-const canBuild = $derived(canConfigureBuild && !isCheckingOutput && errorFormValidation === undefined);
+const errorFormValidation = $derived(setupError ?? (!buildArch ? 'Architecture must be selected' : undefined));
+const canConfigureBuild = $derived(
+  isInitialized && !isInspectingImage && !isCheckingOutput && setupError === undefined,
+);
+const canBuild = $derived(canConfigureBuild && errorFormValidation === undefined);
 const steps = $derived(
   STEPS.map(step => ({
     ...step,
@@ -619,10 +619,10 @@ function hasUserConfiguredForLogin(): boolean {
 
         <div class={buildInProgress ? 'opacity-40 pointer-events-none' : ''}>
 
-          <!-- Step 1: Select image -->
+          <!-- Step 1: Image and output -->
           {#if currentStep === 'select-image'}
             <div class="space-y-4">
-              <div class="pb-4">
+              <div class="mb-3">
                 <label for="modalImageTag" class="block mb-2 font-semibold">Bootable container image</label>
                 <div class="relative">
                   <select
@@ -665,19 +665,6 @@ function hasUserConfiguredForLogin(): boolean {
                 {/if}
               </div>
 
-              {#if imageError}
-                <ErrorMessage aria-label="validation" error={imageError} />
-              {/if}
-
-              <div class="flex justify-end mt-6">
-                <Button disabled={!nextStep || nextStep.disabled} onclick={goToNext}>Next</Button>
-              </div>
-            </div>
-          {/if}
-
-          <!-- Step 2: Build configuration -->
-          {#if currentStep === 'build-config'}
-            <div class="space-y-4">
               <div class="mb-3">
                 <label for="path" class="block mb-2 font-semibold">Output folder</label>
                 <div class="flex flex-row space-x-3">
@@ -744,6 +731,23 @@ function hasUserConfiguredForLogin(): boolean {
                 </div>
               </div>
 
+              {#if existingBuild}
+                <Checkbox class="ml-1" title="overwrite-checkbox" bind:checked={overwrite}>Overwrite existing build</Checkbox>
+              {/if}
+
+              {#if isInitialized && setupError}
+                <BuildWarning title={setupError} />
+              {/if}
+
+              <div class="flex justify-end mt-6">
+                <Button disabled={!nextStep || nextStep.disabled} onclick={goToNext}>Next</Button>
+              </div>
+            </div>
+          {/if}
+
+          <!-- Step 2: Build configuration -->
+          {#if currentStep === 'build-config'}
+            <div class="space-y-4">
               <div class="mb-3">
                 <span class="font-semibold mb-2 block">Filesystem</span>
                 <div class="flex items-center mb-3 space-x-3">
@@ -1075,12 +1079,8 @@ function hasUserConfiguredForLogin(): boolean {
                 </div>
               {/if}
 
-              {#if existingBuild}
-                <Checkbox class="ml-1" title="overwrite-checkbox" bind:checked={overwrite}>Overwrite existing build</Checkbox>
-              {/if}
-
               {#if errorFormValidation}
-                <ErrorMessage aria-label="validation" error={errorFormValidation} />
+                <BuildWarning title={errorFormValidation} />
               {/if}
 
               <div class="flex justify-between mt-6">
@@ -1093,22 +1093,6 @@ function hasUserConfiguredForLogin(): boolean {
           <!-- Step 3: User configuration -->
           {#if currentStep === 'user-config'}
             <div class="space-y-4">
-              <!-- Keep login guidance beside the credential fields. -->
-              <div class="p-4 rounded-lg bg-[var(--pd-content-card-inset-bg)] border-2 border-[var(--pd-button-primary-bg)]">
-                <div class="flex items-start gap-3">
-                  <Icon class="text-[var(--pd-button-primary-bg)] mt-1 text-[1.2em]" icon={faKey} />
-                  <div>
-                    <h3 class="font-semibold text-[var(--pd-content-card-header-text)] mb-2">
-                      VM login credentials
-                    </h3>
-                    <p class="text-sm text-[var(--pd-content-card-text)]">
-                      Add a password or SSH public key for a user, such as <code>root</code>.
-                      Credentials are required to log into the VM.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
               <div>
                 <div class="flex items-center gap-2 mt-4 mb-2">
                   <Icon class="text-[var(--pd-content-card-header-text)]" icon={faUserPlus} />
@@ -1175,23 +1159,13 @@ function hasUserConfiguredForLogin(): boolean {
                   The configuration file <code>{buildConfigFile}</code> overrides these user settings.
                 </p>
               {:else if !hasUserConfiguredForLogin()}
-                <div class="p-4 rounded-lg bg-[var(--pd-state-warning)]/10 border border-[var(--pd-state-warning)]">
-                  <div class="flex items-start gap-3">
-                    <Fa class="text-[var(--pd-state-warning)] mt-1" size="1.2x" icon={faTriangleExclamation} />
-                    <div>
-                      <h3 class="font-semibold text-[var(--pd-state-warning)] mb-1">
-                        No login credentials configured
-                      </h3>
-                      <p class="text-sm text-[var(--pd-content-card-text)]">
-                        Set a password or SSH public key above to enable VM login.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                <BuildWarning
+                  title="No login credentials configured"
+                  message="Set a username and password or SSH public key to enable VM login." />
               {/if}
 
               {#if errorFormValidation}
-                <ErrorMessage aria-label="validation" error={errorFormValidation} />
+                <BuildWarning title={errorFormValidation} />
               {/if}
 
               <!-- Platform-specific notices -->

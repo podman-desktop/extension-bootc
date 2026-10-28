@@ -148,14 +148,12 @@ test.describe('BootC Dashboard', () => {
         const next = webview.getByRole('button', { name: 'Next', exact: true });
         const back = webview.getByRole('button', { name: 'Back', exact: true });
         await playExpect(buildPage.imageSelect).toHaveValue(imageName);
-        await playExpect(buildPage.outputFolderPath).not.toBeVisible();
+        await playExpect(buildPage.outputFolderPath).toBeVisible();
         const buildStep = webview.getByRole('button', { name: 'Build configuration', exact: true });
         const userStep = webview.getByRole('button', { name: 'User configuration', exact: true });
-        await playExpect(buildStep).toBeEnabled();
         const steps = webview.getByRole('navigation', { name: 'Build steps' });
         await playExpect(steps.getByRole('button')).toHaveCount(3);
         await test.info().attach('build-wizard-select', { body: await webview.screenshot(), contentType: 'image/png' });
-        await buildStep.click();
 
         // Require output options before the user can advance.
         await buildPage.outputFolderPath.fill('');
@@ -164,6 +162,7 @@ test.describe('BootC Dashboard', () => {
         }
         await playExpect(next).toBeDisabled();
         await playExpect(userStep).toBeDisabled();
+        await playExpect(buildStep).toBeDisabled();
         await playExpect(webview.getByRole('alert')).toHaveText('No output folder selected');
         await test.info().attach('build-wizard-output-error', {
           body: await webview.screenshot(),
@@ -173,11 +172,16 @@ test.describe('BootC Dashboard', () => {
         await buildPage.outputFolderPath.fill(outputFolder);
         await playExpect(next).toBeDisabled();
         await buildPage.qcow2Checkbox.check();
+        await next.click();
+        await playExpect(buildPage.outputFolderPath).not.toBeVisible();
+        await playExpect(webview.getByText('Advanced options', { exact: true })).toBeVisible();
         await playExpect(webview.getByRole('radio', { name: /^(amd64|arm64)-select$/, checked: true })).toBeChecked();
         await next.click();
 
         // Credentials are optional. The final step warns about missing login access.
         await playExpect(webview.getByRole('textbox', { name: 'Username', exact: true })).toBeVisible();
+        await playExpect(webview.getByRole('heading', { name: 'VM login credentials' })).not.toBeVisible();
+        await playExpect(webview.getByRole('alert')).toHaveCount(1);
         await test.info().attach('build-wizard-users', { body: await webview.screenshot(), contentType: 'image/png' });
         await playExpect(webview.getByRole('heading', { name: 'No login credentials configured' })).toBeVisible();
         await playExpect(buildPage.buildButton).toBeEnabled();
@@ -195,9 +199,10 @@ test.describe('BootC Dashboard', () => {
         await webview.keyboard.press('Enter');
         await playExpect(webview.getByRole('textbox', { name: 'SSH public key (recommended)' })).toHaveValue(sshKey);
         await back.click();
+        await playExpect(webview.getByText('Advanced options', { exact: true })).toBeVisible();
+        await back.click();
         await playExpect(buildPage.outputFolderPath).toHaveValue(outputFolder);
         await playExpect(buildPage.qcow2Checkbox).toBeChecked();
-        await back.click();
         await playExpect(buildPage.imageSelect).toHaveValue(imageName);
         await userStep.click();
         await playExpect(buildPage.buildButton).toBeEnabled();

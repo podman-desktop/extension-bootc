@@ -95,12 +95,6 @@ export class BootcPage {
 
     await playExpect(this.heading).toBeVisible({ timeout: 10_000 });
     await this.imageSelect.selectOption({ label: imageName });
-    await this.nextButton.click();
-
-    await Promise.race([
-      playExpect(this.amd64Button).toBeEnabled({ timeout: 30_000 }),
-      playExpect(this.arm64Button).toBeEnabled({ timeout: 30_000 }),
-    ]);
 
     await playExpect(this.outputFolderPath).toBeVisible({ timeout: 10_000 });
     await this.outputFolderPath.scrollIntoViewIfNeeded();
@@ -135,6 +129,14 @@ export class BootcPage {
         throw new Error(`Unknown type: ${type}`);
     }
 
+    await this.checkCheckboxIfVisible(this.overwriteBuildCheckbox);
+    await this.nextButton.click();
+
+    await Promise.race([
+      playExpect(this.amd64Button).toBeEnabled({ timeout: 30_000 }),
+      playExpect(this.arm64Button).toBeEnabled({ timeout: 30_000 }),
+    ]);
+
     switch (architecture) {
       case ArchitectureType.AMD64:
         await playExpect(this.amd64Button).toBeEnabled();
@@ -154,7 +156,6 @@ export class BootcPage {
         throw new Error(`Unknown architecture: ${architecture}`);
     }
 
-    await this.checkCheckboxIfVisible(this.overwriteBuildCheckbox);
     await this.nextButton.click();
     await playExpect(this.webview.getByRole('textbox', { name: 'Username', exact: true })).toBeVisible();
     await playExpect(this.buildButton).toBeVisible();
