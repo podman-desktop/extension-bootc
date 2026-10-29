@@ -26,7 +26,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo \"$CLAUDE_TOOL_INPUT\" | grep -qE '(rm -rf|git push --force|git reset --hard|git checkout \\.)' && echo 'BLOCK: Destructive operation detected. Please confirm with the user first.' && exit 1 || exit 0"
+            "command": "grep -qE '(rm -rf|git push --force|git reset --hard|git checkout \\.)' && { echo 'BLOCK: Destructive operation detected. Please confirm with the user first.' >&2; exit 2; } || exit 0"
           }
         ]
       }
