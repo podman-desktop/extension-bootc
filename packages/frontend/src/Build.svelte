@@ -732,12 +732,17 @@ function hasUserConfiguredForLogin(): boolean {
               </div>
 
               {#if existingBuild}
-                <Checkbox class="ml-1" title="overwrite-checkbox" bind:checked={overwrite}>Overwrite existing build</Checkbox>
+                <div class="pt-3">
+                  <Checkbox class="ml-1" title="overwrite-checkbox" bind:checked={overwrite}>Overwrite existing build</Checkbox>
+                </div>
               {/if}
 
-              {#if isInitialized && setupError}
-                <BuildWarning title={setupError} />
-              {/if}
+              <!-- Reserve warning space so the Next button stays in place. -->
+              <div class="min-h-20 lg:min-h-14">
+                {#if isInitialized && setupError}
+                  <BuildWarning title={setupError} />
+                {/if}
+              </div>
 
               <div class="flex justify-end mt-6">
                 <Button disabled={!nextStep || nextStep.disabled} onclick={goToNext}>Next</Button>
@@ -1153,20 +1158,22 @@ function hasUserConfiguredForLogin(): boolean {
                 </div>
               {/each}
 
-              <!-- Keep the login warning beside the final build action. -->
-              {#if buildConfigFile}
-                <p class="text-sm text-[var(--pd-content-card-text)]">
-                  The configuration file <code>{buildConfigFile}</code> overrides these user settings.
-                </p>
-              {:else if !hasUserConfiguredForLogin()}
-                <BuildWarning
-                  title="No login credentials configured"
-                  message="Set a username and password or SSH public key to enable VM login." />
-              {/if}
+              <!-- Reserve warning space so the build button stays in place. -->
+              <div class="min-h-24 lg:min-h-20 space-y-4">
+                {#if buildConfigFile}
+                  <p class="text-sm text-[var(--pd-content-card-text)]">
+                    The configuration file <code>{buildConfigFile}</code> overrides these user settings.
+                  </p>
+                {:else if !hasUserConfiguredForLogin()}
+                  <BuildWarning
+                    title="No login credentials configured"
+                    message="Set a username and password or SSH public key to enable VM login." />
+                {/if}
 
-              {#if errorFormValidation}
-                <BuildWarning title={errorFormValidation} />
-              {/if}
+                {#if errorFormValidation}
+                  <BuildWarning title={errorFormValidation} />
+                {/if}
+              </div>
 
               <!-- Platform-specific notices -->
               {#if isLinux}

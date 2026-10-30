@@ -48,14 +48,14 @@ function isClickable(step: T): boolean {
 }
 </script>
 
-<nav class="flex items-center justify-between gap-8" aria-label="Build steps">
+<nav class="flex items-center justify-between" aria-label="Build steps">
   {#each steps as step, index (step.id)}
     <div aria-current={value === step.id ? 'step' : undefined}>
       <Button
         type="link"
         padding="px-3 py-2"
-        class="flex items-center text-sm {value === step.id
-          ? 'text-[var(--pd-button-primary-bg)] font-semibold'
+        class="flex items-center text-sm font-semibold {value === step.id
+          ? 'text-[var(--pd-button-primary-bg)]'
           : 'text-[var(--pd-content-card-text)]'}"
         aria-label={step.label}
         disabled={!isClickable(step)}
