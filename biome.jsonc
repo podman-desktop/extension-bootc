@@ -13,7 +13,10 @@
       "!**/dist/**",
       "!**/output/**",
       "!**/packages/ui/.svelte-kit/**",
-      "!**/exposedIn*.d.ts"
+      "!**/exposedIn*.d.ts",
+      "!**/*.md",
+      "!**/*.yaml",
+      "!**/*.yml"
     ]
   },
   "javascript": {
