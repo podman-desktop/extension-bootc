@@ -137,6 +137,77 @@ test.describe('BootC Dashboard', () => {
         await playExpect(buildPage.imageSelect).toHaveValue('registry.gitlab.com/fedora/bootc/examples/httpd:latest');
       });
 
+      test('Configure demo image through the build wizard', async ({ runner }) => {
+        test.setTimeout(60_000);
+
+        [page, webview] = await handleWebview(runner);
+        const navigation = new BootcNavigationBar(page, webview);
+        const dashboard = await navigation.openBootcDashboard();
+        const buildPage = await dashboard.openDemoImageBuild();
+        const imageName = await buildPage.imageSelect.inputValue();
+        const next = webview.getByRole('button', { name: 'Next', exact: true });
+        const back = webview.getByRole('button', { name: 'Back', exact: true });
+        await playExpect(buildPage.imageSelect).toHaveValue(imageName);
+        await playExpect(buildPage.outputFolderPath).toBeVisible();
+        const buildStep = webview.getByRole('button', { name: 'Build configuration', exact: true });
+        const userStep = webview.getByRole('button', { name: 'User configuration', exact: true });
+        const steps = webview.getByRole('navigation', { name: 'Build steps' });
+        await playExpect(steps.getByRole('button')).toHaveCount(3);
+        await test.info().attach('build-wizard-select', { body: await webview.screenshot(), contentType: 'image/png' });
+
+        // Require output options before the user can advance.
+        await buildPage.outputFolderPath.fill('');
+        for (const type of ['raw', 'qcow2', 'iso', 'vmdk', 'ami', 'vhd', 'gce']) {
+          await webview.getByLabel(`${type}-checkbox`).uncheck();
+        }
+        await playExpect(next).toBeDisabled();
+        await playExpect(userStep).toBeDisabled();
+        await playExpect(buildStep).toBeDisabled();
+        await playExpect(webview.getByRole('alert')).toHaveText('No output folder selected');
+        await test.info().attach('build-wizard-output-error', {
+          body: await webview.screenshot(),
+          contentType: 'image/png',
+        });
+        const outputFolder = path.resolve(__dirname, '..', 'tests', 'output', 'images', 'wizard');
+        await buildPage.outputFolderPath.fill(outputFolder);
+        await playExpect(next).toBeDisabled();
+        await buildPage.qcow2Checkbox.check();
+        await next.click();
+        await playExpect(buildPage.outputFolderPath).not.toBeVisible();
+        await playExpect(webview.getByText('Advanced options', { exact: true })).toBeVisible();
+        await playExpect(webview.getByRole('radio', { name: /^(amd64|arm64)-select$/, checked: true })).toBeChecked();
+        await next.click();
+
+        // Credentials are optional. The final step warns about missing login access.
+        await playExpect(webview.getByRole('textbox', { name: 'Username', exact: true })).toBeVisible();
+        await playExpect(webview.getByRole('heading', { name: 'VM login credentials' })).not.toBeVisible();
+        await playExpect(webview.getByRole('alert')).toHaveCount(1);
+        await test.info().attach('build-wizard-users', { body: await webview.screenshot(), contentType: 'image/png' });
+        await playExpect(webview.getByRole('heading', { name: 'No login credentials configured' })).toBeVisible();
+        await playExpect(buildPage.buildButton).toBeEnabled();
+        await playExpect(next).not.toBeVisible();
+        await webview.getByRole('textbox', { name: 'Username', exact: true }).fill('root');
+        const sshKey = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITestKey bootc-wizard-test';
+        await webview.getByRole('textbox', { name: 'SSH public key (recommended)' }).fill(sshKey);
+        await playExpect(webview.getByRole('heading', { name: 'No login credentials configured' })).not.toBeVisible();
+        await playExpect(buildPage.buildButton).toBeEnabled();
+        await test.info().attach('build-wizard-review', { body: await webview.screenshot(), contentType: 'image/png' });
+
+        // Both the stepper and Back preserve the form values.
+        await buildStep.click();
+        await userStep.focus();
+        await webview.keyboard.press('Enter');
+        await playExpect(webview.getByRole('textbox', { name: 'SSH public key (recommended)' })).toHaveValue(sshKey);
+        await back.click();
+        await playExpect(webview.getByText('Advanced options', { exact: true })).toBeVisible();
+        await back.click();
+        await playExpect(buildPage.outputFolderPath).toHaveValue(outputFolder);
+        await playExpect(buildPage.qcow2Checkbox).toBeChecked();
+        await playExpect(buildPage.imageSelect).toHaveValue(imageName);
+        await userStep.click();
+        await playExpect(buildPage.buildButton).toBeEnabled();
+      });
+
       const types = ['AMI'];
 
       for (const type of types) {
