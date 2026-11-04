@@ -47,6 +47,7 @@
     "@eslint/compat": "^2.1.1",
     "@eslint/eslintrc": "^3.3.7",
     "@eslint/js": "^10.0.1",
+    "@podman-desktop/eslint-config": "^0.1.0",
     "@typescript-eslint/eslint-plugin": "^8.72.1",
     "@typescript-eslint/parser": "^8.72.1",
     "@vitest/coverage-v8": "^5.0.5",

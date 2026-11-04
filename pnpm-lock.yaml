@@ -216,6 +216,9 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))
+      '@podman-desktop/eslint-config':
+        specifier: ^0.1.0
+        version: 0.1.0(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.72.1
         version: 8.72.1(@typescript-eslint/parser@8.72.1(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3))(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@5.9.3)
@@ -1107,6 +1110,11 @@ packages:
 
   '@podman-desktop/api@1.30.5':
     resolution: {integrity: sha512-diE/1A2XRLjBzGnfMBRikxDeuNEEOyE/NlRODDoiBH85tlEs8+CspjEkmoaam7pzS82ej36iV1WhAd07ixU4Rw==}
+
+  '@podman-desktop/eslint-config@0.1.0':
+    resolution: {integrity: sha512-u3AwhtAKSk8R4wJQRYl5iYzGSjUrZTwPtCN9tjaOiCyq5RsWW2UznBsRnZYtmnbO0sqOv0A6f9mcAh+/0AbGrw==}
+    peerDependencies:
+      eslint: '>=10'
 
   '@podman-desktop/tests-playwright@1.30.5':
     resolution: {integrity: sha512-ee+JQdu1Kci2ebcF8tavFppdEBltHyTFApkhxBwQKySTPB5smdaXvU+gqusQaW0HmIzF3MYEmP0e1r/Oj7INKw==}
@@ -4313,6 +4321,10 @@ snapshots:
       playwright: 1.64.1
 
   '@podman-desktop/api@1.30.5': {}
+
+  '@podman-desktop/eslint-config@0.1.0(eslint@10.14.0(jiti@2.7.0)(supports-color@10.2.2))':
+    dependencies:
+      eslint: 10.14.0(jiti@2.7.0)(supports-color@10.2.2)
 
   '@podman-desktop/tests-playwright@1.30.5': {}
 
