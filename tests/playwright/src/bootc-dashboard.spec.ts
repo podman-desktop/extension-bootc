@@ -40,6 +40,25 @@ let page: Page;
 let webview: Page;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const NARROW_WEBVIEW_WIDTH = 587;
+
+async function expectWizardFits(webview: Page): Promise<void> {
+  const viewport = await webview.evaluate(() => ({ width: innerWidth, height: innerHeight }));
+  try {
+    await webview.setViewportSize({ ...viewport, width: NARROW_WEBVIEW_WIDTH });
+    const card = webview.locator('fieldset');
+    const content = await card.evaluate(element => ({
+      right: element.getBoundingClientRect().right,
+      width: element.clientWidth,
+      scroll: element.scrollWidth,
+    }));
+    playExpect(content.right).toBeLessThanOrEqual(NARROW_WEBVIEW_WIDTH);
+    playExpect(content.scroll).toBeLessThanOrEqual(content.width);
+  } finally {
+    await webview.setViewportSize(viewport);
+  }
+}
+
 test.use({
   runnerOptions: new RunnerOptions({
     customFolder: 'bootc-tests-pd',
@@ -153,6 +172,8 @@ test.describe('BootC Dashboard', () => {
         const userStep = webview.getByRole('button', { name: 'User configuration', exact: true });
         const steps = webview.getByRole('navigation', { name: 'Build steps' });
         await playExpect(steps.getByRole('button')).toHaveCount(3);
+        await playExpect(steps.getByRole('listitem')).toHaveCount(3);
+        await expectWizardFits(webview);
         await test.info().attach('build-wizard-select', { body: await webview.screenshot(), contentType: 'image/png' });
 
         // Require output options before the user can advance.
@@ -163,7 +184,7 @@ test.describe('BootC Dashboard', () => {
         await playExpect(next).toBeDisabled();
         await playExpect(userStep).toBeDisabled();
         await playExpect(buildStep).toBeDisabled();
-        await playExpect(webview.getByRole('alert')).toHaveText('No output folder selected');
+        await playExpect(webview.getByRole('status')).toHaveText('No output folder selected');
         await test.info().attach('build-wizard-output-error', {
           body: await webview.screenshot(),
           contentType: 'image/png',
@@ -172,24 +193,35 @@ test.describe('BootC Dashboard', () => {
         await buildPage.outputFolderPath.fill(outputFolder);
         await playExpect(next).toBeDisabled();
         await buildPage.qcow2Checkbox.check();
+        await playExpect(next).toBeEnabled();
+        await playExpect(userStep).toBeDisabled();
         await next.click();
+        await playExpect(webview.getByRole('region', { name: 'Build configuration', exact: true })).toBeFocused();
+        await playExpect(buildStep).toHaveAttribute('aria-current', 'step');
+        await playExpect(buildStep).toBeEnabled();
+        await playExpect(steps.getByRole('button', { name: 'Image and output' })).toHaveAccessibleDescription(
+          'Completed',
+        );
+        await expectWizardFits(webview);
         await playExpect(buildPage.outputFolderPath).not.toBeVisible();
         await playExpect(webview.getByText('Advanced options', { exact: true })).toBeVisible();
         await playExpect(webview.getByRole('radio', { name: /^(amd64|arm64)-select$/, checked: true })).toBeChecked();
         await next.click();
+        await playExpect(webview.getByRole('region', { name: 'User configuration', exact: true })).toBeFocused();
+        await expectWizardFits(webview);
 
         // Credentials are optional. The final step warns about missing login access.
         await playExpect(webview.getByRole('textbox', { name: 'Username', exact: true })).toBeVisible();
         await playExpect(webview.getByRole('heading', { name: 'VM login credentials' })).not.toBeVisible();
-        await playExpect(webview.getByRole('alert')).toHaveCount(1);
+        await playExpect(webview.getByRole('status')).toHaveCount(1);
         await test.info().attach('build-wizard-users', { body: await webview.screenshot(), contentType: 'image/png' });
-        await playExpect(webview.getByRole('heading', { name: 'No login credentials configured' })).toBeVisible();
+        await playExpect(webview.getByText('No login credentials configured')).toBeVisible();
         await playExpect(buildPage.buildButton).toBeEnabled();
         await playExpect(next).not.toBeVisible();
         await webview.getByRole('textbox', { name: 'Username', exact: true }).fill('root');
         const sshKey = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITestKey bootc-wizard-test';
         await webview.getByRole('textbox', { name: 'SSH public key (recommended)' }).fill(sshKey);
-        await playExpect(webview.getByRole('heading', { name: 'No login credentials configured' })).not.toBeVisible();
+        await playExpect(webview.getByText('No login credentials configured')).not.toBeVisible();
         await playExpect(buildPage.buildButton).toBeEnabled();
         await test.info().attach('build-wizard-review', { body: await webview.screenshot(), contentType: 'image/png' });
 

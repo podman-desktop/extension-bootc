@@ -16,7 +16,7 @@ import type {
   BuildConfigAnacondaIsoInstallerModules,
 } from '/@shared/src/models/bootc';
 import Fa from 'svelte-fa';
-import { onDestroy, onMount } from 'svelte';
+import { onDestroy, onMount, tick } from 'svelte';
 import type { ImageInfo, ManifestInspectInfo } from '@podman-desktop/api';
 import { router } from 'tinro';
 import DiskImageIcon from '/@/lib/DiskImageIcon.svelte';
@@ -39,6 +39,8 @@ type StepId = Step['id'];
 const OUTPUT_CHECK_DELAY = 500;
 
 let currentStep = $state<StepId>('select-image');
+let furthestStepIndex = $state(0);
+let stepContent = $state<HTMLElement>();
 
 interface Props {
   imageName?: string;
@@ -109,9 +111,12 @@ const canConfigureBuild = $derived(
 );
 const canBuild = $derived(canConfigureBuild && errorFormValidation === undefined);
 const steps = $derived(
-  STEPS.map(step => ({
+  STEPS.map((step, index) => ({
     ...step,
-    disabled: step.id === 'select-image' ? false : step.id === 'build-config' ? !canConfigureBuild : !canBuild,
+    // Require each page once before shortcuts become available.
+    disabled:
+      index > furthestStepIndex + 1 ||
+      (step.id === 'select-image' ? false : step.id === 'build-config' ? !canConfigureBuild : !canBuild),
   })),
 );
 const currentIndex = $derived(STEPS.findIndex(step => step.id === currentStep));
@@ -560,21 +565,33 @@ async function updateBuildType(type: BuildType, selected: boolean): Promise<void
   await checkOutput();
 }
 
-function goToNext(): void {
+async function goToNext(): Promise<void> {
   if (nextStep && !nextStep.disabled) {
-    currentStep = nextStep.id;
+    await handleStepClick(nextStep);
   }
 }
 
-function goBack(): void {
+async function goBack(): Promise<void> {
   const previousStep = STEPS[currentIndex - 1];
   if (previousStep) {
-    currentStep = previousStep.id;
+    await handleStepClick(previousStep);
   }
 }
 
-function handleStepClick(step: Step): void {
+async function handleStepClick(step: Step): Promise<void> {
+  if (step.id === currentStep || buildInProgress) {
+    return;
+  }
+
   currentStep = step.id;
+  furthestStepIndex = Math.max(
+    furthestStepIndex,
+    STEPS.findIndex(candidate => candidate.id === step.id),
+  );
+
+  // Focus the new content after Svelte replaces the previous page controls.
+  await tick();
+  stepContent?.focus();
 }
 
 // Check if user has configured at least one user with SSH key or password for VM login
@@ -595,7 +612,7 @@ function hasUserConfiguredForLogin(): boolean {
   {/snippet}
 
   {#snippet content()}
-  <div class="p-5 min-w-full h-fit">
+  <div class="p-5 min-w-0 w-full h-fit">
     {#if buildErrorMessage}
       <EmptyScreen icon={faTriangleExclamation} title="Error with image build" message={buildErrorMessage}>
         <Button
@@ -610,14 +627,18 @@ function hasUserConfiguredForLogin(): boolean {
     {:else}
       <fieldset
         disabled={buildInProgress}
-        class="min-w-0 bg-[var(--pd-content-card-bg)] pt-5 space-y-6 px-8 sm:pb-6 xl:pb-8 rounded-lg text-[var(--pd-content-card-header-text)]">
+        class="min-w-0 bg-[var(--pd-content-card-bg)] pt-5 space-y-6 px-4 sm:px-8 pb-6 xl:pb-8 rounded-lg text-[var(--pd-content-card-header-text)]">
 
         <!-- Stepper -->
         <div class="mb-6">
           <Stepper value={currentStep} {steps} onStepClick={handleStepClick} />
         </div>
 
-        <div class={buildInProgress ? 'opacity-40 pointer-events-none' : ''}>
+        <section
+          bind:this={stepContent}
+          aria-label={STEPS[currentIndex].label}
+          tabindex="-1"
+          class={buildInProgress ? 'opacity-40 pointer-events-none' : ''}>
 
           <!-- Step 1: Image and output -->
           {#if currentStep === 'select-image'}
@@ -1104,7 +1125,7 @@ function hasUserConfiguredForLogin(): boolean {
                   <span class="font-semibold">Users</span>
                 </div>
                 <p class="text-sm text-[var(--pd-content-card-text)] mb-3">
-                  Use an SSH public key from a file such as <code class="bg-[var(--pd-content-card-inset-bg)] px-1 rounded">~/.ssh/id_ed25519.pub</code>.
+                  Paste the contents of <code class="bg-[var(--pd-content-card-inset-bg)] px-1 rounded">~/.ssh/id_ed25519.pub</code> into the SSH public key field.
                 </p>
               </div>
 
@@ -1127,28 +1148,28 @@ function hasUserConfiguredForLogin(): boolean {
                   </div>
                   <div class="grid grid-cols-2 gap-3">
                     <div>
-                      <label for="buildConfigName-{index}" class="block text-xs text-[var(--pd-content-card-text)] mb-1">Username</label>
+                      <label for="buildConfigName-{index}" class="block text-base text-[var(--pd-content-card-text)] mb-1">Username</label>
                       <Input
                         bind:value={user.name}
                         id="buildConfigName-{index}"
                         placeholder="e.g., root or myuser" />
                     </div>
                     <div>
-                      <label for="buildConfigPassword-{index}" class="block text-xs text-[var(--pd-content-card-text)] mb-1">Password (optional)</label>
+                      <label for="buildConfigPassword-{index}" class="block text-base text-[var(--pd-content-card-text)] mb-1">Password (optional)</label>
                       <Input
                         bind:value={user.password}
                         id="buildConfigPassword-{index}"
                         placeholder="Password for console login" />
                     </div>
                     <div class="col-span-2">
-                      <label for="buildConfigKey-{index}" class="block text-xs text-[var(--pd-content-card-text)] mb-1">SSH public key (recommended)</label>
+                      <label for="buildConfigKey-{index}" class="block text-base text-[var(--pd-content-card-text)] mb-1">SSH public key (recommended)</label>
                       <Input
                         bind:value={user.key}
                         id="buildConfigKey-{index}"
                         placeholder="ssh-ed25519 AAAA... or ssh-rsa AAAA..." />
                     </div>
                     <div class="col-span-2">
-                      <label for="buildConfigGroups-{index}" class="block text-xs text-[var(--pd-content-card-text)] mb-1">Groups (comma separated)</label>
+                      <label for="buildConfigGroups-{index}" class="block text-base text-[var(--pd-content-card-text)] mb-1">Groups (comma separated)</label>
                       <Input
                         bind:value={user.groups}
                         id="buildConfigGroups-{index}"
@@ -1193,7 +1214,7 @@ function hasUserConfiguredForLogin(): boolean {
               </div>
             </div>
           {/if}
-        </div>
+        </section>
       </fieldset>
     {/if}
   </div>

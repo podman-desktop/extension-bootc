@@ -18,7 +18,7 @@
 
 import '@testing-library/jest-dom/vitest';
 
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { expect, test, vi } from 'vitest';
 import Stepper from './Stepper.svelte';
@@ -29,11 +29,15 @@ const steps = [
   { id: 'build', label: 'Build' },
 ];
 
-test('disable the current step and unavailable steps', async () => {
+test('keep the current step enabled and disable unavailable steps', async () => {
   const onStepClick = vi.fn();
   render(Stepper, { value: 'image', steps: steps.map(step => ({ ...step, disabled: true })), onStepClick });
 
-  for (const button of screen.getAllByRole('button')) {
+  const current = screen.getByRole('button', { name: 'Select image', current: 'step' });
+  expect(current).toBeEnabled();
+  await userEvent.click(current);
+
+  for (const button of screen.getAllByRole('button').filter(button => button !== current)) {
     expect(button).toBeDisabled();
     await userEvent.click(button);
   }
@@ -46,26 +50,36 @@ test('expose one action per step', () => {
 
   expect(screen.getAllByRole('button')).toHaveLength(steps.length);
   screen.getByRole('navigation', { name: 'Build steps' });
+  const list = screen.getByRole('list');
+  expect(list.tagName).toBe('OL');
+  expect(within(list).getAllByRole('listitem')).toHaveLength(steps.length);
 });
 
 test('disable navigation without a callback', async () => {
   render(Stepper, { value: 'output', steps });
 
   for (const button of screen.getAllByRole('button')) {
-    expect(button).toBeDisabled();
+    if (button.textContent?.includes('Output configuration')) {
+      expect(button).toBeEnabled();
+    } else {
+      expect(button).toBeDisabled();
+    }
   }
 });
 
-test.each(['Select image', '1'])('return to a previous step through %s', async name => {
+test('return to a completed step', async () => {
   const onStepClick = vi.fn();
   render(Stepper, { value: 'output', steps, onStepClick });
 
-  const target = name === '1' ? screen.getByText(name) : screen.getByRole('button', { name });
+  const target = screen.getByRole('button', { name: 'Select image' });
+  expect(target).toHaveAccessibleDescription('Completed');
+  expect(within(target).queryByText('1')).not.toBeInTheDocument();
   await userEvent.click(target);
 
   expect(onStepClick).toHaveBeenCalledExactlyOnceWith(steps[0]);
-  expect(screen.getByRole('button', { name: 'Output configuration' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Output configuration', current: 'step' })).toBeEnabled();
   expect(screen.getByRole('button', { name: 'Build' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'Build' })).not.toHaveAccessibleDescription('Completed');
 });
 
 test('select an available future step with its typed object', async () => {

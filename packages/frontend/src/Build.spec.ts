@@ -208,33 +208,70 @@ test('keep login guidance in one warning below the user fields', async () => {
   await goToStep('user-config');
 
   expect(screen.queryByRole('heading', { name: 'VM login credentials' })).not.toBeInTheDocument();
-  const warning = screen.getByRole('alert');
+  const warning = screen.getByRole('status');
   expect(warning).toHaveTextContent('No login credentials configured');
   expect(warning).toHaveTextContent('Set a username and password or SSH public key to enable VM login.');
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(screen.queryByRole('heading', { level: 3 })).not.toBeInTheDocument();
   expect(screen.getByRole('textbox', { name: 'Username' }).compareDocumentPosition(warning)).toBe(
     Node.DOCUMENT_POSITION_FOLLOWING,
   );
   expect(screen.getByRole('button', { name: 'Build disk image' })).toBeEnabled();
 });
 
+test('focus the step content after Next, Back, and step selection', async () => {
+  await renderWizard();
+  expect(screen.getByLabelText('folder-select')).not.toHaveFocus();
+
+  await clickNext();
+  expect(screen.getByRole('region', { name: 'Build configuration' })).toHaveFocus();
+  await userEvent.tab();
+  expect(screen.getByRole('radio', { name: 'default-filesystem-select' })).toHaveFocus();
+
+  await clickNext();
+  expect(screen.getByRole('region', { name: 'User configuration' })).toHaveFocus();
+
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  expect(screen.getByRole('region', { name: 'Build configuration' })).toHaveFocus();
+
+  await userEvent.click(screen.getByRole('button', { name: 'Image and output' }));
+  expect(screen.getByRole('region', { name: 'Image and output' })).toHaveFocus();
+  await userEvent.tab();
+  expect(screen.getByLabelText('image-select')).toHaveFocus();
+});
+
+test('require build configuration before the final step', async () => {
+  await renderWizard();
+  const userStep = screen.getByRole('button', { name: 'User configuration' });
+  expect(userStep).toBeDisabled();
+  await userEvent.click(userStep);
+  expect(screen.queryByRole('button', { name: 'Build disk image' })).not.toBeInTheDocument();
+
+  await clickNext();
+  expect(userStep).toBeEnabled();
+  await userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  await userEvent.click(userStep);
+  expect(screen.getByRole('button', { name: 'Build disk image' })).toBeEnabled();
+});
+
 test('review: resolve overwrite errors on the output step', async () => {
   await renderWizard(true);
 
-  expect(await screen.findByRole('alert')).toHaveTextContent('Confirm overwriting existing build');
+  expect(await screen.findByRole('status')).toHaveTextContent('Confirm overwriting existing build');
   expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'User configuration' })).toBeDisabled();
 
   await userEvent.click(screen.getByLabelText('overwrite-checkbox'));
-  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(screen.queryByRole('status')).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
-  expect(screen.getByRole('button', { name: 'User configuration' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'User configuration' })).toBeDisabled();
 });
 
 test('review: block forward navigation for incompatible image types', async () => {
   await renderWizard();
   await userEvent.click(screen.getByLabelText('iso-checkbox'));
 
-  expect(screen.getByRole('alert')).toHaveTextContent(
+  expect(screen.getByRole('status')).toHaveTextContent(
     'The Anaconda ISO file format cannot be built simultaneously with other image types.',
   );
   for (const name of ['Next', 'User configuration']) {
@@ -244,8 +281,9 @@ test('review: block forward navigation for incompatible image types', async () =
 
 test('review: return directly to the final user step', async () => {
   await renderWizard();
-  await vi.waitFor(() => expect(screen.getByRole('button', { name: 'User configuration' })).toBeEnabled());
-  expect(screen.getByRole('button', { name: 'Build configuration' })).toBeEnabled();
+  expect(screen.getByRole('button', { name: 'User configuration' })).toBeDisabled();
+  await userEvent.click(screen.getByRole('button', { name: 'Build configuration' }));
+  expect(screen.getByRole('button', { name: 'User configuration' })).toBeEnabled();
   await userEvent.click(screen.getByRole('button', { name: 'User configuration' }));
   expect(screen.getByRole('button', { name: 'Build disk image' })).toBeEnabled();
   expect(screen.queryByRole('heading', { name: 'Configuration summary' })).not.toBeInTheDocument();
@@ -278,7 +316,7 @@ test('review: ignore outdated output checks and block navigation while pending',
   previousCheck.resolve(true);
   await previousCheck.promise;
   expect(screen.queryByLabelText('overwrite-checkbox')).not.toBeInTheDocument();
-  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(screen.queryByRole('status')).not.toBeInTheDocument();
 });
 
 test('require new overwrite consent when the output changes', async () => {
@@ -301,7 +339,7 @@ test('show output check failures on the output step', async () => {
   vi.mocked(bootcClient.buildExists).mockRejectedValueOnce(new Error('Output is unavailable'));
   await userEvent.type(screen.getByLabelText('folder-select'), '/unavailable');
 
-  expect(await screen.findByRole('alert')).toHaveTextContent('Output is unavailable');
+  expect(await screen.findByRole('status')).toHaveTextContent('Output is unavailable');
   expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'User configuration' })).toBeDisabled();
 });
@@ -313,7 +351,7 @@ test('keep output errors on their step for a new build', async () => {
   vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
 
   render(Build, { imageName: 'image1', imageTag: 'latest' });
-  expect(await screen.findByRole('alert')).toHaveTextContent('No output folder selected');
+  expect(await screen.findByRole('status')).toHaveTextContent('No output folder selected');
   expect(screen.getByRole('button', { name: 'Build configuration' })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'User configuration' })).toBeDisabled();
 });
@@ -325,10 +363,10 @@ test('allow a new build when history is unavailable', async () => {
   vi.mocked(bootcClient.checkPrereqs).mockResolvedValue(undefined);
 
   render(Build, { imageName: 'image1', imageTag: 'latest' });
-  await screen.findByRole('alert');
+  await screen.findByRole('status');
 
   expect(screen.getByLabelText('folder-select')).toHaveValue('');
-  expect(screen.getByRole('alert')).toHaveTextContent('No output folder selected');
+  expect(screen.getByRole('status')).toHaveTextContent('No output folder selected');
   await userEvent.type(screen.getByLabelText('folder-select'), '/new-output');
   await userEvent.click(screen.getByLabelText('qcow2-checkbox'));
   await goToStep('user-config');
@@ -601,11 +639,11 @@ test('preserve login credentials through wizard navigation', async () => {
     await userEvent.click(raw);
   }
   await goToStep('user-config');
-  screen.getByRole('heading', { name: 'No login credentials configured' });
+  screen.getByText('No login credentials configured');
 
   await userEvent.type(screen.getByRole('textbox', { name: 'Username' }), 'root');
   await userEvent.type(screen.getByRole('textbox', { name: 'SSH public key (recommended)' }), 'ssh-ed25519 test-key');
-  expect(screen.queryByRole('heading', { name: 'No login credentials configured' })).not.toBeInTheDocument();
+  expect(screen.queryByText('No login credentials configured')).not.toBeInTheDocument();
 
   await userEvent.click(screen.getByRole('button', { name: 'Back' }));
   await userEvent.click(screen.getByRole('button', { name: 'User configuration' }));
@@ -623,7 +661,7 @@ test('show the configuration file override on the final user step', async () => 
   expect(screen.getByText('The configuration file', { exact: false })).toHaveTextContent(
     'The configuration file /config.toml overrides these user settings.',
   );
-  expect(screen.queryByRole('heading', { name: 'No login credentials configured' })).not.toBeInTheDocument();
+  expect(screen.queryByText('No login credentials configured')).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Build disk image' })).toBeEnabled();
 });
 
@@ -648,14 +686,14 @@ test('Check that overwriting an existing build works', async () => {
   const overwrite2 = screen.getByLabelText('overwrite-checkbox');
   expect(overwrite2).toBeDefined();
 
-  const validation = screen.getByRole('alert');
+  const validation = screen.getByRole('status');
   expect(validation).toBeDefined();
   expect(validation).toHaveTextContent('Confirm overwriting existing build');
 
   // select the checkbox and give it time to validate
   await userEvent.click(overwrite2);
 
-  const validation2 = screen.queryByRole('alert');
+  const validation2 = screen.queryByRole('status');
   expect(validation2).toBeNull();
 });
 
@@ -784,7 +822,7 @@ test('show an inspection error on the image step and block navigation', async ()
   // Wait for images to load
   await waitForImagesAndSelect(2);
 
-  expect(await screen.findByRole('alert')).toHaveTextContent('Error');
+  expect(await screen.findByRole('status')).toHaveTextContent('Error');
   expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'Build configuration' })).toBeDisabled();
 });
@@ -979,11 +1017,11 @@ test('have amd64 and arm64 NOT disabled if inspectManifest contains both archite
   expect(arm64).toHaveAttribute('name', 'arch');
   expect(x86_64).toHaveAttribute('name', 'arch');
 
-  expect(screen.getByRole('alert')).toHaveTextContent('Architecture must be selected');
+  expect(screen.getByRole('status')).toHaveTextContent('Architecture must be selected');
   expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'User configuration' })).toBeDisabled();
   await userEvent.click(arm64);
-  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  expect(screen.queryByRole('status')).not.toBeInTheDocument();
   expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
   await userEvent.keyboard('{ArrowRight}');
   expect(x86_64).toBeChecked();
@@ -1100,7 +1138,7 @@ test('select anaconda-iso and qcow2 and expect validation error to be shown', as
   await userEvent.click(qcow2);
 
   // Expect alert to be shown
-  const validation = screen.getByRole('alert');
+  const validation = screen.getByRole('status');
   expect(validation).toBeDefined();
   expect(validation).toHaveTextContent(
     'The Anaconda ISO file format cannot be built simultaneously with other image types.',
