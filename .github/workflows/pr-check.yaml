@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-22.04, macos-14]
+        os: [windows-2025, ubuntu-26.04, macos-26]
     steps:
       - uses: actions/checkout@v7
 
@@ -42,7 +42,7 @@ jobs:
 
         # skip formatter on windows
       - name: Run formatter
-        if: ${{ matrix.os=='ubuntu-22.04' || matrix.os=='macos-14' }}
+        if: ${{ matrix.os=='ubuntu-26.04' || matrix.os=='macos-26' }}
         run: pnpm format:check
 
       - name: Run tests
