@@ -68,7 +68,7 @@ jobs:
       - uses: pnpm/setup@v3.1.2
         name: Install pnpm and node
         with:
-          runtime: node@24
+          node-version-file: '.nvmrc'
           install: false
           working-directory: ./podman-desktop
 

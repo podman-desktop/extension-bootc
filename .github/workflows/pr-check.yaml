@@ -34,7 +34,7 @@ jobs:
       - uses: pnpm/setup@v3.1.2
         name: Install pnpm, Node.js and dependencies
         with:
-          runtime: node@24
+          node-version-file: '.nvmrc'
           cache: true
 
       - name: Run linter
@@ -108,7 +108,7 @@ jobs:
       - uses: pnpm/setup@v3.1.2
         name: Install pnpm and Node.js
         with:
-          runtime: node@24
+          node-version-file: '.nvmrc'
           working-directory: ./podman-desktop
 
       - name: Build Podman Desktop for E2E tests
