@@ -40,7 +40,7 @@ env:
 
 jobs:
   tag:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-26.04
     outputs:
       githubTag: ${{ steps.TAG_UTIL.outputs.githubTag }}
       bootcExtensionVersion: ${{ steps.TAG_UTIL.outputs.bootcExtensionVersion }}
@@ -126,7 +126,7 @@ jobs:
   extension-image:
     name: Build and publish extension OCI image
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     needs: tag
 
     steps:
@@ -138,7 +138,8 @@ jobs:
       - name: Install qemu dependency
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-user-static
+          # qemu-user-static is deprecated in Ubuntu 26.04 and replaced by qemu-user-binfmt
+          sudo apt-get install -y qemu-user-binfmt
 
       - name: build extension image
         id: extension-image
@@ -177,7 +178,7 @@ jobs:
   release:
     needs: [tag, extension-image]
     name: Release
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: id
         run: echo the release id is ${{ needs.tag.outputs.releaseId}}

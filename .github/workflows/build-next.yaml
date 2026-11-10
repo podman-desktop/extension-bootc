@@ -31,7 +31,7 @@ on:
 jobs:
   extension-image:
     name: Build and publish extension OCI image
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     steps:
       - uses: actions/checkout@v7
@@ -41,7 +41,8 @@ jobs:
       - name: Install qemu dependency
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-user-static
+          # qemu-user-static is deprecated in Ubuntu 26.04 and replaced by qemu-user-binfmt
+          sudo apt-get install -y qemu-user-binfmt
 
       - name: build extension image
         id: extension-image
