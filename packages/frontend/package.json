@@ -45,7 +45,7 @@
     "humanize-duration": "^3.35.1",
     "jsdom": "^31.0.0",
     "moment": "^2.31.0",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.1",
     "prettier-plugin-svelte": "^4.1.1",
     "svelte": "^5.57.3",
     "svelte-fa": "^4.0.4",
