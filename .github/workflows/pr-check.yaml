@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: pnpm/setup@v3.1.2
+      - uses: pnpm/setup@v3.2.0
         name: Install pnpm, Node.js and dependencies
         with:
           node-version-file: '.nvmrc'
@@ -105,7 +105,7 @@ jobs:
           # allow unprivileged user namespace
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
 
-      - uses: pnpm/setup@v3.1.2
+      - uses: pnpm/setup@v3.2.0
         name: Install pnpm and Node.js
         with:
           node-version-file: '.nvmrc'
