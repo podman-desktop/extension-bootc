@@ -134,7 +134,7 @@ jobs:
           tags: local_bootc_image
           archs: amd64, arm64
           containerfiles: |
-            extension-bootc/build/Containerfile
+            extension-bootc/Containerfile
           context: ./extension-bootc
           oci: true
 
