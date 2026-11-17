@@ -449,8 +449,8 @@ importers:
         specifier: ^10.6.2
         version: 10.6.2(postcss@8.5.29)
       filesize:
-        specifier: ^11.0.31
-        version: 11.0.31
+        specifier: ^11.0.32
+        version: 11.0.32
       humanize-duration:
         specifier: ^3.35.1
         version: 3.35.1
@@ -2257,8 +2257,8 @@ packages:
   file-entry-cache@11.1.5:
     resolution: {integrity: sha512-+PFTHITI08JIGhnNpGNI8T8inUpgZfk3GNEqfT9R2zZV2iFXg3CvqzSl/uEhs7TSGujYRELEANyDvS8Fj7+S7Q==}
 
-  filesize@11.0.31:
-    resolution: {integrity: sha512-czuWA5JoomIGnMe1thggiNNWIbMz7b9GNOL7gv75yn0Qxg9vjECW0zUXARFE+5WLraHh/m35++uumoi9h8nKWw==}
+  filesize@11.0.32:
+    resolution: {integrity: sha512-XDm8d3VpwwIknUHaO+eZ79opT+do/j4jeST4JD4ip3QMncAy7UK1Qc+Bifly4FVkeXylM4wvKVAJrcsA0Hbm4A==}
     engines: {node: '>= 10.8.0'}
 
   find-up-simple@1.0.1:
@@ -5414,7 +5414,7 @@ snapshots:
     dependencies:
       flat-cache: 6.1.23
 
-  filesize@11.0.31: {}
+  filesize@11.0.32: {}
 
   find-up-simple@1.0.1: {}
 
