@@ -15,7 +15,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-FROM registry.access.redhat.com/ubi10/nodejs-24-minimal:10.1-1766060610 AS builder
+FROM registry.access.redhat.com/ubi10/nodejs-24-minimal:1791463197@sha256:498ccfc43f6fe349a4d87db6af6d83ab420e9450f3800140cdc90c290dcd462f AS builder
 
 WORKDIR /opt/app-root/src
 
@@ -24,36 +24,41 @@ WORKDIR /opt/app-root/src
 # invocation non-interactive, otherwise that nested install blocks on a prompt.
 ENV CI=true
 
-RUN npm i -g corepack@0.34.6 && corepack enable
+RUN npm i -g corepack@0.36.0 && corepack enable
 
 COPY --chown=1001:1001 . .
 
 RUN pnpm install
 RUN pnpm build
 
-FROM scratch
-
-COPY --from=builder /opt/app-root/src/packages/backend/dist/ /extension/dist
-COPY --from=builder /opt/app-root/src/packages/backend/media/ /extension/media
-COPY --from=builder /opt/app-root/src/packages/backend/package.json /extension/
-COPY --from=builder /opt/app-root/src/packages/backend/bootable.woff2 /extension/
-COPY --from=builder /opt/app-root/src/packages/backend/icon.png /extension/
-COPY --from=builder /opt/app-root/src/LICENSE /extension/
-COPY --from=builder /opt/app-root/src/README.md /extension/
+# Assemble the extension layout, so the final stage is a single COPY
+RUN mkdir -p /opt/app-root/extension
+RUN cp -r packages/backend/dist /opt/app-root/extension/
+RUN cp -r packages/backend/media /opt/app-root/extension/
+RUN cp packages/backend/package.json /opt/app-root/extension/
+RUN cp packages/backend/bootable.woff2 /opt/app-root/extension/
+RUN cp packages/backend/icon.png /opt/app-root/extension/
+RUN cp LICENSE /opt/app-root/extension/
+RUN cp README.md /opt/app-root/extension/
 
 # TEMPORARY. Permanent fix will be in the future when we can add all of this to vite script.
 # We require the macadam.js binaries and library, so we will manually copy this over to the container image.
 # Copy over ssh2 and its dependencies (run jq '.dependencies' node_modules/ssh2/package.json locally to see)
-COPY --from=builder /opt/app-root/src/node_modules/@crc-org/macadam.js /extension/node_modules/@crc-org/macadam.js
-COPY --from=builder /opt/app-root/src/node_modules/ssh2 /extension/node_modules/ssh2
+RUN mkdir -p /opt/app-root/extension/node_modules/@crc-org
+RUN cp -r node_modules/@crc-org/macadam.js /opt/app-root/extension/node_modules/@crc-org/
+RUN cp -r node_modules/ssh2 /opt/app-root/extension/node_modules/
 # ssh2 depends on asn1
-COPY --from=builder /opt/app-root/src/node_modules/asn1 /extension/node_modules/asn1
+RUN cp -r node_modules/asn1 /opt/app-root/extension/node_modules/
 # asn1 depends on safer-buffer
-COPY --from=builder /opt/app-root/src/node_modules/safer-buffer /extension/node_modules/safer-buffer
+RUN cp -r node_modules/safer-buffer /opt/app-root/extension/node_modules/
 # ssh2 depends on bcrypt-pbkdf
-COPY --from=builder /opt/app-root/src/node_modules/bcrypt-pbkdf /extension/node_modules/bcrypt-pbkdf
+RUN cp -r node_modules/bcrypt-pbkdf /opt/app-root/extension/node_modules/
 # bcrypt-pbkdf depends on tweetnacl
-COPY --from=builder /opt/app-root/src/node_modules/tweetnacl /extension/node_modules/tweetnacl
+RUN cp -r node_modules/tweetnacl /opt/app-root/extension/node_modules/
+
+FROM scratch
+
+COPY --from=builder /opt/app-root/extension /extension
 
 LABEL org.opencontainers.image.title="Bootable Container Extension" \
         org.opencontainers.image.description="Podman Desktop extension for bootable OS containers (bootc) and generating disk images" \
